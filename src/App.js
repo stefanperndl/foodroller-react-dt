@@ -1,7 +1,9 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FoodList } from './FoodList';
 import { TimeframePicker } from './components/TimeframePicker';
+
+const MEALPLAN_KEY = "mealplan_v1";
 
 function getDatesInRange(start, end) {
   const dates = [];
@@ -14,7 +16,6 @@ function getDatesInRange(start, end) {
 }
 
 function App() {
-  // Default: today to today+4
   const today = new Date();
   const defaultEnd = new Date();
   defaultEnd.setDate(today.getDate() + 4);
@@ -23,6 +24,22 @@ function App() {
   const [endDate, setEndDate] = useState(defaultEnd.toISOString().slice(0, 10));
   const [food, setFood] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [mealplan, setMealplan] = useState({});
+  const [mealplanLoaded, setMealplanLoaded] = useState(false); // NEW
+
+  // Load mealplan from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(MEALPLAN_KEY);
+    if (stored) setMealplan(JSON.parse(stored));
+    setMealplanLoaded(true); // NEW
+  }, []);
+
+  // Save mealplan to localStorage on change
+  useEffect(() => {
+    if (mealplanLoaded) {
+      localStorage.setItem(MEALPLAN_KEY, JSON.stringify(mealplan));
+    }
+  }, [mealplan, mealplanLoaded]);
 
   const fetchRecipe = () =>
     fetch("https://www.themealdb.com/api/json/v1/1/random.php")
@@ -48,25 +65,69 @@ function App() {
         };
       });
 
-  const handleRoll = () => {
-    setLoading(true);
+  // Roll recipes for all days in range, but keep saved ones unless confirmed
+  const handleRoll = async () => {
     const dates = getDatesInRange(new Date(startDate), new Date(endDate));
-    const fetches = dates.map(fetchRecipe);
-    Promise.all(fetches)
-      .then((recipes) => {
-        // Attach date to each recipe
-        const foodWithDates = recipes.map((recipe, idx) => ({
-          ...recipe,
-          date: dates[idx].toISOString().slice(0, 10)
-        }));
-        setFood(foodWithDates);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Fetch error:", error);
-        setLoading(false);
-      });
+    const newFood = [];
+    for (let dateObj of dates) {
+      const dateStr = dateObj.toISOString().slice(0, 10);
+      if (mealplan[dateStr]) {
+        // Already saved, skip re-rolling
+        newFood.push({ ...mealplan[dateStr], date: dateStr, saved: true });
+      } else {
+        const recipe = await fetchRecipe();
+        newFood.push({ ...recipe, date: dateStr, saved: false });
+      }
+    }
+    setFood(newFood);
+    setLoading(false);
   };
+
+  // Save a day's recipe to the mealplan
+  const handleSave = (date, recipe) => {
+    setMealplan(prev => ({
+      ...prev,
+      [date]: recipe
+    }));
+    setFood(prev =>
+      prev.map(f => f.date === date ? { ...f, saved: true } : f)
+    );
+  };
+
+  // Confirm before re-rolling a saved day
+  const handleReroll = async (date) => {
+    if (mealplan[date]) {
+      if (!window.confirm("This day is saved. Re-rolling will overwrite it. Continue?")) return;
+      // Remove from mealplan
+      setMealplan(prev => {
+        const copy = { ...prev };
+        delete copy[date];
+        return copy;
+      });
+    }
+    // Fetch new recipe for this day
+    setLoading(true);
+    const recipe = await fetchRecipe();
+    setFood(prev =>
+      prev.map(f => f.date === date ? { ...recipe, date, saved: false } : f)
+    );
+    setLoading(false);
+  };
+
+  // On mount or timeframe change, load mealplan for those days
+  useEffect(() => {
+    if (!mealplanLoaded) return; // Only run after mealplan is loaded
+    const dates = getDatesInRange(new Date(startDate), new Date(endDate));
+    const loaded = dates.map(dateObj => {
+      const dateStr = dateObj.toISOString().slice(0, 10);
+      if (mealplan[dateStr]) {
+        return { ...mealplan[dateStr], date: dateStr, saved: true };
+      }
+      return { date: dateStr, saved: false };
+    });
+    setFood(loaded);
+    // eslint-disable-next-line
+  }, [startDate, endDate, mealplan, mealplanLoaded]);
 
   return (
     <div className="App">
@@ -83,7 +144,12 @@ function App() {
       <button className="roll-button" onClick={handleRoll} disabled={loading}>
         {loading ? "Rolling..." : "Roll!"}
       </button>
-      <FoodList food={food} loading={loading} />
+      <FoodList
+        food={food}
+        loading={loading}
+        onSave={handleSave}
+        onReroll={handleReroll}
+      />
     </div>
   );
 }
