@@ -42,6 +42,11 @@ This file lists planned and requested features for future versions of FoodRoller
 - **Improved Filtering:**  
   Filter by dietary restrictions (vegan, gluten-free, etc.).
 
+- **Add nutrition filters to sidebar:**  
+    Expand the sidebar to allow the filtering based on nutrition.
+
+- **Manual Categories Entry**:
+    Allow users to add their own categories and make them available in filtering.
 ---
 
 *Feel free to suggest more features by opening an issue or pull request!*
