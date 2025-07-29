@@ -81,6 +81,12 @@ FoodRoller is a modern meal planning app that helps you randomly generate meal s
 
 ---
 
+## 🗂️ Backlog & Planned Features
+
+See [BACKLOG.md](./BACKLOG.md) for upcoming features and ideas.
+
+---
+
 ## 📄 License
 
 MIT License
