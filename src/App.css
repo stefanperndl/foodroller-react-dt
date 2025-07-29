@@ -36,3 +36,59 @@
     transform: rotate(360deg);
   }
 }
+
+.food-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  padding: 40px 54px;
+  margin: 15 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .food-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .food-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.recipe-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.recipe-title {
+  font-size: 1.25rem;
+  margin: 16px;
+}
+
+.recipe-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.recipe-details {
+  padding: 16px;
+}
+
+.ingredients-list {
+  padding-left: 20px;
+  margin-bottom: 16px;
+}
+
+.recipe-instructions {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
