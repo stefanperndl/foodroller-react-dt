@@ -16,6 +16,34 @@
   font-size: 2rem; /* Adjust as needed */
   color: white;
   padding: 16px 0;
+  position: relative;
+}
+
+.timeframe-picker {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin: 10px 0 10px 16px;
+  font-size: 0.5em;
+  color: #bbb;
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.timeframe-picker label {
+  font-size: 0.95em;
+  color: #bbb;
+  margin-right: 8px;
+}
+
+.timeframe-picker input[type="date"] {
+  font-size: 0.95em;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  background: #222;
+  color: #eee;
 }
 
 .App-link {

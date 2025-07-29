@@ -1,9 +1,26 @@
 import './App.css';
 import { useState } from 'react';
 import { FoodList } from './FoodList';
+import { TimeframePicker } from './TimeframePicker';
+
+function getDatesInRange(start, end) {
+  const dates = [];
+  let current = new Date(start);
+  while (current <= end) {
+    dates.push(new Date(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}
 
 function App() {
-  const RECIPE_COUNT = 5;
+  // Default: today to today+4
+  const today = new Date();
+  const defaultEnd = new Date();
+  defaultEnd.setDate(today.getDate() + 4);
+
+  const [startDate, setStartDate] = useState(today.toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(defaultEnd.toISOString().slice(0, 10));
   const [food, setFood] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -33,10 +50,16 @@ function App() {
 
   const handleRoll = () => {
     setLoading(true);
-    const fetches = Array.from({ length: RECIPE_COUNT }, fetchRecipe);
+    const dates = getDatesInRange(new Date(startDate), new Date(endDate));
+    const fetches = dates.map(fetchRecipe);
     Promise.all(fetches)
       .then((recipes) => {
-        setFood(recipes);
+        // Attach date to each recipe
+        const foodWithDates = recipes.map((recipe, idx) => ({
+          ...recipe,
+          date: dates[idx].toISOString().slice(0, 10)
+        }));
+        setFood(foodWithDates);
         setLoading(false);
       })
       .catch((error) => {
@@ -49,6 +72,13 @@ function App() {
     <div className="App">
       <header className="App-header">
         FoodRoller
+        <TimeframePicker
+          startDate={startDate}
+          endDate={endDate}
+          onStartChange={setStartDate}
+          onEndChange={setEndDate}
+          disabled={loading}
+        />
       </header>
       <button className="roll-button" onClick={handleRoll} disabled={loading}>
         {loading ? "Rolling..." : "Roll!"}

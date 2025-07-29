@@ -8,7 +8,12 @@ export function FoodList({ food, loading }) {
   return (
     <div className="food-list">
       {food.map((f, idx) => (
-        <RecipeCard key={idx} Food={f} />
+        <div key={idx} style={{ marginBottom: 24 }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 4 }}>
+            {f.date}
+          </div>
+          <RecipeCard Food={f} />
+        </div>
       ))}
     </div>
   );
