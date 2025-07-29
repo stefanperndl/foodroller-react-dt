@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+# FoodRoller
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+FoodRoller is a modern meal planning app that helps you randomly generate meal suggestions for a chosen date range, save your favorites, and automatically create a shopping list from your selections. It features category filtering, a responsive design, and a beautiful, user-friendly interface.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Features
 
-### `npm start`
+- **Random Meal Suggestions:** Get random recipes for each day in your selected timeframe.
+- **Save & Lock Meals:** Save meals you like for specific days so they won’t change unless you re-roll them.
+- **Category Filtering:** Use the sidebar to filter meal suggestions by category (e.g., Beef, Vegetarian, etc.).
+- **Responsive Shopping Cart:** See a shopping list of all ingredients needed for your saved meals, clustered by recipe.
+- **Modern UI:** Responsive grid layout, collapsible sidebar, and a clean, modern look.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ Installation
 
-### `npm test`
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/yourusername/foodroller.git
+   cd foodroller
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **Install dependencies:**
+   ```sh
+   npm install
+   ```
+   or, if you use yarn:
+   ```sh
+   yarn install
+   ```
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## ▶️ Usage
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. **Start the development server:**
+   ```sh
+   npm start
+   ```
+   or
+   ```sh
+   yarn start
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. **Open your browser and go to:**  
+   [http://localhost:3000](http://localhost:3000)
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 📝 How It Works
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **Select a Date Range:**  
+  Use the date picker at the top to choose your meal planning period.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **Roll for Meals:**  
+  Click the "Roll!" button to generate random meal suggestions for each day.  
+  You can re-roll all unsaved days at any time.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **Save Meals:**  
+  Click "Save" on a meal to lock it for that day. Saved meals won’t change unless you explicitly re-roll them.
 
-## Learn More
+- **Category Filter:**  
+  Open the sidebar (left arrow) to filter meal suggestions by category. Only meals from selected categories will be suggested.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Shopping Cart:**  
+  Click the shopping cart icon (bottom right of the navbar) to view a shopping list.  
+  The list is grouped by recipe and shows all ingredients needed for your saved meals.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **Re-roll Individual Days:**  
+  Click "Re-roll" on a saved day to get a new suggestion for that day (with confirmation).
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 📦 Tech Stack
 
-### Analyzing the Bundle Size
+- **React** (with hooks)
+- **CSS** (custom, responsive)
+- **[TheMealDB API](https://www.themealdb.com/api.php)** for recipes and categories
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+---
 
-### Making a Progressive Web App
+## 📄 License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+MIT License
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🙏 Acknowledgements
 
-### Deployment
+- [TheMealDB](https://www.themealdb.com/) for the free meal and category API.
+- Inspired by the need for easy, fun meal planning!
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Enjoy using FoodRoller! 🍲🎲
