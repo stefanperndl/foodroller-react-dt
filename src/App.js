@@ -81,33 +81,20 @@ function App() {
     setLoading(false);
   };
 
-  // Collect and merge ingredients from saved meals
-  const getMergedIngredients = () => {
-    const merged = {};
-    Object.values(mealplan).forEach(meal => {
-      if (meal.ingredients) {
-        meal.ingredients.forEach(item => {
-          // Simple split: "1l milk" => ["1l", "milk"]
-          const match = item.match(/^([\d.,]+)\s*([a-zA-Z]+)?\s*(.*)$/);
-          if (match) {
-            const [, amount, unit = '', name] = match;
-            const key = (unit + ' ' + name).trim().toLowerCase();
-            const num = parseFloat(amount.replace(',', '.')) || 0;
-            if (!merged[key]) {
-              merged[key] = { amount: num, unit, name: name.trim() };
-            } else {
-              merged[key].amount += num;
-            }
-          } else {
-            // fallback: just add as is
-            const key = item.toLowerCase();
-            if (!merged[key]) merged[key] = { amount: '', unit: '', name: item };
-          }
-        });
-      }
-    });
-    return Object.values(merged);
-  };
+  // In App.js
+const getIngredientsByRecipe = () => {
+  // Only include saved meals
+  const result = {};
+  Object.entries(mealplan).forEach(([date, recipe]) => {
+    console.log(recipe);
+    result[date] = {
+      name: recipe.name,
+      ingredients: recipe.ingredients || [],
+    };
+  });
+  return result;
+};
+
 
   return (
     <div className="App">
@@ -129,7 +116,7 @@ function App() {
       </header>
       {showCart ? (
         <ShoppingCart
-          ingredients={getMergedIngredients()}
+          ingredientsByRecipe={getIngredientsByRecipe()}
           onClose={() => setShowCart(false)}
         />
       ) : (
