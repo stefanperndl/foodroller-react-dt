@@ -21,7 +21,7 @@
 
 .timeframe-picker {
   position: absolute;
-  right: 0;
+  left: 0;
   bottom: 0;
   margin: 10px 0 10px 16px;
   font-size: 0.5em;
