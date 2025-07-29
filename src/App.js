@@ -17,6 +17,21 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [mealplan, setMealplan, mealplanLoaded] = useMealplan();
 
+  // Only build empty food slots when timeframe changes
+  useEffect(() => {
+    if (!mealplanLoaded) return;
+    const dates = getDatesInRange(new Date(startDate), new Date(endDate));
+    const loaded = dates.map(dateObj => {
+      const dateStr = dateObj.toISOString().slice(0, 10);
+      if (mealplan[dateStr]) {
+        return { ...mealplan[dateStr], date: dateStr, saved: true };
+      }
+      return { date: dateStr, saved: false };
+    });
+    setFood(loaded);
+    // eslint-disable-next-line
+  }, [startDate, endDate, mealplanLoaded]); // <-- mealplan removed from deps
+
   // Roll recipes for all days in range, but keep saved ones unless confirmed
   const handleRoll = async () => {
     setLoading(true);
@@ -61,19 +76,6 @@ function App() {
     );
     setLoading(false);
   };
-
-  useEffect(() => {
-    if (!mealplanLoaded) return;
-    const dates = getDatesInRange(new Date(startDate), new Date(endDate));
-    const loaded = dates.map(dateObj => {
-      const dateStr = dateObj.toISOString().slice(0, 10);
-      if (mealplan[dateStr]) {
-        return { ...mealplan[dateStr], date: dateStr, saved: true };
-      }
-      return { date: dateStr, saved: false };
-    });
-    setFood(loaded);
-  }, [startDate, endDate, mealplan, mealplanLoaded]);
 
   return (
     <div className="App">

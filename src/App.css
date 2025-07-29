@@ -46,6 +46,68 @@
   color: #eee;
 }
 
+.reroll-button {
+  width: 90px;
+  height: 36px;
+  background: #fff;
+  color: #282c34;
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  font-weight: 600;
+  font-size: 1em;
+  cursor: pointer;
+  margin: 12px auto 0 auto;
+  display: block;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.reroll-button:hover, .reroll-button:focus {
+  background: #61dafb;
+  color: #222;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+}
+
+.reroll-button-black {
+  background: #222 !important;
+  color: #fff !important;
+}
+.reroll-button-black:hover, .reroll-button-black:focus {
+  background: #444 !important;
+  color: #fff !important;
+}
+
+.recipe-tile {
+  margin-bottom: 24px;
+  text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 320px;
+}
+
+.recipe-tile-content {
+  padding: 24px 16px 8px 16px;
+}
+
+.recipe-tile-date {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.tile-bottom-bar {
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 12px 0 8px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .App-link {
   color: #61dafb;
 }

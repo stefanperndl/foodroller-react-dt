@@ -1,12 +1,11 @@
 import '../App.css';
 
 export function RecipeCard({ Food }) {
-  console.log(Food)
+  if (!Food || !Food.name) return null; // Don't render if empty
   return (
-      <div className="recipe-card" id="recipe-card">
-        <h2 className="recipe-title">{Food.name}</h2>
-        <img src={Food.image} alt="Recipe Image" className="recipe-image" />
-      </div>
+    <div className="recipe-card" id="recipe-card">
+      <h2 className="recipe-title">{Food.name}</h2>
+      <img src={Food.image} alt="Recipe Image" className="recipe-image" />
+    </div>
   );
 }
-
