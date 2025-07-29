@@ -30,6 +30,18 @@
   gap: 12px;
   align-items: flex-end;
 }
+.navbar-cart {
+  position: absolute;
+  right: 24px;
+  bottom: 10px;
+  height: 40px;
+  width: 40px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  cursor: pointer;
+  z-index: 10;
+}
 
 .timeframe-picker label {
   font-size: 0.95em;
@@ -96,8 +108,69 @@
 .recipe-tile-date {
   font-weight: bold;
   margin-bottom: 4px;
+}.shopping-cart-view {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  max-width: 480px;
+  width: 90vw;
+  margin: 40px auto;
+  padding: 32px 24px 24px 24px;
+  position: relative;
+  animation: fadeInCart 0.3s;
 }
 
+@keyframes fadeInCart {
+  from { opacity: 0; transform: translateY(24px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+
+.close-cart {
+  position: absolute;
+  border-right: 0;
+  top: 18px;
+  right: 18px;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+.close-cart:hover, .close-cart:focus {
+  background: #61dafb;
+  color: #222;
+}
+
+.shopping-recipe-cluster {
+  background: #f6f8fa;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  padding: 16px 14px 10px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  text-align: left;
+}
+
+.shopping-recipe-cluster h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1em;
+  color: #282c34;
+}
+
+.shopping-recipe-cluster ul {
+  list-style: disc inside;
+  margin: 0;
+  padding-left: 12px;
+}
+
+.shopping-recipe-cluster li {
+  margin-bottom: 4px;
+  color: #333;
+  font-size: 1em;
+}
 .tile-bottom-bar {
   width: 100%;
   background: #fff;
