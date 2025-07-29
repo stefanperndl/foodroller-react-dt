@@ -1,5 +1,5 @@
 import './App.css';
-import { RecipeCard } from './RecipeCard';
+import { RecipeCard } from './components/RecipeCard';
 
 export function FoodList({ food, loading }) {
   if (loading) return <p>Loading recipes...</p>;
