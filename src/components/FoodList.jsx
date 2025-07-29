@@ -1,5 +1,5 @@
-import './App.css';
-import { RecipeCard } from './components/RecipeCard';
+import '../App.css';
+import { RecipeCard } from './RecipeCard';
 import { useState } from 'react';
 
 export function FoodList({ food, loading, onSave, onReroll }) {

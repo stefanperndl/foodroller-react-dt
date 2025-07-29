@@ -1,6 +1,6 @@
 import './App.css';
 import { useState, useEffect } from 'react';
-import { FoodList } from './FoodList';
+import { FoodList } from './components/FoodList';
 import { TimeframePicker } from './components/TimeframePicker';
 import { getDatesInRange } from './utils/utils';
 import { fetchRecipe } from './api/recipes';
