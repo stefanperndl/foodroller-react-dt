@@ -1,9 +1,7 @@
 import '../App.css';
 import { RecipeCard } from './RecipeCard';
-import { useState } from 'react';
 
 export function FoodList({ food, loading, onSave, onReroll }) {
-  const [justSaved, setJustSaved] = useState(null);
 
   const handleSave = (date, recipe) => {
     onSave(date, recipe);
@@ -20,7 +18,7 @@ export function FoodList({ food, loading, onSave, onReroll }) {
           <div className="recipe-tile-content">
             <div className="recipe-tile-date">{f.date}</div>
             <RecipeCard Food={f} />
-            {f.saved && justSaved === f.date && (
+            {f.saved === f.date && (
               <span style={{ color: 'green', marginLeft: 8 }}>Saved</span>
             )}
           </div>
