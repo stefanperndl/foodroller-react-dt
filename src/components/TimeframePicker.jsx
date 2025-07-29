@@ -1,5 +1,4 @@
-import React from "react";
-import "./App.css";
+import "../App.css";
 
 export function TimeframePicker({ startDate, endDate, onStartChange, onEndChange, disabled }) {
   return (

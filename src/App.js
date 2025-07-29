@@ -1,7 +1,7 @@
 import './App.css';
 import { useState } from 'react';
 import { FoodList } from './FoodList';
-import { TimeframePicker } from './TimeframePicker';
+import { TimeframePicker } from './components/TimeframePicker';
 
 function getDatesInRange(start, end) {
   const dates = [];
