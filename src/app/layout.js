@@ -1,3 +1,5 @@
+import '../index.css'
+
 export const metadata = {
   title: 'Foodroller',
   description: 'Rolls food.',
