@@ -1,4 +1,4 @@
-import '../App.css';
+import "../App.css";
 
 export function RecipeCard({ Food }) {
   if (!Food || !Food.name) return null; // Don't render if empty

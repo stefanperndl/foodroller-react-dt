@@ -1,6 +1,12 @@
 import "../App.css";
 
-export function TimeframePicker({ startDate, endDate, onStartChange, onEndChange, disabled }) {
+export function TimeframePicker({
+  startDate,
+  endDate,
+  onStartChange,
+  onEndChange,
+  disabled,
+}) {
   return (
     <div className="timeframe-picker">
       <label>
@@ -8,7 +14,7 @@ export function TimeframePicker({ startDate, endDate, onStartChange, onEndChange
         <input
           type="date"
           value={startDate}
-          onChange={e => onStartChange(e.target.value)}
+          onChange={(e) => onStartChange(e.target.value)}
           max={endDate}
           disabled={disabled}
         />
@@ -18,7 +24,7 @@ export function TimeframePicker({ startDate, endDate, onStartChange, onEndChange
         <input
           type="date"
           value={endDate}
-          onChange={e => onEndChange(e.target.value)}
+          onChange={(e) => onEndChange(e.target.value)}
           min={startDate}
           disabled={disabled}
         />

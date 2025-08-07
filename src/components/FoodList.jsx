@@ -1,11 +1,9 @@
-import '../App.css';
-import { RecipeCard } from './RecipeCard';
+import "../App.css";
+import { RecipeCard } from "./RecipeCard";
 
 export function FoodList({ food, loading, onSave, onReroll }) {
-
   const handleSave = (date, recipe) => {
     onSave(date, recipe);
-
   };
 
   if (loading) return <p>Loading recipes...</p>;
@@ -19,22 +17,20 @@ export function FoodList({ food, loading, onSave, onReroll }) {
             <div className="recipe-tile-date">{f.date}</div>
             <RecipeCard Food={f} />
             {f.saved === f.date && (
-              <span style={{ color: 'green', marginLeft: 8 }}>Saved</span>
+              <span style={{ color: "green", marginLeft: 8 }}>Saved</span>
             )}
           </div>
           {f.name && (
             <div className="tile-bottom-bar">
               <button
-                type="button" 
+                type="button"
                 className={
                   f.saved
                     ? "reroll-button reroll-button-black"
                     : "reroll-button"
                 }
                 onClick={() =>
-                  f.saved
-                    ? onReroll(f.date)
-                    : handleSave(f.date, f)
+                  f.saved ? onReroll(f.date) : handleSave(f.date, f)
                 }
               >
                 {f.saved ? "Re-roll" : "Save"}
