@@ -12,8 +12,19 @@ This file lists planned and requested features for future versions of FoodRoller
 - **Favorite Recipes:**  
   Mark categories as favorites and prioritize them in suggestions.
 
-- **Ingredient Merging:**  
-  Smarter merging of similar ingredients (e.g., "1l milk" + "500ml milk" = "1.5l milk") in the shopping cart.
+~~**Ingredient Merging:**~~  
+~~Smarter merging of similar ingredients (e.g., "1l milk" + "500ml milk" = "1.5l milk") in the shopping cart.~~
+**Done:** Shopping cart now merges and sums similar ingredients, displays which meals need each, and handles units (e.g., tbs to g/ml).
+---
+
+## ✅ Recently Completed
+
+- Ingredient merging and total summary in shopping cart (with unit conversion and meal references)
+- Project migrated to Next.js app directory (v15+)
+- Automated tests for ingredient merging logic (Jest, React Testing Library)
+- Test structure moved to `src/__tests__` for best practices
+- GitHub Actions CI workflow updated for Next.js and tests
+- README updated for Next.js, build, and test instructions
 
 - **User Accounts:**  
   Allow users to create accounts and save their meal plans across devices.
