@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import App from './App';
-
 beforeAll(() => {
 	global.fetch = jest.fn(() =>
 		Promise.resolve({

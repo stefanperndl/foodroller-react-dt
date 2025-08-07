@@ -1,3 +1,4 @@
+import React from 'react';
 import { ClientOnly } from "./client"
 
 export function generateStaticParams() {

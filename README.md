@@ -14,22 +14,67 @@ FoodRoller is a modern meal planning app that helps you randomly generate meal s
 
 ---
 
+
 ## 🛠️ Installation
 
 1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/yourusername/foodroller.git
-   cd foodroller
-   ```
+  ```sh
+  git clone https://github.com/yourusername/foodroller.git
+  cd foodroller
+  ```
 
 2. **Install dependencies:**
-   ```sh
-   npm install
-   ```
-   or, if you use yarn:
-   ```sh
-   yarn install
-   ```
+  ```sh
+  npm install
+  ```
+  or, if you use yarn:
+  ```sh
+  yarn install
+  ```
+
+---
+
+## ▶️ Usage
+
+1. **Start the development server (Next.js):**
+  ```sh
+  npm run dev
+  ```
+  or
+  ```sh
+  yarn dev
+  ```
+
+2. **Build for production:**
+  ```sh
+  npm run build
+  npm start
+  ```
+  or
+  ```sh
+  yarn build
+  yarn start
+  ```
+
+3. **Open your browser and go to:**  
+  [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🧪 Running Tests
+
+This project uses Jest and React Testing Library for unit and integration tests.
+
+To run all tests:
+```sh
+npm test
+```
+or
+```sh
+yarn test
+```
+
+---
 
 ---
 

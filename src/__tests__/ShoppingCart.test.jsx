@@ -1,5 +1,4 @@
-
-import { mergeIngredients } from './ShoppingCart';
+import { mergeIngredients } from '../components/ShoppingCart';
 
 describe('mergeIngredients', () => {
   it('merges identical ingredients and sums quantities', () => {
