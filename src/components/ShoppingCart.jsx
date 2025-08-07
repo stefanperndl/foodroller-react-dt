@@ -1,5 +1,3 @@
-import "../App.css";
-
 export function ShoppingCart({ ingredientsByRecipe, onClose }) {
   console.log("ShoppingCart ingredientsByRecipe:", ingredientsByRecipe);
   return (

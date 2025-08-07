@@ -1,5 +1,3 @@
-import "../App.css";
-
 export function TimeframePicker({
   startDate,
   endDate,

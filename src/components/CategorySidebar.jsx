@@ -1,5 +1,3 @@
-import '../App.css';
-
 export function CategorySidebar({ open, categories, selected, onToggle, onSelect }) {
   return (
     <div className={`category-sidebar${open ? ' open' : ''}`}>
