@@ -1,4 +1,4 @@
-import "../App.css";
+import React from 'react';
 import { RecipeCard } from "./RecipeCard";
 
 export function FoodList({ food, loading, onSave, onReroll }) {

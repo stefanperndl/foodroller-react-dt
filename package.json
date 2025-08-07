@@ -11,13 +11,14 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-scripts": "5.0.1",
-  "web-vitals": "^2.1.4"
-},
-"scripts": {
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "eslintConfig": {
     "extends": [
@@ -36,5 +37,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "babel-jest": "^30.0.5",
+    "jest": "^30.0.5"
   }
 }

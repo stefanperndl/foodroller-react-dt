@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
 import { FoodList } from "./components/FoodList";
+import React from 'react';
+import { useState, useEffect } from "react";
 import { TimeframePicker } from "./components/TimeframePicker";
 import { getDatesInRange } from "./utils/utils";
 import { fetchRecipe } from "./api/recipes";

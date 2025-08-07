@@ -1,3 +1,4 @@
+import React from 'react';
 export function CategorySidebar({ open, categories, selected, onToggle, onSelect }) {
   return (
     <div className={`category-sidebar${open ? ' open' : ''}`}>
