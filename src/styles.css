@@ -477,6 +477,15 @@ body {
   transition: all 0.2s;
   position: relative;
   top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-tab svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
 }
 
 .view-tab:hover {
