@@ -39,6 +39,46 @@ This file lists planned features prioritized by strategic impact on the platform
 ## 🎯 Phase 1: Foundation (API Flexibility)
 **Goal**: Prepare architecture for API swapping and data source flexibility
 
+### P1.0 - Test Coverage for Refactoring Safety ⭐ CRITICAL
+**Impact**: Prevents regressions during refactoring, enables confident code changes  
+**Effort**: 1-2 weeks  
+**Why Now**: Must test existing functionality BEFORE refactoring. Without tests, we risk breaking features during service layer/context migrations.
+
+**Coverage Goals**:
+- **Component Tests** (React Testing Library):
+  - RecipeCard rendering and click interactions
+  - RecipeDetailModal lazy loading and data display
+  - FoodList meal plan display and interactions
+  - RecipeBrowser filtering and category selection
+  - CategorySidebar filter state management
+  - ShoppingCart ingredient merging (already has tests ✅)
+  
+- **Integration Tests**:
+  - API fetch functions (mock TheMealDB responses)
+  - Dietary restriction validation logic
+  - Ingredient parsing and normalization
+  - localStorage persistence (useMealplan hook)
+  
+- **E2E Tests** (Playwright or Cypress):
+  - Full user flow: Browse → View Recipe → Add to Date → Shopping Cart
+  - Filter by category and dietary restrictions
+  - Roll random meal and add to plan
+  - Export shopping list (after P1.1)
+
+**Test Infrastructure**:
+- Jest + React Testing Library (already configured ✅)
+- Mock Service Worker (MSW) for API mocking
+- Playwright or Cypress for E2E (choose based on preference)
+- GitHub Actions CI to run tests on every PR
+- Coverage threshold: 70%+ before starting refactors
+
+**Success Criteria**:
+- All existing features have test coverage
+- CI pipeline runs tests automatically
+- Can refactor with confidence (tests catch regressions)
+
+---
+
 ### P1.1 - Export Shopping List ⭐ NEXT
 **Impact**: User retention (most requested feature), data portability preparation  
 **Effort**: 3-5 days  
@@ -67,6 +107,12 @@ This file lists planned features prioritized by strategic impact on the platform
 
 **Technical Notes**: TheMealDB has search endpoints. This feature validates our adapter pattern can handle different query types.
 
+**Tests Required**:
+- Search input debouncing
+- API call with search query
+- Empty state handling (no results)
+- Search history persistence
+
 ---
 
 ### P1.3 - Recipe History & Recently Viewed
@@ -82,10 +128,99 @@ This file lists planned features prioritized by strategic impact on the platform
 
 **Technical Notes**: Simple localStorage implementation, tests our caching strategy.
 
+**Tests Required**:
+- History tracking on recipe view
+- localStorage persistence and retrieval
+- History limit (max 20 items)
+- Clear history functionality
+
+---
+
+### P1.4 - Service Layer Refactoring (ARCHITECTURE Phase 1)
+**Impact**: Enables API swapping, reduces coupling, prepares for multi-source data  
+**Effort**: 1-2 weeks  
+**Why Now**: After test coverage in place (P1.0), can safely refactor with confidence.
+
+**Refactoring Steps**:
+1. **Create RecipeService abstraction**
+   - Wraps all recipe data fetching logic
+   - Components call service instead of API directly
+   - Service returns canonical recipe format
+
+2. **Implement Adapter Pattern**
+   - TheMealDBAdapter (wraps existing src/api/recipes.js)
+   - Define canonical Recipe schema (JSDoc or TypeScript)
+   - All recipes normalized to same format regardless of source
+
+3. **Refactor Components**
+   - Update RecipeBrowser, FoodList, RecipeDetailModal to use RecipeService
+   - Remove direct imports of src/api/recipes.js
+   - Test each component after refactor (P1.0 tests should pass)
+
+4. **Add Feature Flags**
+   - Toggle between API adapters via config
+   - Prepare for A/B testing different data sources
+
+**Success Criteria**:
+- All P1.0 tests still pass ✅
+- Can add second API adapter in <1 day
+- Zero direct API imports in components
+- Performance unchanged (±10%)
+
+**Technical Notes**: See ARCHITECTURE.md Phase 1 for detailed strategy.
+
+**Tests Required**:
+- Service layer unit tests (mock adapters)
+- Adapter transformation tests (API format → canonical format)
+- Integration tests with mocked API responses
+- E2E tests still pass after refactor
+
 ---
 
 ## 🚀 Phase 2: User Retention & Polish
 **Goal**: Solidify core experience before adding social features
+
+### P2.0 - Context Architecture Refactoring (ARCHITECTURE Phase 2)
+**Impact**: Cleaner state management, prepares for cloud sync, enables React Native  
+**Effort**: 1-2 weeks  
+**Why Now**: After service layer stable (P1.4), move global state to React Context.
+
+**Refactoring Steps**:
+1. **Create Context Providers**
+   - RecipeContext (recipe data, categories, filters)
+   - MealPlanContext (meal plan state, localStorage → cloud abstraction)
+   - UIContext (view state, modal state, loading states)
+
+2. **Extract Custom Hooks**
+   - useRecipes() - replaces prop drilling of recipe data
+   - useMealPlan() - enhanced version of existing hook
+   - useFilters() - dietary and category filter state
+
+3. **Refactor App.jsx**
+   - Wrap app in context providers
+   - Remove prop drilling (50%+ line reduction)
+   - Components gradually adopt contexts
+
+4. **Storage Abstraction Layer**
+   - Abstract localStorage calls behind StorageService
+   - Prepare for localStorage → cloud migration
+   - Supports offline-first pattern
+
+**Success Criteria**:
+- App.jsx reduced by 50%+ lines
+- All P1.0 tests still pass ✅
+- Performance same or better (measure re-renders)
+- Components can opt-in gradually (backward compatible)
+
+**Technical Notes**: See ARCHITECTURE.md Phase 2 for detailed strategy.
+
+**Tests Required**:
+- Context provider unit tests
+- Custom hooks testing (renderHook from @testing-library/react)
+- Integration tests with context providers
+- Performance tests (re-render count monitoring)
+
+---
 
 ### P2.1 - Favorite Recipes ⭐
 **Impact**: Personalization, user retention (save preferred recipes)  
@@ -100,6 +235,12 @@ This file lists planned features prioritized by strategic impact on the platform
 
 **Technical Notes**: Stored in localStorage initially, easy to migrate to cloud when Phase 3 arrives.
 
+**Tests Required**:
+- Toggle favorite state (click heart icon)
+- Favorites persist in localStorage
+- Favorites tab displays correct recipes
+- Random roll prioritizes favorites
+
 ---
 
 ### P2.2 - Print Recipe
@@ -113,6 +254,10 @@ This file lists planned features prioritized by strategic impact on the platform
 - Optional: Include meal plan context ("Dinner on Jan 15")
 
 **Technical Notes**: CSS `@media print` rules, simple window.print() call.
+
+**Tests Required**:
+- Print button triggers print dialog (mock window.print)
+- Print styles applied correctly (visual regression test)
 
 ---
 
