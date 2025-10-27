@@ -1,7 +1,18 @@
-export function RecipeCard({ Food }) {
+export function RecipeCard({ Food, onClick }) {
   if (!Food || !Food.name) return null;
+  
+  const handleClick = () => {
+    if (onClick) {
+      onClick(Food);
+    }
+  };
+  
   return (
-    <div className="recipe-card">
+    <div 
+      className="recipe-card" 
+      onClick={handleClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <img 
         src={Food.image} 
         alt={Food.name}

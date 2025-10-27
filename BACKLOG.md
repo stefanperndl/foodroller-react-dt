@@ -6,6 +6,9 @@ This file lists planned and requested features for future versions of FoodRoller
 
 ## ✅ Recently Completed
 
+- **Recipe Detail View/Modal:**  
+  Click any recipe card to view full details including ingredients, cooking instructions, cuisine, dietary badges, and tags. Modal displays with dark grey/white styling, compact multi-column ingredient layout, and prominent dietary restriction badges. Includes "Add to Date" button in Browse view.
+
 - **Recipe Catalog/Browse View:**  
   Browse recipes by category before adding to plan. Includes responsive grid, category filtering, dietary restriction filtering, "Add to Date" functionality with modal, and tab-based navigation between Plan and Browse views.
 
@@ -28,9 +31,6 @@ This file lists planned and requested features for future versions of FoodRoller
 
 ## 🔥 High Priority
 
-- **Recipe Detail View/Modal:**  
-  Click on any recipe card to open a detailed modal showing full ingredients list, cooking instructions, prep time, and servings. Include a "Quick Add to Date" button directly in the modal. Allow viewing details without committing to adding the recipe to plan.
-
 - **Export Shopping List:**  
   Export the shopping list as PDF, CSV, or send via Email.
 
@@ -43,6 +43,11 @@ This file lists planned and requested features for future versions of FoodRoller
 
 - **Recipe Tags/Labels:**  
   Display additional metadata on recipe cards: difficulty level (Easy/Medium/Hard), prep time, cooking time, serving size. Enable filtering by these tags.
+  
+  **Note:** TheMealDB free API does not include cooking/prep time fields. This would require either:
+  - Upgrading to Premium API (if available)
+  - Manual entry system for custom recipes
+  - Integration with additional recipe APIs
 
 - **Recipe History:**  
   Track previously viewed or added recipes. Show "Recently Viewed" section in Browse view for quick access.

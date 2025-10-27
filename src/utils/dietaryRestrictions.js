@@ -85,3 +85,21 @@ export function getCompatibleCategories(restrictions, allCategories) {
 
   return allCategories.filter(cat => !excludedCategories.has(cat.strCategory));
 }
+
+// Get which dietary restrictions a meal satisfies
+export function getMatchingDietaryRestrictions(meal) {
+  const matching = [];
+  
+  Object.entries(DIETARY_RESTRICTIONS).forEach(([key, restriction]) => {
+    // Check if meal passes this restriction
+    if (validateMealAgainstRestrictions(meal, [key])) {
+      matching.push({
+        key,
+        name: restriction.name,
+        icon: restriction.icon
+      });
+    }
+  });
+  
+  return matching;
+}

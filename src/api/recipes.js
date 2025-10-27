@@ -58,7 +58,9 @@ export async function fetchMealById(mealId) {
     image: meal.strMealThumb,
     ingredients,
     instructions: meal.strInstructions,
-    category: meal.strCategory
+    category: meal.strCategory,
+    area: meal.strArea || null,
+    tags: meal.strTags ? meal.strTags.split(',').map(tag => tag.trim()) : []
   };
 }
 
@@ -129,7 +131,9 @@ export async function fetchRecipeByCategories(categories, dietaryRestrictions = 
     image: meal.strMealThumb,
     ingredients,
     instructions: meal.strInstructions,
-    category: meal.strCategory
+    category: meal.strCategory,
+    area: meal.strArea || null,
+    tags: meal.strTags ? meal.strTags.split(',').map(tag => tag.trim()) : []
   };
 
   // Validate against dietary restrictions
@@ -164,7 +168,9 @@ export async function fetchRecipe(dietaryRestrictions = [], maxRetries = 5) {
     image: meal.strMealThumb,
     ingredients,
     instructions: meal.strInstructions,
-    category: meal.strCategory
+    category: meal.strCategory,
+    area: meal.strArea || null,
+    tags: meal.strTags ? meal.strTags.split(',').map(tag => tag.trim()) : []
   };
 
   // Validate against dietary restrictions

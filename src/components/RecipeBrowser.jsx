@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { RecipeCard } from './RecipeCard';
 import { fetchMealsByCategory } from '../api/recipes';
 import { validateMealAgainstRestrictions } from '../utils/dietaryRestrictions';
+import RecipeDetailModal from './RecipeDetailModal';
 
 export default function RecipeBrowser({ 
   categories, 
@@ -12,6 +13,7 @@ export default function RecipeBrowser({
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedMeal, setSelectedMeal] = useState(null);
 
   // Fetch meals when categories or restrictions change
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function RecipeBrowser({
       <div className="recipe-browser-grid">
         {meals.map(meal => (
           <div key={meal.id} className="recipe-browser-item">
-            <RecipeCard Food={meal} />
+            <RecipeCard Food={meal} onClick={() => setSelectedMeal(meal)} />
             <button 
               className="btn btn-primary add-to-date-btn"
               onClick={() => onAddToDate(meal)}
@@ -92,6 +94,17 @@ export default function RecipeBrowser({
           </div>
         ))}
       </div>
+
+      {selectedMeal && (
+        <RecipeDetailModal
+          meal={selectedMeal}
+          onClose={() => setSelectedMeal(null)}
+          onAddToDate={(recipe) => {
+            setSelectedMeal(null);
+            onAddToDate(recipe);
+          }}
+        />
+      )}
     </div>
   );
 }
