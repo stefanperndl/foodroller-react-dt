@@ -28,12 +28,30 @@ This file lists planned and requested features for future versions of FoodRoller
 
 ## 🔥 High Priority
 
+- **Recipe Detail View/Modal:**  
+  Click on any recipe card to open a detailed modal showing full ingredients list, cooking instructions, prep time, and servings. Include a "Quick Add to Date" button directly in the modal. Allow viewing details without committing to adding the recipe to plan.
+
 - **Export Shopping List:**  
   Export the shopping list as PDF, CSV, or send via Email.
 
 ---
 
-##  Planned Features
+## 🚧 Planned Features
+
+- **Recipe Search:**  
+  Add a search bar to find recipes by name or ingredient across all categories. Complements the browse view with keyword-based discovery.
+
+- **Recipe Tags/Labels:**  
+  Display additional metadata on recipe cards: difficulty level (Easy/Medium/Hard), prep time, cooking time, serving size. Enable filtering by these tags.
+
+- **Recipe History:**  
+  Track previously viewed or added recipes. Show "Recently Viewed" section in Browse view for quick access.
+
+- **Share Recipe:**  
+  Generate shareable links for individual recipes. Allow users to share their meal plans with friends/family.
+
+- **Print Recipe:**  
+  Print-friendly format for individual recipes from the detail view. Include ingredients checklist and step-by-step instructions.
 
 - **Expand Dietary Restrictions:**  
   Add more presets: Gluten-free, Nut-free, Dairy-free, Keto, Low-carb, Halal, Kosher.
