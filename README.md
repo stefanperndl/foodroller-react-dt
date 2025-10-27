@@ -6,13 +6,14 @@ FoodRoller is a modern meal planning app that helps you randomly generate meal s
 
 ## 🚀 Features
 
+- **Recipe Detail View:** Click any recipe card to view full details including ingredients, cooking instructions, cuisine, dietary info, and tags in a beautiful modal.
 - **Recipe Catalog/Browse:** Browse hundreds of recipes by category with filtering options before adding them to your plan.
 - **Random Meal Suggestions:** Get random recipes for each day in your selected timeframe.
 - **Save & Lock Meals:** Save meals you like for specific days so they won't change unless you re-roll them.
-- **Dietary Restrictions:** Select from preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) to automatically exclude incompatible meals and categories.
+- **Dietary Restrictions:** Select from preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) to automatically exclude incompatible meals and categories. Recipes display prominent dietary badges when applicable.
 - **Category Filtering:** Use the sidebar to filter meal suggestions by category (e.g., Beef, Vegetarian, etc.).
 - **Responsive Shopping Cart:** See a shopping list of all ingredients needed for your saved meals, clustered by recipe.
-- **Modern UI:** Responsive grid layout, collapsible sidebar, and a clean, modern look.
+- **Modern UI:** Responsive grid layout, collapsible sidebar, and a clean, minimalistic dark grey/white design.
 
 ---
 
@@ -45,9 +46,10 @@ FoodRoller uses [TheMealDB API](https://www.themealdb.com/api.php) to fetch reci
 The app currently uses the **free API tier** (test key: "1"), which has the following limitations:
 - ✅ Random meal lookup
 - ✅ Filter by single category
-- ✅ Full meal details by ID
+- ✅ Full meal details by ID (ingredients, instructions, category, cuisine, tags)
 - ❌ **No multi-category filtering** (Premium only)
 - ❌ No multi-ingredient filtering (Premium only)
+- ❌ **No cooking/prep time data** (not available in free tier)
 
 ### Category Filtering Workaround
 
@@ -266,8 +268,13 @@ yarn test
 - **Add to Your Plan:**  
   Click "Add to Date" on any recipe card to open a date picker, then select which date you want to add the meal to.
 
-- **Preview Recipes:**  
-  Hover over recipe cards to see them slightly enlarged. Each card shows the recipe name, category, and image.
+- **View Recipe Details:**  
+  Click any recipe card to open a detailed modal showing:
+  - Full ingredients list (compact multi-column layout)
+  - Complete cooking instructions
+  - Dietary badges (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) prominently displayed
+  - Cuisine type and recipe tags
+  - "Add to Date" button for quick adding from the modal
 
 ### General Features
 
@@ -275,14 +282,11 @@ yarn test
   Open the sidebar (left arrow) to filter meal suggestions by category. Only meals from selected categories will be suggested.
 
 - **Dietary Restrictions:**  
-  Click dietary preset buttons (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) in the sidebar to automatically filter out incompatible meals. Active presets are highlighted in green. Incompatible categories are automatically hidden from the category list.
+  Click dietary preset buttons (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) in the sidebar to automatically filter out incompatible meals. Active presets are highlighted. Incompatible categories are automatically hidden from the category list. Recipes that meet dietary requirements display prominent badges in the detail modal.
 
 - **Shopping Cart:**  
-  Click the shopping cart icon (bottom right of the navbar) to view a shopping list.  
+  Click the shopping cart icon (top right of the navbar) to view a shopping list.  
   The list is grouped by recipe and shows all ingredients needed for your saved meals.
-
-- **Re-roll Individual Days:**  
-  Click "Re-roll" on a saved day to get a new suggestion for that day (with confirmation).
 
 ---
 
