@@ -6,6 +6,7 @@ FoodRoller is a modern meal planning app that helps you randomly generate meal s
 
 ## 🚀 Features
 
+- **Recipe Catalog/Browse:** Browse hundreds of recipes by category with filtering options before adding them to your plan.
 - **Random Meal Suggestions:** Get random recipes for each day in your selected timeframe.
 - **Save & Lock Meals:** Save meals you like for specific days so they won't change unless you re-roll them.
 - **Dietary Restrictions:** Select from preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) to automatically exclude incompatible meals and categories.
@@ -123,6 +124,57 @@ See [BACKLOG.md](./BACKLOG.md) for planned features.
 
 ---
 
+## 📖 Recipe Catalog/Browse Feature
+
+The Recipe Catalog provides a comprehensive browsing experience for discovering meals before adding them to your plan.
+
+### How It Works
+
+**Two-View System:**
+- **My Plan (📅):** Your personal meal plan with date-specific meals (random rolls)
+- **Browse Recipes (🔍):** Catalog view showing all available recipes
+
+**API Integration:**
+- Uses TheMealDB's `filter.php?c={category}` endpoint to list meals by category
+- Free API provides up to 100 recipes per category
+- Recipe previews show: name, thumbnail image, and category
+- Full details (ingredients, instructions) are fetched when adding to plan
+
+**Filtering:**
+- **Category Filter:** Select multiple categories to browse (sidebar checkboxes)
+- **Dietary Restrictions:** Click preset buttons to exclude incompatible recipes
+- **Combined Filtering:** Both filters work together for precise browsing
+
+**Adding to Plan:**
+1. Click "Add to Date" on any recipe card
+2. Date picker modal appears
+3. Select target date
+4. Recipe is added to your meal plan (fetches full details automatically)
+5. Automatically switches back to "My Plan" view
+
+**Technical Details:**
+- Lazy loading: Only fetches full recipe details when adding to plan
+- Client-side filtering for dietary restrictions (validates category)
+- Responsive grid layout (auto-adjusts columns based on screen width)
+- Hover effects for better user experience
+
+### Workflow Examples
+
+**Example 1: Planned Browse**
+1. Switch to "Browse Recipes" tab
+2. Select "Seafood" and "Chicken" categories
+3. Click "Vegetarian 🌱" to exclude non-vegetarian options → only vegetarian seafood/chicken recipes shown
+4. Find a recipe you like, click "Add to Date"
+5. Pick tomorrow's date → recipe added to tomorrow in your plan
+
+**Example 2: Quick Discovery**
+1. Switch to "Browse Recipes" tab
+2. No categories selected → all recipes shown (across all categories)
+3. Scroll through catalog, add interesting recipes to different dates
+4. Switch back to "My Plan" to see your curated meal plan
+
+---
+
 ## ▶️ Usage
 
 1. **Start the development server (Next.js):**
@@ -185,6 +237,8 @@ yarn test
 
 ## 📝 How It Works
 
+### Meal Planning View (📅 My Plan)
+
 - **Select a Date Range:**  
   Use the date picker at the top to choose your meal planning period.
 
@@ -193,7 +247,29 @@ yarn test
   You can re-roll all unsaved days at any time.
 
 - **Save Meals:**  
-  Click "Save" on a meal to lock it for that day. Saved meals won’t change unless you explicitly re-roll them.
+  Click "Save" on a meal to lock it for that day. Saved meals won't change unless you explicitly re-roll them.
+
+- **Re-roll Individual Days:**  
+  Click "Re-roll" on a saved day to get a new suggestion for that day (with confirmation).
+
+### Browse Recipes View (🔍 Browse Recipes)
+
+- **Switch Views:**  
+  Click the "Browse Recipes" tab at the top to explore the recipe catalog.
+
+- **Browse by Category:**  
+  Use the sidebar to select categories you want to browse. If no categories are selected, all recipes are shown (up to 100 per category with free API).
+
+- **Filter by Dietary Restrictions:**  
+  Click dietary preset buttons (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) to automatically filter out incompatible recipes.
+
+- **Add to Your Plan:**  
+  Click "Add to Date" on any recipe card to open a date picker, then select which date you want to add the meal to.
+
+- **Preview Recipes:**  
+  Hover over recipe cards to see them slightly enlarged. Each card shows the recipe name, category, and image.
+
+### General Features
 
 - **Category Filter:**  
   Open the sidebar (left arrow) to filter meal suggestions by category. Only meals from selected categories will be suggested.

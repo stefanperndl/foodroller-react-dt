@@ -1,5 +1,67 @@
 import { validateMealAgainstRestrictions, DIETARY_RESTRICTIONS } from '../utils/dietaryRestrictions';
 
+// Browse/Catalog API functions
+
+/**
+ * Fetch a list of meals by category (for browsing)
+ * Returns lightweight meal objects with id, name, and thumbnail
+ * @param {string} category - Category name (e.g., "Seafood", "Beef")
+ * @returns {Promise<Array>} Array of {id, name, image, category}
+ */
+export async function fetchMealsByCategory(category) {
+  const response = await fetch(
+    `https://www.themealdb.com/api/json/v1/1/filter.php?c=${encodeURIComponent(category)}`
+  );
+  if (!response.ok) throw new Error("Network response was not ok");
+  const data = await response.json();
+  
+  if (!data.meals) return [];
+  
+  // Transform to our format
+  return data.meals.map(meal => ({
+    id: meal.idMeal,
+    name: meal.strMeal,
+    image: meal.strMealThumb,
+    category: category
+  }));
+}
+
+/**
+ * Fetch full details for a specific meal by ID
+ * @param {string} mealId - Meal ID from TheMealDB
+ * @returns {Promise<Object>} Full recipe object
+ */
+export async function fetchMealById(mealId) {
+  const response = await fetch(
+    `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${mealId}`
+  );
+  if (!response.ok) throw new Error("Network response was not ok");
+  const data = await response.json();
+  
+  if (!data.meals || data.meals.length === 0) {
+    throw new Error("Meal not found");
+  }
+  
+  const meal = data.meals[0];
+  const ingredients = [];
+  for (let i = 1; i <= 20; i++) {
+    const ingredient = meal[`strIngredient${i}`];
+    const measure = meal[`strMeasure${i}`];
+    if (ingredient && ingredient.trim()) {
+      ingredients.push(`${measure.trim()} ${ingredient.trim()}`);
+    }
+  }
+  
+  return {
+    id: meal.idMeal,
+    name: meal.strMeal,
+    image: meal.strMealThumb,
+    ingredients,
+    instructions: meal.strInstructions,
+    category: meal.strCategory
+  };
+}
+
 // Fetch meals from specific categories
 // TODO: When upgrading to Premium API, refactor this to support true multi-category filtering
 // Premium API supports: filter.php?c=Seafood,Beef,Chicken (comma-separated categories)

@@ -3,10 +3,12 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { TimeframePicker } from "./components/TimeframePicker";
 import { getDatesInRange } from "./utils/utils";
-import { fetchRecipe, fetchRecipeByCategories } from "./api/recipes";
+import { fetchRecipe, fetchRecipeByCategories, fetchMealById } from "./api/recipes";
 import { useMealplan } from "./hooks/useMealplan";
 import { ShoppingCart } from "./components/ShoppingCart";
 import { CategorySidebar } from "./components/CategorySidebar";
+import RecipeBrowser from "./components/RecipeBrowser";
+import AddToDateModal from "./components/AddToDateModal";
 
 function App() {
   const today = new Date();
@@ -23,6 +25,8 @@ function App() {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedRestrictions, setSelectedRestrictions] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeView, setActiveView] = useState('plan'); // 'plan' or 'browse'
+  const [selectedMealForDate, setSelectedMealForDate] = useState(null);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -110,6 +114,41 @@ function App() {
     return result;
   };
 
+  // Handle adding a browsed meal to a specific date
+  const handleAddMealToDate = (meal) => {
+    setSelectedMealForDate(meal);
+  };
+
+  const confirmAddMealToDate = async (date, meal) => {
+    try {
+      // Fetch full details if we only have the preview
+      const fullRecipe = meal.ingredients 
+        ? meal 
+        : await fetchMealById(meal.id);
+      
+      // Add to mealplan
+      setMealplan((prev) => ({
+        ...prev,
+        [date]: fullRecipe,
+      }));
+      
+      // Update food list if date is in current timeframe
+      setFood((prev) =>
+        prev.map((f) => 
+          f.date === date 
+            ? { ...fullRecipe, date, saved: true } 
+            : f
+        )
+      );
+      
+      setSelectedMealForDate(null);
+      setActiveView('plan'); // Switch back to plan view
+    } catch (err) {
+      console.error('Error adding meal to date:', err);
+      alert('Failed to add meal. Please try again.');
+    }
+  };
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -135,6 +174,23 @@ function App() {
           </svg>
         </div>
       </header>
+
+      {/* View Tabs */}
+      <div className="view-tabs">
+        <button 
+          className={`view-tab ${activeView === 'plan' ? 'active' : ''}`}
+          onClick={() => setActiveView('plan')}
+        >
+          📅 My Plan
+        </button>
+        <button 
+          className={`view-tab ${activeView === 'browse' ? 'active' : ''}`}
+          onClick={() => setActiveView('browse')}
+        >
+          🔍 Browse Recipes
+        </button>
+      </div>
+
       {showCart ? (
         <ShoppingCart
           ingredientsByRecipe={getIngredientsByRecipe()}
@@ -163,24 +219,44 @@ function App() {
               )
             }
           />
-          <FoodList
-            food={food}
-            loading={loading}
-            onSave={handleSave}
-            onReroll={handleReroll}
-          />
+          
+          {activeView === 'plan' ? (
+            <FoodList
+              food={food}
+              loading={loading}
+              onSave={handleSave}
+              onReroll={handleReroll}
+            />
+          ) : (
+            <RecipeBrowser
+              categories={categories.map(cat => cat.strCategory)}
+              selectedCategories={selectedCategories}
+              selectedRestrictions={selectedRestrictions}
+              onAddToDate={handleAddMealToDate}
+            />
+          )}
         </>
       )}
 
-      <div className="roll-button-container">
-        <button
-          className="btn btn-roll-main"
-          onClick={handleRoll}
-          title="Roll random meals for the selected timeframe"
-        >
-          {loading ? "Rolling..." : "Roll"}
-        </button>
-      </div>
+      {activeView === 'plan' && (
+        <div className="roll-button-container">
+          <button
+            className="btn btn-roll-main"
+            onClick={handleRoll}
+            title="Roll random meals for the selected timeframe"
+          >
+            {loading ? "Rolling..." : "Roll"}
+          </button>
+        </div>
+      )}
+
+      {selectedMealForDate && (
+        <AddToDateModal
+          meal={selectedMealForDate}
+          onConfirm={confirmAddMealToDate}
+          onCancel={() => setSelectedMealForDate(null)}
+        />
+      )}
     </div>
   );
 }

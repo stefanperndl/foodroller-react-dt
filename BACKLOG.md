@@ -6,8 +6,11 @@ This file lists planned and requested features for future versions of FoodRoller
 
 ## ✅ Recently Completed
 
+- **Recipe Catalog/Browse View:**  
+  Browse recipes by category before adding to plan. Includes responsive grid, category filtering, dietary restriction filtering, "Add to Date" functionality with modal, and tab-based navigation between Plan and Browse views.
+
 - **Dietary Restrictions (v1.0):**  
-  Three preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian �) with automatic category filtering and ingredient validation. Includes retry logic and client-side validation to work with free API limitations.
+  Three preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) with automatic category filtering and ingredient validation. Includes retry logic and client-side validation to work with free API limitations.
 
 - **Category-based Meal Filtering:**  
   Select multiple categories in sidebar to filter meal suggestions (with workaround for free API's single-category limitation).
@@ -25,15 +28,12 @@ This file lists planned and requested features for future versions of FoodRoller
 
 ## 🔥 High Priority
 
-- **Recipe Catalog/Browse View:**  
-  Browse food based on category and filtering, not just random rolls.
-
 - **Export Shopping List:**  
   Export the shopping list as PDF, CSV, or send via Email.
 
 ---
 
-## 🚧 Planned Features
+##  Planned Features
 
 - **Expand Dietary Restrictions:**  
   Add more presets: Gluten-free, Nut-free, Dairy-free, Keto, Low-carb, Halal, Kosher.
