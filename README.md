@@ -34,6 +34,43 @@ FoodRoller is a modern meal planning app that helps you randomly generate meal s
 
 ---
 
+## 🔑 API Configuration
+
+FoodRoller uses [TheMealDB API](https://www.themealdb.com/api.php) to fetch recipe data.
+
+### Free API Limitations
+
+The app currently uses the **free API tier** (test key: "1"), which has the following limitations:
+- ✅ Random meal lookup
+- ✅ Filter by single category
+- ✅ Full meal details by ID
+- ❌ **No multi-category filtering** (Premium only)
+- ❌ No multi-ingredient filtering (Premium only)
+
+### Category Filtering Workaround
+
+Since the free API doesn't support filtering by multiple categories in a single request, we've implemented a workaround:
+
+1. When you select multiple categories in the sidebar, the app **picks one random category** from your selection
+2. It then fetches a random meal from that chosen category
+3. This gives variety while respecting your category preferences
+
+**Example:** If you select "Beef", "Chicken", and "Seafood":
+- The app randomly picks one (e.g., "Chicken")
+- Fetches a random chicken recipe
+- Next roll might pick "Seafood" instead
+
+### Upgrading to Premium API
+
+To get true multi-category filtering and other advanced features:
+1. Visit [TheMealDB Patreon](https://www.patreon.com/thedatadb) to become a supporter
+2. You'll receive an upgraded API key
+3. Replace the API key in `src/api/recipes.js`
+
+For more details, see the [API documentation](https://www.themealdb.com/api.php).
+
+---
+
 ## ▶️ Usage
 
 1. **Start the development server (Next.js):**

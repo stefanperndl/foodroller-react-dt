@@ -3,7 +3,7 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { TimeframePicker } from "./components/TimeframePicker";
 import { getDatesInRange } from "./utils/utils";
-import { fetchRecipe } from "./api/recipes";
+import { fetchRecipe, fetchRecipeByCategories } from "./api/recipes";
 import { useMealplan } from "./hooks/useMealplan";
 import { ShoppingCart } from "./components/ShoppingCart";
 import { CategorySidebar } from "./components/CategorySidebar";
@@ -55,7 +55,7 @@ function App() {
       if (mealplan[dateStr]) {
         newFood.push({ ...mealplan[dateStr], date: dateStr, saved: true });
       } else {
-        const recipe = await fetchRecipe();
+        const recipe = await fetchRecipeByCategories(selectedCategories);
         newFood.push({ ...recipe, date: dateStr, saved: false });
       }
     }
@@ -88,7 +88,7 @@ function App() {
       });
     }
     setLoading(true);
-    const recipe = await fetchRecipe();
+    const recipe = await fetchRecipeByCategories(selectedCategories);
     setFood((prev) =>
       prev.map((f) => (f.date === date ? { ...recipe, date, saved: false } : f))
     );
