@@ -1,15 +1,34 @@
+import { validateMealAgainstRestrictions, DIETARY_RESTRICTIONS } from '../utils/dietaryRestrictions';
+
 // Fetch meals from specific categories
 // TODO: When upgrading to Premium API, refactor this to support true multi-category filtering
 // Premium API supports: filter.php?c=Seafood,Beef,Chicken (comma-separated categories)
 // Current implementation: randomly picks ONE category from selection (free API limitation)
-export async function fetchRecipeByCategories(categories) {
-  // If no categories selected, fall back to random
-  if (!categories || categories.length === 0) {
-    return fetchRecipe();
+export async function fetchRecipeByCategories(categories, dietaryRestrictions = [], maxRetries = 5) {
+  // Get list of excluded categories based on dietary restrictions
+  const excludedCategories = new Set();
+  if (dietaryRestrictions && dietaryRestrictions.length > 0) {
+    dietaryRestrictions.forEach(restrictionKey => {
+      const restriction = DIETARY_RESTRICTIONS[restrictionKey];
+      if (restriction && restriction.excludeCategories) {
+        restriction.excludeCategories.forEach(cat => excludedCategories.add(cat));
+      }
+    });
   }
 
-  // Pick a random category from the selected ones
-  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+  // Filter out excluded categories from the selection
+  let availableCategories = categories;
+  if (excludedCategories.size > 0 && categories && categories.length > 0) {
+    availableCategories = categories.filter(cat => !excludedCategories.has(cat));
+  }
+
+  // If no categories selected or all are excluded, fall back to random with validation
+  if (!availableCategories || availableCategories.length === 0) {
+    return fetchRecipe(dietaryRestrictions, maxRetries);
+  }
+
+  // Pick a random category from the available ones (not excluded)
+  const randomCategory = availableCategories[Math.floor(Math.random() * availableCategories.length)];
   
   // Fetch meals from that category
   const response = await fetch(
@@ -20,7 +39,7 @@ export async function fetchRecipeByCategories(categories) {
   
   // If no meals found in this category, fall back to random
   if (!data.meals || data.meals.length === 0) {
-    return fetchRecipe();
+    return fetchRecipe(dietaryRestrictions, maxRetries);
   }
   
   // Pick a random meal from the category
@@ -43,16 +62,28 @@ export async function fetchRecipeByCategories(categories) {
     }
   }
   
-  return {
+  const recipe = {
     name: meal.strMeal,
     image: meal.strMealThumb,
     ingredients,
     instructions: meal.strInstructions,
     category: meal.strCategory
   };
+
+  // Validate against dietary restrictions
+  if (dietaryRestrictions && dietaryRestrictions.length > 0) {
+    const isValid = validateMealAgainstRestrictions(recipe, dietaryRestrictions);
+    
+    if (!isValid && maxRetries > 0) {
+      // Meal doesn't meet restrictions, try again
+      return fetchRecipeByCategories(categories, dietaryRestrictions, maxRetries - 1);
+    }
+  }
+
+  return recipe;
 }
 
-export async function fetchRecipe() {
+export async function fetchRecipe(dietaryRestrictions = [], maxRetries = 5) {
   const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
   if (!response.ok) throw new Error("Network response was not ok");
   const data = await response.json();
@@ -65,11 +96,24 @@ export async function fetchRecipe() {
       ingredients.push(`${measure.trim()} ${ingredient.trim()}`);
     }
   }
-  return {
+  
+  const recipe = {
     name: meal.strMeal,
     image: meal.strMealThumb,
     ingredients,
     instructions: meal.strInstructions,
     category: meal.strCategory
   };
+
+  // Validate against dietary restrictions
+  if (dietaryRestrictions && dietaryRestrictions.length > 0) {
+    const isValid = validateMealAgainstRestrictions(recipe, dietaryRestrictions);
+    
+    if (!isValid && maxRetries > 0) {
+      // Meal doesn't meet restrictions, try again
+      return fetchRecipe(dietaryRestrictions, maxRetries - 1);
+    }
+  }
+
+  return recipe;
 }

@@ -7,7 +7,8 @@ FoodRoller is a modern meal planning app that helps you randomly generate meal s
 ## 🚀 Features
 
 - **Random Meal Suggestions:** Get random recipes for each day in your selected timeframe.
-- **Save & Lock Meals:** Save meals you like for specific days so they won’t change unless you re-roll them.
+- **Save & Lock Meals:** Save meals you like for specific days so they won't change unless you re-roll them.
+- **Dietary Restrictions:** Select from preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) to automatically exclude incompatible meals and categories.
 - **Category Filtering:** Use the sidebar to filter meal suggestions by category (e.g., Beef, Vegetarian, etc.).
 - **Responsive Shopping Cart:** See a shopping list of all ingredients needed for your saved meals, clustered by recipe.
 - **Modern UI:** Responsive grid layout, collapsible sidebar, and a clean, modern look.
@@ -68,6 +69,57 @@ To get true multi-category filtering and other advanced features:
 3. Replace the API key in `src/api/recipes.js`
 
 For more details, see the [API documentation](https://www.themealdb.com/api.php).
+
+---
+
+## 🥗 Dietary Restrictions
+
+FoodRoller includes built-in dietary restriction presets to help you find meals that match your dietary preferences.
+
+### Available Presets
+
+- **Vegetarian 🌱**
+  - Excludes: Beef, Pork, Lamb, Chicken, Goat, Seafood
+  - Filters out: All meat, poultry, and fish ingredients
+
+- **Vegan 🥗**
+  - Excludes: Beef, Pork, Lamb, Chicken, Goat, Seafood
+  - Filters out: All animal products (meat, fish, dairy, eggs, honey)
+
+- **Pescatarian 🐟**
+  - Excludes: Beef, Pork, Lamb, Chicken, Goat
+  - Filters out: Meat and poultry ingredients (allows seafood and fish)
+
+### How It Works
+
+1. **Category Pre-filtering:** When a dietary restriction is active, incompatible categories are automatically hidden from the category list and excluded from random selection.
+
+2. **Ingredient Validation:** After fetching a meal, the app validates it against the restriction's excluded ingredients list.
+
+3. **Retry Logic:** If a meal doesn't pass validation, the app automatically retries up to 5 times to find a compatible meal.
+
+4. **Client-side Filtering:** Due to free API limitations, validation happens on the client side after fetching meals, rather than through API parameters.
+
+### Usage
+
+1. Click a dietary preset button in the sidebar (Vegetarian, Vegan, or Pescatarian)
+2. The button will turn green to indicate it's active
+3. Compatible categories will be shown; incompatible ones will be hidden
+4. When you roll for meals, only compatible recipes will be selected
+
+**Note:** You can combine dietary restrictions with manual category selection for even more specific filtering.
+
+### Future Enhancements
+
+The dietary restrictions system is designed to be extensible. Future additions may include:
+- Gluten-free
+- Nut-free
+- Dairy-free
+- Keto
+- Low-carb
+- Custom dietary profiles
+
+See [BACKLOG.md](./BACKLOG.md) for planned features.
 
 ---
 
@@ -146,6 +198,9 @@ yarn test
 - **Category Filter:**  
   Open the sidebar (left arrow) to filter meal suggestions by category. Only meals from selected categories will be suggested.
 
+- **Dietary Restrictions:**  
+  Click dietary preset buttons (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) in the sidebar to automatically filter out incompatible meals. Active presets are highlighted in green. Incompatible categories are automatically hidden from the category list.
+
 - **Shopping Cart:**  
   Click the shopping cart icon (bottom right of the navbar) to view a shopping list.  
   The list is grouped by recipe and shows all ingredients needed for your saved meals.
@@ -158,8 +213,10 @@ yarn test
 ## 📦 Tech Stack
 
 - **React** (with hooks)
+- **Next.js 15** (App Router with static export)
 - **CSS** (custom, responsive)
 - **[TheMealDB API](https://www.themealdb.com/api.php)** for recipes and categories
+- **Jest & React Testing Library** for testing
 
 ---
 

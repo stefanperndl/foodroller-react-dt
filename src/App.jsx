@@ -21,6 +21,7 @@ function App() {
   const [showCart, setShowCart] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedRestrictions, setSelectedRestrictions] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetch categories on mount
@@ -55,7 +56,7 @@ function App() {
       if (mealplan[dateStr]) {
         newFood.push({ ...mealplan[dateStr], date: dateStr, saved: true });
       } else {
-        const recipe = await fetchRecipeByCategories(selectedCategories);
+        const recipe = await fetchRecipeByCategories(selectedCategories, selectedRestrictions);
         newFood.push({ ...recipe, date: dateStr, saved: false });
       }
     }
@@ -88,7 +89,7 @@ function App() {
       });
     }
     setLoading(true);
-    const recipe = await fetchRecipeByCategories(selectedCategories);
+    const recipe = await fetchRecipeByCategories(selectedCategories, selectedRestrictions);
     setFood((prev) =>
       prev.map((f) => (f.date === date ? { ...recipe, date, saved: false } : f))
     );
@@ -145,12 +146,20 @@ function App() {
             open={sidebarOpen}
             categories={categories}
             selected={selectedCategories}
+            restrictions={selectedRestrictions}
             onToggle={() => setSidebarOpen((open) => !open)}
             onSelect={(cat) =>
               setSelectedCategories((selected) =>
                 selected.includes(cat)
                   ? selected.filter((c) => c !== cat)
                   : [...selected, cat]
+              )
+            }
+            onRestrictionToggle={(restriction) =>
+              setSelectedRestrictions((selected) =>
+                selected.includes(restriction)
+                  ? selected.filter((r) => r !== restriction)
+                  : [...selected, restriction]
               )
             }
           />

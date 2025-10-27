@@ -4,36 +4,51 @@ This file lists planned and requested features for future versions of FoodRoller
 
 ---
 
-## 🚧 Planned Features (unprioritized)
-
-- **Recipe Cataloge:**  
-  Browse food based on category and filtering.
-
-- **Favorite Recipes:**  
-  Mark categories as favorites and prioritize them in suggestions.
-
-~~**Ingredient Merging:**~~  
-~~Smarter merging of similar ingredients (e.g., "1l milk" + "500ml milk" = "1.5l milk") in the shopping cart.~~
-**Done:** Shopping cart now merges and sums similar ingredients, displays which meals need each, and handles units (e.g., tbs to g/ml).
----
-
 ## ✅ Recently Completed
 
-- Ingredient merging and total summary in shopping cart (with unit conversion and meal references)
-- Project migrated to Next.js app directory (v15+)
-- Automated tests for ingredient merging logic (Jest, React Testing Library)
-- Test structure moved to `src/__tests__` for best practices
-- GitHub Actions CI workflow updated for Next.js and tests
-- README updated for Next.js, build, and test instructions
+- **Dietary Restrictions (v1.0):**  
+  Three preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian �) with automatic category filtering and ingredient validation. Includes retry logic and client-side validation to work with free API limitations.
+
+- **Category-based Meal Filtering:**  
+  Select multiple categories in sidebar to filter meal suggestions (with workaround for free API's single-category limitation).
+
+- **Ingredient Merging:**  
+  Shopping cart now merges and sums similar ingredients, displays which meals need each, and handles units (e.g., tbs to g/ml).
+
+- **Next.js Migration:**  
+  Project migrated to Next.js app directory (v15+) with static export mode.
+
+- **Automated Testing:**  
+  Test suite for ingredient merging logic (Jest, React Testing Library) with GitHub Actions CI workflow.
+
+---
+
+## 🔥 High Priority
+
+- **Recipe Catalog/Browse View:**  
+  Browse food based on category and filtering, not just random rolls.
+
+- **Export Shopping List:**  
+  Export the shopping list as PDF, CSV, or send via Email.
+
+---
+
+## 🚧 Planned Features
+
+- **Expand Dietary Restrictions:**  
+  Add more presets: Gluten-free, Nut-free, Dairy-free, Keto, Low-carb, Halal, Kosher.
+  
+- **Custom Dietary Profiles:**  
+  Allow users to create their own dietary restriction profiles with custom excluded categories and ingredients.
+
+- **Favorite Recipes:**  
+  Mark recipes as favorites and prioritize them in suggestions.
 
 - **User Accounts:**  
   Allow users to create accounts and save their meal plans across devices.
 
 - **Manual Recipe Entry:**  
   Allow users to add their own recipes to the pool.
-
-- **Export Shopping List:**  
-  Export the shopping list as PDF or CSV. Send via Email.
 
 - **Mobile App:**  
   Native mobile app version for iOS and Android.
@@ -50,14 +65,15 @@ This file lists planned and requested features for future versions of FoodRoller
 - **Weekly/Monthly View:**  
   Calendar view for easier meal planning.
 
-- **Improved Filtering:**  
-  Filter by dietary restrictions (vegan, gluten-free, etc.).
+- **Add Nutrition Filters to Sidebar:**  
+  Expand the sidebar to allow filtering based on nutrition values (calories, protein, etc.).
 
-- **Add nutrition filters to sidebar:**  
-    Expand the sidebar to allow the filtering based on nutrition.
+- **Manual Categories Entry:**  
+  Allow users to add their own categories and make them available in filtering.
 
-- **Manual Categories Entry**:
-    Allow users to add their own categories and make them available in filtering.
+- **Premium API Upgrade:**  
+  Upgrade to TheMealDB Premium API for true multi-category filtering and advanced features (see TODO in `src/api/recipes.js`).
+
 ---
 
 *Feel free to suggest more features by opening an issue or pull request!*
