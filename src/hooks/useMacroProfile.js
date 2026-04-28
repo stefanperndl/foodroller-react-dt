@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -6,8 +6,12 @@ const PROFILE_KEY = 'macro_profile_v1';
 
 export function useMacroProfile(user) {
   const [profile, setProfileState] = useState(null);
+  const prevUserRef = useRef(undefined);
 
   useEffect(() => {
+    const wasSignedIn = prevUserRef.current != null;
+    prevUserRef.current = user;
+
     if (user) {
       getDoc(doc(db, 'users', user.uid, 'data', 'macroProfile'))
         .then((snap) => {
@@ -22,6 +26,9 @@ export function useMacroProfile(user) {
           const local = localStorage.getItem(PROFILE_KEY);
           if (local) setProfileState(JSON.parse(local));
         });
+    } else if (wasSignedIn) {
+      localStorage.removeItem(PROFILE_KEY);
+      setProfileState(null);
     } else {
       const local = localStorage.getItem(PROFILE_KEY);
       if (local) setProfileState(JSON.parse(local));
