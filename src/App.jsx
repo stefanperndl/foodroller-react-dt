@@ -1,10 +1,11 @@
 import { FoodList } from "./components/FoodList";
 import React from 'react';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TimeframePicker } from "./components/TimeframePicker";
-import { getDatesInRange } from "./utils/utils";
 import { fetchRecipeByCategories, fetchMealById } from "./api/recipes";
 import { useMealplan } from "./hooks/useMealplan";
+import { useMealSlots } from "./hooks/useMealSlots";
+import { useDaySlotOverrides } from "./hooks/useDaySlotOverrides";
 import { ShoppingCart } from "./components/ShoppingCart";
 import { CategorySidebar } from "./components/CategorySidebar";
 import RecipeBrowser from "./components/RecipeBrowser";
@@ -16,6 +17,8 @@ import MacroProfileModal from "./components/MacroProfileModal";
 import MacroDashboard from "./components/MacroDashboard";
 import { useMacroProfile } from "./hooks/useMacroProfile";
 import PlannerModal from "./components/PlannerModal";
+import SlotManagerModal from "./components/SlotManagerModal";
+import { useEffect } from "react";
 
 function App() {
   const { user } = useAuth();
@@ -24,124 +27,123 @@ function App() {
   defaultEnd.setDate(today.getDate() + 4);
 
   const [startDate, setStartDate] = useState(today.toISOString().slice(0, 10));
-  const [endDate, setEndDate] = useState(defaultEnd.toISOString().slice(0, 10));
-  const [food, setFood] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [endDate, setEndDate]     = useState(defaultEnd.toISOString().slice(0, 10));
   const [mealplan, setMealplan, mealplanLoaded] = useMealplan(user);
+  const [slots, setSlots]         = useMealSlots(user);
   const [macroProfile, setMacroProfile] = useMacroProfile(user);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showMacroModal, setShowMacroModal] = useState(false);
+  const [daySlotOverrides, setDaySlotOverrides] = useDaySlotOverrides();
+  const [rerollingKey, setRerollingKey] = useState(null);
+
+  const getDaySlots = (date) =>
+    [...(daySlotOverrides[date] ?? slots)].sort((a, b) => a.order - b.order);
+
+  const handleAddSlotToDay = (date, slot) => {
+    setDaySlotOverrides((prev) => {
+      const current = prev[date] ?? slots;
+      if (current.some((s) => s.id === slot.id)) return prev;
+      const updated = [...current, slot].sort((a, b) => a.order - b.order);
+      return { ...prev, [date]: updated };
+    });
+  };
+
+  const handleRemoveSlotFromDay = (date, slotId) => {
+    setDaySlotOverrides((prev) => {
+      const current = prev[date] ?? slots;
+      return { ...prev, [date]: current.filter((s) => s.id !== slotId) };
+    });
+    setMealplan((prev) => {
+      const day = { ...(prev[date] || {}) };
+      delete day[slotId];
+      const next = { ...prev };
+      if (Object.keys(day).length === 0) delete next[date];
+      else next[date] = day;
+      return next;
+    });
+  };
+
+  const [showAuthModal, setShowAuthModal]     = useState(false);
+  const [showMacroModal, setShowMacroModal]   = useState(false);
   const [showPlannerModal, setShowPlannerModal] = useState(false);
-  const [showCart, setShowCart] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [showSlotManager, setShowSlotManager] = useState(false);
+  const [showCart, setShowCart]               = useState(false);
+
+  const [categories, setCategories]               = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedRestrictions, setSelectedRestrictions] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState('plan'); // 'plan' or 'browse'
+  const [sidebarOpen, setSidebarOpen]             = useState(false);
+  const [activeView, setActiveView]               = useState('plan');
   const [selectedMealForDate, setSelectedMealForDate] = useState(null);
 
-  // Fetch categories on mount
   useEffect(() => {
     fetch("https://www.themealdb.com/api/json/v1/1/categories.php")
       .then((res) => res.json())
       .then((data) => setCategories(data.categories || []));
   }, []);
 
-  // Only build empty food slots when timeframe changes
-  useEffect(() => {
-    if (!mealplanLoaded) return;
-    const dates = getDatesInRange(new Date(startDate), new Date(endDate));
-    const loaded = dates.map((dateObj) => {
-      const dateStr = dateObj.toISOString().slice(0, 10);
-      if (mealplan[dateStr]) {
-        return { ...mealplan[dateStr], date: dateStr, saved: true };
-      }
-      return { date: dateStr, saved: false };
-    });
-    setFood(loaded);
-  }, [startDate, endDate, mealplanLoaded, mealplan]);
-
-  const handleSave = (date, recipe) => {
-    setMealplan((prev) => ({
-      ...prev,
-      [date]: recipe,
-    }));
-    setFood((prev) =>
-      prev.map((f) => (f.date === date ? { ...f, saved: true } : f))
-    );
-  };
-
-  const handleReroll = async (date) => {
-    if (mealplan[date]) {
-      if (
-        !window.confirm(
-          "This day is saved. Re-rolling will overwrite it. Continue?"
-        )
-      )
-        return;
-      setMealplan((prev) => {
-        const copy = { ...prev };
-        delete copy[date];
-        return copy;
-      });
+  const handleReroll = async (date, slotId) => {
+    const key = `${date}-${slotId}`;
+    if (mealplan[date]?.[slotId]) {
+      if (!window.confirm('Re-rolling will replace this meal. Continue?')) return;
     }
-    setLoading(true);
-    const recipe = await fetchRecipeByCategories(selectedCategories, selectedRestrictions);
-    setFood((prev) =>
-      prev.map((f) => (f.date === date ? { ...recipe, date, saved: false } : f))
-    );
-    setLoading(false);
+    setRerollingKey(key);
+    try {
+      const recipe = await fetchRecipeByCategories(selectedCategories, selectedRestrictions);
+      const fullRecipe = recipe.ingredients ? recipe : await fetchMealById(recipe.id);
+      setMealplan((prev) => ({
+        ...prev,
+        [date]: { ...(prev[date] || {}), [slotId]: fullRecipe },
+      }));
+    } finally {
+      setRerollingKey(null);
+    }
   };
 
-  // In App.js
-  const getIngredientsByRecipe = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const result = {};
-    Object.entries(mealplan).forEach(([date, recipe]) => {
-      if (new Date(date) >= today) {
-        result[date] = {
-          name: recipe.name,
-          ingredients: recipe.ingredients || [],
-        };
+  const handleRemoveMeal = (date, slotId) => {
+    setMealplan((prev) => {
+      const day = { ...(prev[date] || {}) };
+      delete day[slotId];
+      const next = { ...prev };
+      if (Object.keys(day).length === 0) {
+        delete next[date];
+      } else {
+        next[date] = day;
       }
+      return next;
     });
-    return result;
   };
 
-  // Handle adding a browsed meal to a specific date
   const handleAddMealToDate = (meal) => {
     setSelectedMealForDate(meal);
   };
 
-  const confirmAddMealToDate = async (date, meal) => {
+  const confirmAddMealToDate = async (date, slotId, meal) => {
     try {
-      // Fetch full details if we only have the preview
-      const fullRecipe = meal.ingredients 
-        ? meal 
-        : await fetchMealById(meal.id);
-      
-      // Add to mealplan
+      const fullRecipe = meal.ingredients ? meal : await fetchMealById(meal.id);
       setMealplan((prev) => ({
         ...prev,
-        [date]: fullRecipe,
+        [date]: { ...(prev[date] || {}), [slotId]: fullRecipe },
       }));
-      
-      // Update food list if date is in current timeframe
-      setFood((prev) =>
-        prev.map((f) => 
-          f.date === date 
-            ? { ...fullRecipe, date, saved: true } 
-            : f
-        )
-      );
-      
       setSelectedMealForDate(null);
-      setActiveView('plan'); // Switch back to plan view
+      setActiveView('plan');
     } catch (err) {
-      console.error('Error adding meal to date:', err);
+      console.error('Error adding meal:', err);
       alert('Failed to add meal. Please try again.');
     }
+  };
+
+  const getIngredientsByRecipe = () => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const result = {};
+    for (const [date, daySlots] of Object.entries(mealplan)) {
+      if (new Date(date) < todayStart) continue;
+      for (const [slotId, meal] of Object.entries(daySlots)) {
+        if (meal?.ingredients?.length) {
+          result[`${date}-${slotId}`] = { name: meal.name, ingredients: meal.ingredients };
+        }
+      }
+    }
+    return result;
   };
 
   return (
@@ -165,12 +167,8 @@ function App() {
                 />
               </svg>
             </div>
-            {user ? (
-              <UserMenu />
-            ) : (
-              <button className="btn-signin" onClick={() => setShowAuthModal(true)}>
-                Sign in
-              </button>
+            {user ? <UserMenu /> : (
+              <button className="btn-signin" onClick={() => setShowAuthModal(true)}>Sign in</button>
             )}
           </div>
         </div>
@@ -179,16 +177,11 @@ function App() {
           endDate={endDate}
           onStartChange={setStartDate}
           onEndChange={setEndDate}
-          disabled={loading}
         />
       </header>
 
-      {/* View Tabs */}
       <div className="view-tabs">
-        <button 
-          className={`view-tab ${activeView === 'plan' ? 'active' : ''}`}
-          onClick={() => setActiveView('plan')}
-        >
+        <button className={`view-tab ${activeView === 'plan' ? 'active' : ''}`} onClick={() => setActiveView('plan')}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
             <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -197,20 +190,14 @@ function App() {
           </svg>
           My Plan
         </button>
-        <button
-          className={`view-tab ${activeView === 'browse' ? 'active' : ''}`}
-          onClick={() => setActiveView('browse')}
-        >
+        <button className={`view-tab ${activeView === 'browse' ? 'active' : ''}`} onClick={() => setActiveView('browse')}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
           Browse Recipes
         </button>
-        <button
-          className={`view-tab ${activeView === 'macros' ? 'active' : ''}`}
-          onClick={() => setActiveView('macros')}
-        >
+        <button className={`view-tab ${activeView === 'macros' ? 'active' : ''}`} onClick={() => setActiveView('macros')}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="20" x2="18" y2="10"></line>
             <line x1="12" y1="20" x2="12" y2="4"></line>
@@ -235,31 +222,33 @@ function App() {
             onToggle={() => setSidebarOpen((open) => !open)}
             onSelect={(cat) =>
               setSelectedCategories((selected) =>
-                selected.includes(cat)
-                  ? selected.filter((c) => c !== cat)
-                  : [...selected, cat]
+                selected.includes(cat) ? selected.filter((c) => c !== cat) : [...selected, cat]
               )
             }
             onRestrictionToggle={(restriction) =>
               setSelectedRestrictions((selected) =>
-                selected.includes(restriction)
-                  ? selected.filter((r) => r !== restriction)
-                  : [...selected, restriction]
+                selected.includes(restriction) ? selected.filter((r) => r !== restriction) : [...selected, restriction]
               )
             }
           />
-          
+
           {activeView === 'plan' && (
             <FoodList
-              food={food}
-              loading={loading}
-              onSave={handleSave}
+              startDate={startDate}
+              endDate={endDate}
+              mealplan={mealplan}
+              slots={slots}
+              getDaySlots={getDaySlots}
+              rerollingKey={rerollingKey}
               onReroll={handleReroll}
+              onRemove={handleRemoveMeal}
+              onAddSlotToDay={handleAddSlotToDay}
+              onRemoveSlotFromDay={handleRemoveSlotFromDay}
             />
           )}
           {activeView === 'browse' && (
             <RecipeBrowser
-              categories={categories.map(cat => cat.strCategory)}
+              categories={categories.map((cat) => cat.strCategory)}
               selectedCategories={selectedCategories}
               selectedRestrictions={selectedRestrictions}
               onAddToDate={handleAddMealToDate}
@@ -271,6 +260,7 @@ function App() {
               macroProfile={macroProfile}
               startDate={startDate}
               endDate={endDate}
+              slots={slots}
             />
           )}
         </>
@@ -278,6 +268,13 @@ function App() {
 
       {activeView === 'plan' && !showCart && (
         <div className="roll-button-container">
+          <button
+            className="btn-slots"
+            onClick={() => setShowSlotManager(true)}
+            title="Manage meal slots"
+          >
+            Slots
+          </button>
           {macroProfile ? (
             <button
               className="btn btn-plan-week"
@@ -300,14 +297,13 @@ function App() {
       {selectedMealForDate && (
         <AddToDateModal
           meal={selectedMealForDate}
+          slots={slots}
           onConfirm={confirmAddMealToDate}
           onCancel={() => setSelectedMealForDate(null)}
         />
       )}
 
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
       {showMacroModal && (
         <MacroProfileModal
@@ -324,10 +320,25 @@ function App() {
           endDate={endDate}
           selectedCategories={selectedCategories}
           selectedRestrictions={selectedRestrictions}
+          slots={slots}
           onApply={(plan) => {
-            setMealplan((prev) => ({ ...prev, ...plan }));
+            setMealplan((prev) => {
+              const next = { ...prev };
+              for (const [date, daySlots] of Object.entries(plan)) {
+                next[date] = { ...(next[date] || {}), ...daySlots };
+              }
+              return next;
+            });
           }}
           onClose={() => setShowPlannerModal(false)}
+        />
+      )}
+
+      {showSlotManager && (
+        <SlotManagerModal
+          slots={slots}
+          onSave={setSlots}
+          onClose={() => setShowSlotManager(false)}
         />
       )}
     </div>

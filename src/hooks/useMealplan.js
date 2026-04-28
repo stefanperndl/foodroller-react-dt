@@ -4,6 +4,18 @@ import { db } from '../lib/firebase';
 
 const MEALPLAN_KEY = 'mealplan_v1';
 
+// Migrate old { date: meal } → new { date: { dinner: meal } }
+function migrateIfNeeded(data) {
+  const result = {};
+  for (const [date, value] of Object.entries(data)) {
+    if (!value || typeof value !== 'object') continue;
+    result[date] = ('name' in value || 'id' in value)
+      ? { dinner: value }
+      : value;
+  }
+  return result;
+}
+
 export function useMealplan(user) {
   const [mealplan, setMealplanState] = useState({});
   const [loaded, setLoaded] = useState(false);
@@ -21,12 +33,12 @@ export function useMealplan(user) {
         .then((snap) => {
           if (snap.exists()) {
             const cloud = snap.data().meals || {};
-            setMealplanState(cloud);
+            setMealplanState(migrateIfNeeded(cloud));
             localStorage.setItem(MEALPLAN_KEY, JSON.stringify(cloud));
           } else {
             // First sign-in: migrate any existing localStorage data
             const local = localStorage.getItem(MEALPLAN_KEY);
-            const localData = local ? JSON.parse(local) : {};
+            const localData = local ? migrateIfNeeded(JSON.parse(local)) : {};
             setMealplanState(localData);
             if (Object.keys(localData).length > 0) {
               setDoc(doc(db, 'users', user.uid, 'data', 'mealplan'), { meals: localData });
@@ -36,18 +48,16 @@ export function useMealplan(user) {
         .catch(() => {
           // Firestore unavailable — fall back to localStorage
           const stored = localStorage.getItem(MEALPLAN_KEY);
-          if (stored) setMealplanState(JSON.parse(stored));
+          if (stored) setMealplanState(migrateIfNeeded(JSON.parse(stored)));
         })
         .finally(() => setLoaded(true));
     } else if (wasSignedIn) {
-      // Just signed out: wipe the cached cloud data so it's not visible to the next user
       localStorage.removeItem(MEALPLAN_KEY);
       setMealplanState({});
       setLoaded(true);
     } else {
-      // Anonymous from the start: load any pre-auth localStorage data
       const stored = localStorage.getItem(MEALPLAN_KEY);
-      if (stored) setMealplanState(JSON.parse(stored));
+      if (stored) setMealplanState(migrateIfNeeded(JSON.parse(stored)));
       setLoaded(true);
     }
   }, [user]);

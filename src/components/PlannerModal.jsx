@@ -8,13 +8,15 @@ export default function PlannerModal({
   endDate,
   selectedCategories,
   selectedRestrictions,
+  slots,
   onApply,
   onClose,
 }) {
-  const [status, setStatus]   = useState('idle');   // idle | generating | done | error
+  const sortedSlots = [...slots].sort((a, b) => a.order - b.order);
+  const [status, setStatus]     = useState('idle');
   const [progress, setProgress] = useState('');
-  const [plan, setPlan]       = useState(null);
-  const [error, setError]     = useState('');
+  const [plan, setPlan]         = useState(null);
+  const [error, setError]       = useState('');
 
   async function handleGenerate() {
     setStatus('generating');
@@ -27,6 +29,7 @@ export default function PlannerModal({
         macroProfile,
         selectedCategories,
         selectedRestrictions,
+        slots: sortedSlots,
         onProgress: setProgress,
       });
       setPlan(result);
@@ -60,8 +63,7 @@ export default function PlannerModal({
         {status === 'idle' && (
           <div className="planner-idle">
             <p className="planner-description">
-              Claude will select meals from TheMealDB that best match your daily macro targets
-              for each day in your current timeframe.
+              Claude will fill all {sortedSlots.length} slot{sortedSlots.length !== 1 ? 's' : ''} ({sortedSlots.map((s) => s.label).join(', ')}) for each day in your timeframe so that the combined daily macros hit your targets.
             </p>
             <button className="planner-generate-btn" onClick={handleGenerate}>
               Generate plan
@@ -86,25 +88,36 @@ export default function PlannerModal({
         {status === 'done' && plan && (
           <>
             <div className="planner-results">
-              {dateEntries.map(([date, recipe]) => {
+              {dateEntries.map(([date, daySlots]) => {
                 const d = new Date(date + 'T12:00:00');
                 const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                 return (
-                  <div key={date} className="planner-result-row">
+                  <div key={date} className="planner-result-day">
                     <span className="planner-result-date">{label}</span>
-                    <span className="planner-result-meal">{recipe.name}</span>
-                    {recipe.nutrition && (
-                      <span className="planner-result-macros">
-                        {recipe.nutrition.kcal} kcal · {recipe.nutrition.protein}g P
-                      </span>
-                    )}
+                    <div className="planner-result-slots">
+                      {sortedSlots.map((slot) => {
+                        const recipe = daySlots[slot.id];
+                        if (!recipe) return null;
+                        return (
+                          <div key={slot.id} className="planner-result-row">
+                            <span className="planner-result-slot-label">{slot.label}</span>
+                            <span className="planner-result-meal">{recipe.name}</span>
+                            {recipe.nutrition && (
+                              <span className="planner-result-macros">
+                                {recipe.nutrition.kcal} kcal · {recipe.nutrition.protein}g P
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}
             </div>
             <div className="planner-actions">
               <button className="planner-secondary-btn" onClick={handleGenerate}>Regenerate</button>
-              <button className="planner-apply-btn" onClick={handleApply}>Apply plan</button>
+              <button className="planner-apply-btn" onClick={handleApply}>Apply to plan</button>
             </div>
           </>
         )}

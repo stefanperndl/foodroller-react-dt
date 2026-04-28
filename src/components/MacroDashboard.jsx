@@ -34,26 +34,82 @@ function MacroBar({ label, value, target, unit = 'g', color }) {
   );
 }
 
-function DayCard({ date, meal, profile, n }) {
+function SlotRow({ slotLabel, meal, n, loading }) {
+  return (
+    <div className="day-slot-row">
+      <div className="day-slot-header">
+        <span className="day-slot-label">{slotLabel}</span>
+        <span className="day-slot-meal">{meal?.name ?? <em className="day-slot-empty">No meal</em>}</span>
+      </div>
+      {meal && loading && <p className="day-card-no-nutrition">Loading nutrition…</p>}
+      {meal && n && (
+        <div className="day-slot-macros">
+          <span className="day-slot-macro">{n.kcal} kcal</span>
+          <span className="day-slot-macro">{n.protein}g P</span>
+          <span className="day-slot-macro">{n.carbs}g C</span>
+          <span className="day-slot-macro">{n.fat}g F</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
+function DayCard({ date, slots, mealplanDay, profile, nutritionMap }) {
   const d = new Date(date + 'T12:00:00');
   const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
+  const slotData = slots.map((slot) => {
+    const meal = mealplanDay?.[slot.id] ?? null;
+    const cacheKey = meal ? (meal.id ?? meal.name) : null;
+    const raw = cacheKey ? (getNutritionFromCache(cacheKey) ?? nutritionMap[cacheKey] ?? null) : null;
+    const n = raw ? {
+      kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
+      protein: Math.round(raw.protein / DEFAULT_SERVINGS),
+      carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
+      fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
+    } : null;
+    const loading = meal && !n;
+    return { slot, meal, n, loading };
+  });
+
+  const hasAnyMeal = slotData.some((s) => s.meal);
+
+  // Day total across all slots that have nutrition data
+  let total = null;
+  for (const { n } of slotData) {
+    if (!n) continue;
+    if (!total) total = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+    total.kcal    += n.kcal;
+    total.protein += n.protein;
+    total.carbs   += n.carbs;
+    total.fat     += n.fat;
+  }
+
   return (
-    <div className={`day-card ${!meal ? 'day-card-empty' : ''}`}>
+    <div className={`day-card ${!hasAnyMeal ? 'day-card-empty' : ''}`}>
       <div className="day-card-header">
         <span className="day-card-date">{dayLabel}</span>
-        <span className="day-card-meal">{meal?.name ?? 'No meal planned'}</span>
       </div>
-      {meal && !n && (
-        <p className="day-card-no-nutrition">Loading nutrition…</p>
-      )}
-      {n && (
-        <div className="day-card-bars">
-          <MacroBar label="kcal" value={n.kcal}    target={profile.kcal}    unit=""  color={statusColor(n.kcal,    profile.kcal)} />
-          <MacroBar label="P"    value={n.protein}  target={profile.protein} unit="g" color={statusColor(n.protein, profile.protein)} />
-          <MacroBar label="C"    value={n.carbs}    target={profile.carbs}   unit="g" color={statusColor(n.carbs,   profile.carbs)} />
-          <MacroBar label="F"    value={n.fat}      target={profile.fat}     unit="g" color={statusColor(n.fat,     profile.fat)} />
+      <div className="day-card-slots">
+        {slotData.map(({ slot, meal, n, loading }) => (
+          <SlotRow
+            key={slot.id}
+            slotLabel={slot.label}
+            meal={meal}
+            n={n}
+            loading={loading}
+          />
+        ))}
+      </div>
+      {total && (
+        <div className="day-card-total">
+          <span className="day-card-total-label">Daily total</span>
+          <div className="day-card-bars">
+            <MacroBar label="kcal" value={total.kcal}    target={profile.kcal}    unit=""  color={statusColor(total.kcal,    profile.kcal)} />
+            <MacroBar label="P"    value={total.protein}  target={profile.protein} unit="g" color={statusColor(total.protein, profile.protein)} />
+            <MacroBar label="C"    value={total.carbs}    target={profile.carbs}   unit="g" color={statusColor(total.carbs,   profile.carbs)} />
+            <MacroBar label="F"    value={total.fat}      target={profile.fat}     unit="g" color={statusColor(total.fat,     profile.fat)} />
+          </div>
         </div>
       )}
     </div>
@@ -61,15 +117,15 @@ function DayCard({ date, meal, profile, n }) {
 }
 
 function WeekSummary({ days, profile }) {
-  const daysWithData = days.filter((d) => d.n);
+  const daysWithData = days.filter((d) => d.total);
   if (daysWithData.length === 0) return null;
 
   const totals = daysWithData.reduce(
     (acc, d) => ({
-      kcal:    acc.kcal    + d.n.kcal,
-      protein: acc.protein + d.n.protein,
-      carbs:   acc.carbs   + d.n.carbs,
-      fat:     acc.fat     + d.n.fat,
+      kcal:    acc.kcal    + d.total.kcal,
+      protein: acc.protein + d.total.protein,
+      carbs:   acc.carbs   + d.total.carbs,
+      fat:     acc.fat     + d.total.fat,
     }),
     { kcal: 0, protein: 0, carbs: 0, fat: 0 }
   );
@@ -95,20 +151,28 @@ function WeekSummary({ days, profile }) {
   );
 }
 
-export default function MacroDashboard({ mealplan, macroProfile, startDate, endDate }) {
+export default function MacroDashboard({ mealplan, macroProfile, startDate, endDate, slots }) {
   const [nutritionMap, setNutritionMap] = useState({});
 
   const dates = getDatesInRange(new Date(startDate), new Date(endDate))
     .map((d) => d.toISOString().slice(0, 10));
 
-  // Fetch nutrition for all planned meals that aren't cached yet.
-  // Use meal.id as cache key when available, fall back to meal.name
-  // so meals saved before the id fix still work.
+  const sortedSlots = [...(slots || [])].sort((a, b) => a.order - b.order);
+
+  function allMeals() {
+    const meals = [];
+    for (const date of dates) {
+      const daySlots = mealplan[date] || {};
+      for (const meal of Object.values(daySlots)) {
+        if (meal?.ingredients?.length) meals.push(meal);
+      }
+    }
+    return meals;
+  }
+
   useEffect(() => {
     let cancelled = false;
-    const meals = dates
-      .map((date) => mealplan[date])
-      .filter((m) => m?.ingredients?.length)
+    const meals = allMeals()
       .map((m) => ({ ...m, cacheKey: m.id ?? m.name }))
       .filter((m) => !getNutritionFromCache(m.cacheKey));
 
@@ -140,25 +204,36 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
   }
 
   const days = dates.map((date) => {
-    const meal = mealplan[date] ?? null;
-    const cacheKey = meal?.id ?? meal?.name;
-    const raw = cacheKey ? (getNutritionFromCache(cacheKey) ?? nutritionMap[cacheKey]) : null;
-    const n = raw
-      ? {
-          kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
-          protein: Math.round(raw.protein / DEFAULT_SERVINGS),
-          carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
-          fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
-        }
-      : null;
-    return { date, meal, n };
+    const daySlotMap = mealplan[date] || {};
+    let total = null;
+    for (const slot of sortedSlots) {
+      const meal = daySlotMap[slot.id];
+      if (!meal) continue;
+      const cacheKey = meal.id ?? meal.name;
+      const raw = getNutritionFromCache(cacheKey) ?? nutritionMap[cacheKey];
+      if (raw) {
+        if (!total) total = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+        total.kcal    += Math.round(raw.kcal    / DEFAULT_SERVINGS);
+        total.protein += Math.round(raw.protein / DEFAULT_SERVINGS);
+        total.carbs   += Math.round(raw.carbs   / DEFAULT_SERVINGS);
+        total.fat     += Math.round(raw.fat     / DEFAULT_SERVINGS);
+      }
+    }
+    return { date, total };
   });
 
   return (
     <div className="macro-dashboard">
       <div className="macro-dashboard-days">
-        {days.map(({ date, meal, n }) => (
-          <DayCard key={date} date={date} meal={meal} profile={macroProfile} n={n} />
+        {dates.map((date) => (
+          <DayCard
+            key={date}
+            date={date}
+            slots={sortedSlots}
+            mealplanDay={mealplan[date] || {}}
+            profile={macroProfile}
+            nutritionMap={nutritionMap}
+          />
         ))}
       </div>
       <WeekSummary days={days} profile={macroProfile} />
