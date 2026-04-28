@@ -101,14 +101,21 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
   const dates = getDatesInRange(new Date(startDate), new Date(endDate))
     .map((d) => d.toISOString().slice(0, 10));
 
-  // Fetch nutrition for all planned meals that aren't cached yet.
-  // Use meal.id as cache key when available, fall back to meal.name
-  // so meals saved before the id fix still work.
+  // Collect all meals across all slots for all dates
+  function allMeals() {
+    const meals = [];
+    for (const date of dates) {
+      const slots = mealplan[date] || {};
+      for (const meal of Object.values(slots)) {
+        if (meal?.ingredients?.length) meals.push(meal);
+      }
+    }
+    return meals;
+  }
+
   useEffect(() => {
     let cancelled = false;
-    const meals = dates
-      .map((date) => mealplan[date])
-      .filter((m) => m?.ingredients?.length)
+    const meals = allMeals()
       .map((m) => ({ ...m, cacheKey: m.id ?? m.name }))
       .filter((m) => !getNutritionFromCache(m.cacheKey));
 
@@ -140,18 +147,32 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
   }
 
   const days = dates.map((date) => {
-    const meal = mealplan[date] ?? null;
-    const cacheKey = meal?.id ?? meal?.name;
-    const raw = cacheKey ? (getNutritionFromCache(cacheKey) ?? nutritionMap[cacheKey]) : null;
-    const n = raw
-      ? {
-          kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
-          protein: Math.round(raw.protein / DEFAULT_SERVINGS),
-          carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
-          fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
-        }
-      : null;
-    return { date, meal, n };
+    const slots = mealplan[date] || {};
+    const slotMeals = Object.entries(slots);
+
+    // Sum macros across all slots for the day
+    let n = null;
+    let mealNames = [];
+    for (const [, meal] of slotMeals) {
+      if (!meal) continue;
+      mealNames.push(meal.name);
+      const cacheKey = meal.id ?? meal.name;
+      const raw = getNutritionFromCache(cacheKey) ?? nutritionMap[cacheKey];
+      if (raw) {
+        if (!n) n = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+        n.kcal    += Math.round(raw.kcal    / DEFAULT_SERVINGS);
+        n.protein += Math.round(raw.protein / DEFAULT_SERVINGS);
+        n.carbs   += Math.round(raw.carbs   / DEFAULT_SERVINGS);
+        n.fat     += Math.round(raw.fat     / DEFAULT_SERVINGS);
+      }
+    }
+    // Use first meal name for display; show count if multiple
+    const mealLabel = mealNames.length === 0
+      ? null
+      : mealNames.length === 1
+        ? mealNames[0]
+        : `${mealNames[0]} +${mealNames.length - 1} more`;
+    return { date, meal: mealLabel ? { name: mealLabel } : null, n };
   });
 
   return (
