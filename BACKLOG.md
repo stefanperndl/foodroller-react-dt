@@ -1,517 +1,200 @@
 # FoodRoller Backlog
 
-This file lists planned features prioritized by strategic impact on the platform's evolution toward API flexibility and social meal planning.
+**Primary metric**: Weekly Active Meal Planners (WAMP) — users who add ≥1 meal per week.  
+**Branching**: every item has a dedicated branch off `master`. Master stays stable and deployable at all times.
 
-**Prioritization Criteria:**
-1. **Foundation First**: Features enabling API swapping and multi-source data
-2. **User Retention**: Core improvements that keep existing users engaged
-3. **Social Readiness**: Features preparing for community/sharing capabilities
-4. **Growth Enablers**: Viral loops and discovery mechanisms
-5. **Nice-to-Have**: Polish and convenience features
+**Prioritization order**: (1) Core loop completion → (2) Identity + accounts → (3) AI differentiation → (4) Monetization → (5) Social → (6) Scale
 
 ---
 
 ## ✅ Recently Completed
 
-- **Recipe Detail View/Modal** (v1.2):  
-  Click any recipe card to view full details including ingredients, cooking instructions, cuisine, dietary badges, and tags. Modal displays with dark grey/white styling, compact multi-column ingredient layout, and prominent dietary restriction badges. Includes "Add to Date" button in Browse view.
-
-- **Recipe Catalog/Browse View** (v1.1):  
-  Browse recipes by category before adding to plan. Includes responsive grid, category filtering, dietary restriction filtering, "Add to Date" functionality with modal, and tab-based navigation between Plan and Browse views.
-
-- **Dietary Restrictions** (v1.0):  
-  Three preset dietary filters (Vegetarian 🌱, Vegan 🥗, Pescatarian 🐟) with automatic category filtering and ingredient validation. Includes retry logic and client-side validation to work with free API limitations.
-
-- **Category-based Meal Filtering** (v1.0):  
-  Select multiple categories in sidebar to filter meal suggestions (with workaround for free API's single-category limitation).
-
-- **Ingredient Merging** (v0.9):  
-  Shopping cart merges and sums similar ingredients, displays which meals need each, and handles unit conversions (e.g., tbs to g/ml).
-
-- **Next.js Migration** (v0.8):  
-  Project migrated to Next.js app directory (v15+) with static export mode.
-
-- **Automated Testing** (v0.7):  
-  Test suite for ingredient merging logic (Jest, React Testing Library) with GitHub Actions CI workflow.
+| Feature | Version | Notes |
+|---------|---------|-------|
+| Export Shopping List | v1.3 | Copy to clipboard, CSV download, Print/PDF — no new dependencies |
+| Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges, "Add to Date" |
+| Recipe Catalog / Browse View | v1.1 | Grid, category + dietary filter, tab navigation |
+| Dietary Restrictions | v1.0 | Vegetarian, Vegan, Pescatarian with retry + validation |
+| Category-based Filtering | v1.0 | Multi-select with single-category API workaround |
+| Ingredient Merging | v0.9 | Merged shopping cart with unit conversion |
+| Next.js Migration | v0.8 | App Router, static export |
+| Automated Testing (CI) | v0.7 | Jest + RTL, GitHub Actions |
 
 ---
 
-## 🎯 Phase 1: Foundation (API Flexibility)
-**Goal**: Prepare architecture for API swapping and data source flexibility
+## 🎯 Phase 1: Core Loop Completion
+**Goal**: Make the core roll→plan→shop→cook loop fully functional and tested.
 
-### P1.0 - Test Coverage for Refactoring Safety ⭐ CRITICAL
-**Impact**: Prevents regressions during refactoring, enables confident code changes  
-**Effort**: 1-2 weeks  
-**Why Now**: Must test existing functionality BEFORE refactoring. Without tests, we risk breaking features during service layer/context migrations.
+### ~~P1.0 — Test Coverage~~ ✅ DONE
+`feature/p1.0-test-coverage` — merged
 
-**Coverage Goals**:
-- **Component Tests** (React Testing Library):
-  - RecipeCard rendering and click interactions
-  - RecipeDetailModal lazy loading and data display
-  - FoodList meal plan display and interactions
-  - RecipeBrowser filtering and category selection
-  - CategorySidebar filter state management
-  - ShoppingCart ingredient merging (already has tests ✅)
-  
-- **Integration Tests**:
-  - API fetch functions (mock TheMealDB responses)
-  - Dietary restriction validation logic
-  - Ingredient parsing and normalization
-  - localStorage persistence (useMealplan hook)
-  
-- **E2E Tests** (Playwright or Cypress):
-  - Full user flow: Browse → View Recipe → Add to Date → Shopping Cart
-  - Filter by category and dietary restrictions
-  - Roll random meal and add to plan
-  - Export shopping list (after P1.1)
-
-**Test Infrastructure**:
-- Jest + React Testing Library (already configured ✅)
-- Mock Service Worker (MSW) for API mocking
-- Playwright or Cypress for E2E (choose based on preference)
-- GitHub Actions CI to run tests on every PR
-- Coverage threshold: 70%+ before starting refactors
-
-**Success Criteria**:
-- All existing features have test coverage
-- CI pipeline runs tests automatically
-- Can refactor with confidence (tests catch regressions)
+67 tests: all components (RTL), hooks (useMealplan), utils (dietaryRestrictions), API layer (recipes). jest-dom configured via setupFilesAfterEnv. E2E (Playwright) deferred — unit/integration coverage sufficient for safe refactoring.
 
 ---
 
-### P1.1 - Export Shopping List ⭐ NEXT
-**Impact**: User retention (most requested feature), data portability preparation  
-**Effort**: 3-5 days  
-**Why Now**: Users need this for grocery shopping (core use case). Also teaches us about data export patterns needed for API migration.
+### ~~P1.1 — Export Shopping List~~ ✅ DONE
+`feature/p1.1-export-shopping-list` — merged v1.3
 
-**Features**:
-- Export as PDF (print-friendly checklist)
-- Export as CSV (spreadsheet import)
-- Email shopping list (requires email service integration)
-- Copy to clipboard (quick share)
-
-**Technical Notes**: Use jsPDF or Puppeteer for PDF generation, EmailJS or SendGrid for email delivery.
+Copy to clipboard, CSV download, Print/PDF via browser print. No new dependencies.
 
 ---
 
-### P1.2 - Recipe Search
-**Impact**: Improves discovery, reduces friction, tests multi-API capability  
-**Effort**: 4-6 days  
-**Why Now**: Current browse-by-category is limiting. Search reveals API query patterns for future multi-source integration.
+### P1.2 — Recipe Search
+`feature/p1.2-recipe-search` | **Effort**: 4–6 days
 
-**Features**:
-- Search by recipe name across all categories
-- Search by ingredient (e.g., "chicken", "lemon")
-- Autocomplete/suggestions for better UX
-- Search history (localStorage)
-
-**Technical Notes**: TheMealDB has search endpoints. This feature validates our adapter pattern can handle different query types.
-
-**Tests Required**:
-- Search input debouncing
-- API call with search query
-- Empty state handling (no results)
-- Search history persistence
+Browse-by-category is limiting. Search by name + ingredient, with autocomplete and search history (localStorage).
 
 ---
 
-### P1.3 - Recipe History & Recently Viewed
-**Impact**: User retention (easier to find recipes they liked)  
-**Effort**: 2-3 days  
-**Why Now**: Builds localStorage persistence patterns needed for offline-first architecture. Low effort, high user satisfaction.
+### P1.3 — Recipe History / Recently Viewed
+`feature/p1.3-recipe-history` | **Effort**: 2–3 days
 
-**Features**:
-- Track last 20 viewed recipes (localStorage)
-- "Recently Viewed" section in Browse view
-- Clear history button
-- Jump back to recipe from history
-
-**Technical Notes**: Simple localStorage implementation, tests our caching strategy.
-
-**Tests Required**:
-- History tracking on recipe view
-- localStorage persistence and retrieval
-- History limit (max 20 items)
-- Clear history functionality
+Track last 20 viewed recipes in localStorage. "Recently Viewed" section in Browse. Builds caching patterns for later.
 
 ---
 
-### P1.4 - Service Layer Refactoring (ARCHITECTURE Phase 1)
-**Impact**: Enables API swapping, reduces coupling, prepares for multi-source data  
-**Effort**: 1-2 weeks  
-**Why Now**: After test coverage in place (P1.0), can safely refactor with confidence.
+### P1.4 — Service Layer Refactoring
+`feature/p1.4-service-layer` | **Effort**: 1–2 weeks | **Depends on**: P1.0
 
-**Refactoring Steps**:
-1. **Create RecipeService abstraction**
-   - Wraps all recipe data fetching logic
-   - Components call service instead of API directly
-   - Service returns canonical recipe format
-
-2. **Implement Adapter Pattern**
-   - TheMealDBAdapter (wraps existing src/api/recipes.js)
-   - Define canonical Recipe schema (JSDoc or TypeScript)
-   - All recipes normalized to same format regardless of source
-
-3. **Refactor Components**
-   - Update RecipeBrowser, FoodList, RecipeDetailModal to use RecipeService
-   - Remove direct imports of src/api/recipes.js
-   - Test each component after refactor (P1.0 tests should pass)
-
-4. **Add Feature Flags**
-   - Toggle between API adapters via config
-   - Prepare for A/B testing different data sources
-
-**Success Criteria**:
-- All P1.0 tests still pass ✅
-- Can add second API adapter in <1 day
-- Zero direct API imports in components
-- Performance unchanged (±10%)
-
-**Technical Notes**: See ARCHITECTURE.md Phase 1 for detailed strategy.
-
-**Tests Required**:
-- Service layer unit tests (mock adapters)
-- Adapter transformation tests (API format → canonical format)
-- Integration tests with mocked API responses
-- E2E tests still pass after refactor
+Decouple components from TheMealDB. RecipeService + TheMealDBAdapter. Canonical recipe schema. Enables multi-source data.  
+See ARCHITECTURE.md Phase 1 for step-by-step.
 
 ---
 
-## 🚀 Phase 2: User Retention & Polish
-**Goal**: Solidify core experience before adding social features
+## 🚀 Phase 2: Identity + AI Differentiation
+**Goal**: Unlock personalization (the core commercial differentiator) via user accounts and AI.
 
-### P2.0 - Context Architecture Refactoring (ARCHITECTURE Phase 2)
-**Impact**: Cleaner state management, prepares for cloud sync, enables React Native  
-**Effort**: 1-2 weeks  
-**Why Now**: After service layer stable (P1.4), move global state to React Context.
+### P2.0 — Context Architecture Refactoring
+`feature/p2.0-context-refactor` | **Effort**: 1–2 weeks | **Depends on**: P1.4
 
-**Refactoring Steps**:
-1. **Create Context Providers**
-   - RecipeContext (recipe data, categories, filters)
-   - MealPlanContext (meal plan state, localStorage → cloud abstraction)
-   - UIContext (view state, modal state, loading states)
-
-2. **Extract Custom Hooks**
-   - useRecipes() - replaces prop drilling of recipe data
-   - useMealPlan() - enhanced version of existing hook
-   - useFilters() - dietary and category filter state
-
-3. **Refactor App.jsx**
-   - Wrap app in context providers
-   - Remove prop drilling (50%+ line reduction)
-   - Components gradually adopt contexts
-
-4. **Storage Abstraction Layer**
-   - Abstract localStorage calls behind StorageService
-   - Prepare for localStorage → cloud migration
-   - Supports offline-first pattern
-
-**Success Criteria**:
-- App.jsx reduced by 50%+ lines
-- All P1.0 tests still pass ✅
-- Performance same or better (measure re-renders)
-- Components can opt-in gradually (backward compatible)
-
-**Technical Notes**: See ARCHITECTURE.md Phase 2 for detailed strategy.
-
-**Tests Required**:
-- Context provider unit tests
-- Custom hooks testing (renderHook from @testing-library/react)
-- Integration tests with context providers
-- Performance tests (re-render count monitoring)
+Move global state from App.jsx (11+ useState) to React Context. RecipeContext, MealPlanContext, UIContext. 50%+ reduction in App.jsx. Unlocks React Native portability.  
+See ARCHITECTURE.md Phase 2.
 
 ---
 
-### P2.1 - Favorite Recipes ⭐
-**Impact**: Personalization, user retention (save preferred recipes)  
-**Effort**: 3-4 days  
-**Why Now**: Foundation for user preferences (needed for social profiles later). Users keep asking "how do I save this?"
+### P2.1 — Progressive Web App (PWA)
+`feature/p2.1-favorites` | **Effort**: 3–5 days
 
-**Features**:
-- Heart icon on recipe cards (toggle favorite)
-- "Favorites" tab in Browse view
-- Prioritize favorites in random rolls
-- Export favorites list
+> **Note**: Branch was created as `feature/p2.1-favorites` — rename or create `feature/pwa` if splitting.
 
-**Technical Notes**: Stored in localStorage initially, easy to migrate to cloud when Phase 3 arrives.
-
-**Tests Required**:
-- Toggle favorite state (click heart icon)
-- Favorites persist in localStorage
-- Favorites tab displays correct recipes
-- Random roll prioritizes favorites
+VISION milestone for 2025–26. Install to home screen, offline browsing of saved plans, push notifications for meal reminders. Uses Next.js PWA plugin (next-pwa).
 
 ---
 
-### P2.2 - Print Recipe
-**Impact**: User convenience (offline cooking reference)  
-**Effort**: 1-2 days  
-**Why Now**: Low effort, high satisfaction. Print button in recipe detail modal.
+### P2.2 — Favorite Recipes
+`feature/p2.2-print-recipe` | **Effort**: 3–4 days
 
-**Features**:
-- Print-friendly recipe format (ingredients + instructions)
-- Hide navigation/UI elements when printing
-- Optional: Include meal plan context ("Dinner on Jan 15")
+> **Note**: Branch mismatch above — see naming note. Actual favorites work:
 
-**Technical Notes**: CSS `@media print` rules, simple window.print() call.
-
-**Tests Required**:
-- Print button triggers print dialog (mock window.print)
-- Print styles applied correctly (visual regression test)
+Heart icon on recipe cards, Favorites tab in Browse, prioritize favorites in random rolls. localStorage initially, cloud-ready.
 
 ---
 
-### P2.3 - Expand Dietary Restrictions
-**Impact**: Broader user base (capture more dietary needs)  
-**Effort**: 3-5 days (depends on API ingredient data quality)  
-**Why Now**: After validating current dietary filters work well, expand to capture more users.
+### P2.3 — User Accounts & Authentication ⭐ COMMERCIAL GATE
+`feature/p3.1-user-accounts` | **Effort**: 2–3 weeks
 
-**Features**:
-- Add filters: Gluten-free, Dairy-free, Nut-free, Keto, Low-carb
-- Update ingredient validation logic (more complex allergen checking)
-- Custom dietary profiles (user creates own restrictions)
+**Blocks all monetization, AI personalization, and social features.** Must decide on backend first.
 
-**Technical Notes**: Free API has limited ingredient details. May require manual curation or upgrade to premium API.
-
----
-
-### P2.4 - Recipe Tags/Metadata Enhancement
-**Impact**: Better filtering and discovery  
-**Effort**: 2-3 days (UI only), 2-3 weeks (if adding time data manually)  
-**Why Now**: Improves recipe cards, but blocked on API data quality.
-
-**Features**:
-- Display difficulty level (Easy/Medium/Hard) - **requires manual entry or premium API**
-- Prep time, cooking time - **TheMealDB free API does NOT include this data**
-- Serving size - **available in some recipes**
-- Filter by tags (breakfast, quick meals, comfort food)
-
-**API Limitation**: TheMealDB free tier lacks cooking/prep time. Options:
-- Upgrade to premium API ($5-50/mo depending on usage)
-- Manual data entry system (community contribution)
-- Integrate secondary API (Spoonacular, Edamam) for missing metadata
-
----
-
-## 🌐 Phase 3: Social Features (Backend Required)
-**Goal**: Enable sharing, community, and viral growth
-
-### P3.1 - User Accounts & Authentication ⭐ CRITICAL
-**Impact**: Required for all social features  
-**Effort**: 2-3 weeks (backend setup + frontend integration)  
-**Why Now**: Blocks all other Phase 3 features. Must decide on backend (Firebase/Supabase/Custom).
-
-**Features**:
-- Google OAuth login (fastest onboarding)
-- GitHub OAuth login (developer audience)
-- Email/password option (traditional users)
+- Google OAuth (fastest) + email/password
 - Anonymous → authenticated migration (preserve localStorage data)
-- Profile page (username, avatar, bio, dietary preferences)
-
-**Technical Decision Needed**: Which backend? (See ARCHITECTURE.md Decision 1)
-
----
-
-### P3.2 - Share Meal Plan ⭐
-**Impact**: Viral growth (30-40% conversion from shared links)  
-**Effort**: 3-4 weeks (requires backend, database, URL routing)  
-**Why Now**: First social feature, validates product-market fit for community aspect.
-
-**Features**:
-- Generate unique shareable link (e.g., `/plans/abc123`)
-- Public/private toggle (with confirmation dialog)
-- Social media preview cards (Open Graph meta tags)
-- "Fork this plan" button (copy to your account)
-- View-only mode for non-authenticated users
-
-**Technical Notes**: Requires backend API to store public meal plans, CDN for image hosting.
+- Profile page (username, dietary preferences)
+- **Recommended backend**: Firebase Auth + Firestore (fastest to market, scales to Phase 3)
 
 ---
 
-### P3.3 - User Impersonation (Admin Tooling)
-**Impact**: Support and debugging for production issues  
-**Effort**: 1-2 weeks  
-**Why Now**: After user accounts exist, admins need to test/debug user-specific issues.
+### P2.4 — AI Personalization ⭐ KEY DIFFERENTIATOR
+`feature/p2.4-recipe-tags` | **Effort**: 2–3 weeks | **Depends on**: P2.3
 
-**Features**:
-- Admin panel to impersonate any user account
-- View meal plans as if logged in as that user
-- Audit log of impersonation events (compliance)
-- Banner showing "Viewing as [username]" with exit button
+From VISION: "AI that learns preferences automatically." This is what separates FoodRoller from a plain recipe browser.
 
-**Security**: Requires admin role system, audit logging, GDPR compliance.
+- Track which rolls the user keeps vs discards (implicit feedback)
+- Claude API integration: smarter roll suggestions based on history, season, recent meals
+- "Why this meal?" explainability (builds trust)
+- Preference profile stored per user account
 
----
-
-### P3.4 - Social Feed & Discovery
-**Impact**: Content discovery, engagement, retention (3x higher for active users)  
-**Effort**: 4-6 weeks  
-**Why Now**: After sharing works, need discoverability to create network effects.
-
-**Features**:
-- Explore feed (popular meal plans this week)
-- Search meal plans by tags, dietary restrictions, author
-- Like/save meal plans (engagement metrics)
-- Follow users (optional, see ARCHITECTURE.md Decision 3)
-- Activity feed (if network-focused model chosen)
-
-**Technical Notes**: Requires recommendation algorithm, caching strategy for popular content, CDN for images.
+**Commercial note**: AI-powered rolls are the premium tier anchor feature.
 
 ---
 
-### P3.5 - Comments & Ratings
-**Impact**: Community engagement, social proof, feedback loop  
-**Effort**: 3-4 weeks (includes moderation tooling)  
-**Why Now**: After users can share and discover plans, enable conversations.
+### P2.5 — Smart Pantry Tracking
+`feature/p1.4-service-layer` | **Effort**: 3–4 weeks | **Depends on**: P2.3
 
-**Features**:
-- Comment on meal plans ("Loved this! Made the chicken recipe.")
-- Star ratings (1-5 stars)
-- Sort plans by rating/popularity
-- Report inappropriate comments (moderation queue)
-- Notification when someone comments on your plan
+From VISION milestone 2025–26. Track what ingredients the user has; cross-reference with meal plan shopping list to avoid buying duplicates. Reduces food waste (core value prop).
 
-**Moderation**: Requires content moderation system (automated filters + manual review queue).
+> **Note**: Needs its own branch — `feature/p2.5-smart-pantry`
 
 ---
 
-## 🎨 Phase 4: Advanced Features (Nice-to-Have)
-**Goal**: Polish and expand platform capabilities
+## 💰 Phase 2.5: Monetization
+**Goal**: Generate revenue. Without this, no commercial project.
 
-### P4.1 - Nutritional Information
-**Impact**: Health-conscious users, premium feature potential  
-**Effort**: 4-6 weeks (API integration + UI)  
-**Why Now**: After core social features stable, add premium value.
+### PM.1 — Freemium Tier Definition
+`feature/pm.1-freemium` (create branch) | **Effort**: 1 week (product) + 2 weeks (billing)
 
-**Features**:
-- Display calories, protein, carbs, fat per meal
-- Weekly/daily nutritional summary
-- Filter by calorie range (e.g., 300-500 cal meals)
-- Nutritional goals (daily calorie target, macro ratios)
+Define and implement free vs premium split. Recommended model:
 
-**API Limitation**: TheMealDB free tier lacks detailed nutrition data. Requires:
-- Premium recipe API (Spoonacular $150-500/mo, Edamam $69-399/mo)
-- Nutritional database integration (USDA API is free but manual mapping)
-- Community-contributed nutrition data
+| Free | Premium (~€5/mo) |
+|------|-----------------|
+| Unlimited rolls | AI-powered roll suggestions |
+| 1 active meal plan | Unlimited saved plans |
+| Basic dietary filters | All dietary profiles + custom |
+| Shopping list (clipboard) | PDF export + email delivery |
+| — | Nutrition data |
+| — | Cloud sync + mobile app |
 
----
-
-### P4.2 - Weekly/Monthly Calendar View
-**Impact**: Better planning UX for power users  
-**Effort**: 2-3 weeks (complex UI, drag-drop interactions)  
-**Why Now**: Current date-picker works for casual users, calendar for planners.
-
-**Features**:
-- Full calendar grid (like Google Calendar)
-- Drag-and-drop meals between days
-- Week-at-a-glance view with meal thumbnails
-- Month view with color-coded dietary badges
-- Print weekly meal plan as PDF
-
-**Technical Notes**: Use FullCalendar.js or react-big-calendar library.
+- Integrate Stripe (or Paddle for EU VAT handling)
+- Gate premium features behind subscription check
+- "Upgrade" prompt at natural friction points (e.g., third plan, AI roll)
 
 ---
 
-### P4.3 - Manual Recipe Entry
-**Impact**: User-generated content (unlimited recipes), community growth  
-**Effort**: 3-4 weeks (form UI + validation + storage)  
-**Why Now**: After social features work, enable community contributions.
+## 🌐 Phase 3: Social Features
+**Goal**: Viral growth through sharing and community. Requires backend from P2.3.
 
-**Features**:
-- Recipe creation form (name, ingredients, instructions, image upload)
-- Image hosting (S3, Cloudinary, or backend storage)
-- Recipe editing (own recipes only)
-- Public/private toggle for custom recipes
-- Community can discover and use your recipes
+### P3.1 — Share Meal Plan
+`feature/p3.2-share-meal-plan` | **Effort**: 3–4 weeks | **Depends on**: P2.3
 
-**Moderation**: Requires content review system (spam, copyright, offensive content).
+Shareable links (`/plans/abc123`), public/private toggle, Open Graph preview cards, "Fork this plan" button.
 
----
+### P3.2 — Social Feed & Discovery
+`feature/p3.4-social-feed` | **Effort**: 4–6 weeks | **Depends on**: P3.1
 
-### P4.4 - Mobile App (Native)
-**Impact**: Mobile-first users, app store presence, notifications  
-**Effort**: 8-12 weeks (iOS + Android, or React Native)  
-**Why Now**: After web product-market fit proven, expand to mobile.
+Explore feed (popular plans this week), search by tags/dietary/author, likes/saves.
 
-**Options**:
-- React Native (shares contexts/logic with web, faster development)
-- Native Swift/Kotlin (better performance, more work)
-- Progressive Web App (PWA) - install web app, lighter effort
+### P3.3 — Comments & Ratings
+`feature/p3.5-comments-ratings` | **Effort**: 3–4 weeks | **Depends on**: P3.2
 
-**Technical Notes**: Current Context-based architecture designed for React Native portability.
+Star ratings, comments, sort by popularity, moderation queue.
+
+### P3.4 — Admin / User Impersonation
+`feature/p3.3-admin-impersonation` | **Effort**: 1–2 weeks | **Depends on**: P2.3
+
+Admin panel, impersonation banner, audit log. Required for support once user accounts exist.
 
 ---
 
-### P4.5 - Localization (i18n)
-**Impact**: International users, global growth  
-**Effort**: 3-4 weeks (infrastructure) + ongoing (translations)  
-**Why Now**: After product-market fit in English, expand to other languages.
+## 🎨 Phase 4: Scale & Polish
 
-**Features**:
-- Multi-language support (Spanish, French, German, etc.)
-- Locale-specific units (metric vs imperial)
-- Translation management system (Crowdin, Lokalise)
-- Translated recipe content (requires multilingual API or community translations)
-
-**Technical Notes**: Use react-i18next or next-intl library. TheMealDB has some international recipes but limited translations.
-
----
-
-### P4.6 - Premium API Upgrade
-**Impact**: Richer data (nutrition, time, multi-category), better UX  
-**Effort**: 2-3 weeks (adapter implementation + testing)  
-**Cost**: $50-500/mo depending on API and usage  
-**Why Now**: After revenue stream established (premium users, ads), invest in data quality.
-
-**Benefits**:
-- True multi-category filtering (remove workaround)
-- Cooking/prep time data (better planning)
-- Detailed nutritional information (health features)
-- More recipe sources (Spoonacular, Edamam)
-- Higher rate limits (better performance)
-
-**Decision**: See ARCHITECTURE.md Decision 5 for API strategy.
+| Item | Branch | Effort | Notes |
+|------|--------|--------|-------|
+| Expand dietary restrictions (Gluten-free, Keto, custom) | `feature/p2.3-dietary-expansion` | 3–5 days | API ingredient data quality limits this |
+| Print Recipe | `feature/p2.2-print-recipe` | 1–2 days | `@media print` + window.print() |
+| Nutritional information | `feature/p4.1-nutritional-info` | 4–6 weeks | Requires premium API (Spoonacular/Edamam) |
+| Calendar view (drag-drop) | `feature/p4.2-calendar-view` | 2–3 weeks | react-big-calendar |
+| Manual recipe entry | `feature/p4.3-manual-recipe-entry` | 3–4 weeks | User-generated content |
+| Native mobile app | `feature/p4.4-mobile-app` | 8–12 weeks | React Native reuse of Context layer |
+| Localization (i18n) | `feature/p4.5-localization` | 3–4 weeks | next-intl; after English PMF |
+| Premium API upgrade | `feature/p4.6-premium-api` | 2–3 weeks | Removes free-API workarounds |
+| Recipe tags / metadata | — | 2–3 days | Blocked on API data |
 
 ---
 
-## ⚠️ Deprioritized / Out of Scope
+## ⚠️ Deprioritized
 
-These features are interesting but don't align with current strategic goals:
-
-- **Manual Categories Entry**: Low value (existing categories comprehensive), high complexity
-- **Add Nutrition Filters to Sidebar**: Blocked on nutritional data availability (premium API needed)
-- **Halal/Kosher Dietary Filters**: Small user segment, requires specialized data validation, defer until Phase 2.3
+- Manual category entry (low value, comprehensive existing categories)
+- Halal/Kosher filters (small segment, needs specialized data)
+- Social network features before product-market fit proven
 
 ---
 
-## 📊 Prioritization Rationale
-
-**Why This Order?**
-
-1. **Export Shopping List (P1.1)**: Most requested feature, immediate user value, teaches data portability patterns
-2. **Recipe Search (P1.2)**: Current browse is limiting, validates multi-API query patterns
-3. **Recipe History (P1.3)**: Easy win, builds caching patterns, high user satisfaction
-4. **Favorites (P2.1)**: Foundation for personalization, users keep asking for it
-5. **Print Recipe (P2.2)**: Low effort, high satisfaction, completes recipe detail feature
-6. **Expand Dietary (P2.3)**: After validating current filters work, expand user base
-7. **Recipe Tags (P2.4)**: Blocked on API data quality, consider premium API or manual entry
-8. **User Accounts (P3.1)**: Blocks all social features, critical decision point (see ARCHITECTURE.md)
-9. **Share Meal Plan (P3.2)**: First social feature, validates community product-market fit
-10. **User Impersonation (P3.3)**: After accounts exist, needed for support/debugging
-
-**Data Points Used**:
-- User retention: Features that keep users coming back (favorites, history, export)
-- Viral growth: Sharing = 30-40% conversion from links (industry average)
-- Development risk: Phase 1 features low-risk, no backend required
-- Architecture prep: Each Phase 1 feature teaches patterns needed for Phase 2/3
-- Backend dependency: All Phase 3 features require backend (see ARCHITECTURE.md timeline)
-
-**Questions for Clarification**:
-1. Should we prioritize **Export Shopping List** (user retention) or **Recipe Search** (discovery) first?
-2. When do you want to tackle **User Accounts** decision (which backend)?
-3. Are there any features in Phase 4 you'd like to pull forward to Phase 2?
-4. Should **Mobile App** be higher priority if your target users are mobile-first?
-
----
-
-*Last updated: October 27, 2025*
+*Last updated: April 28, 2026 — P1.0 test coverage + P1.1 Export Shopping List shipped*
