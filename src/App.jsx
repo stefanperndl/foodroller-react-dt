@@ -52,8 +52,7 @@ function App() {
       return { date: dateStr, saved: false };
     });
     setFood(loaded);
-    // eslint-disable-next-line
-  }, [startDate, endDate, mealplanLoaded]); // <-- mealplan removed from deps
+  }, [startDate, endDate, mealplanLoaded, mealplan]);
 
   // Roll recipes for all days in range, but keep saved ones unless confirmed
   const handleRoll = async () => {

@@ -4,12 +4,13 @@ import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal({ onClose }) {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
-  const [tab, setTab]         = useState('google'); // 'google' | 'email'
-  const [mode, setMode]       = useState('signin'); // 'signin' | 'signup'
-  const [email, setEmail]     = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError]     = useState('');
-  const [loading, setLoading] = useState(false);
+  const [tab, setTab]             = useState('google');
+  const [mode, setMode]           = useState('signin');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [confirm, setConfirm]     = useState('');
+  const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
 
   async function handleGoogle() {
     setError('');
@@ -27,6 +28,10 @@ export default function AuthModal({ onClose }) {
   async function handleEmail(e) {
     e.preventDefault();
     setError('');
+    if (mode === 'signup' && password !== confirm) {
+      setError('Passwords do not match.');
+      return;
+    }
     setLoading(true);
     try {
       if (mode === 'signin') await signInWithEmail(email, password);
@@ -39,26 +44,32 @@ export default function AuthModal({ onClose }) {
     }
   }
 
+  function switchMode() {
+    setMode(mode === 'signin' ? 'signup' : 'signin');
+    setError('');
+    setConfirm('');
+  }
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content auth-modal" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
-        <h2 className="auth-modal-title">Sign in to FoodRoller</h2>
-        <p className="auth-modal-subtitle">Save your meal plans across devices</p>
+        <h2 className="auth-modal-title">
+          {mode === 'signin' ? 'Sign in to FoodRoller' : 'Create your account'}
+        </h2>
+        <p className="auth-modal-subtitle">Your meal plans sync across all devices</p>
 
         <div className="auth-tabs">
-          <button
-            className={`auth-tab ${tab === 'google' ? 'active' : ''}`}
-            onClick={() => setTab('google')}
-          >Google</button>
-          <button
-            className={`auth-tab ${tab === 'email' ? 'active' : ''}`}
-            onClick={() => setTab('email')}
-          >Email</button>
+          <button className={`auth-tab ${tab === 'google' ? 'active' : ''}`} onClick={() => setTab('google')}>
+            Google
+          </button>
+          <button className={`auth-tab ${tab === 'email' ? 'active' : ''}`} onClick={() => setTab('email')}>
+            Email
+          </button>
         </div>
 
         {tab === 'google' && (
-          <button className="btn btn-google" onClick={handleGoogle} disabled={loading}>
+          <button className="btn-google" onClick={handleGoogle} disabled={loading}>
             <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -78,6 +89,7 @@ export default function AuthModal({ onClose }) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="auth-input"
+              autoComplete="email"
             />
             <input
               type="password"
@@ -87,15 +99,24 @@ export default function AuthModal({ onClose }) {
               required
               minLength={6}
               className="auth-input"
+              autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
             />
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            {mode === 'signup' && (
+              <input
+                type="password"
+                placeholder="Confirm password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                required
+                minLength={6}
+                className="auth-input"
+                autoComplete="new-password"
+              />
+            )}
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
               {loading ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
             </button>
-            <button
-              type="button"
-              className="auth-mode-toggle"
-              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-            >
+            <button type="button" className="auth-mode-toggle" onClick={switchMode}>
               {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </button>
           </form>

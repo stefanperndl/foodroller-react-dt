@@ -101,4 +101,20 @@ describe('useMealplan — signed in (with user)', () => {
     await waitFor(() => expect(result.current[2]).toBe(true));
     expect(result.current[0]).toEqual(localData);
   });
+
+  it('clears mealplan and localStorage when user signs out', async () => {
+    getDoc.mockResolvedValue({ exists: () => true, data: () => ({ meals: cloudData }) });
+    let currentUser = user;
+    const { result, rerender } = renderHook(() => useMealplan(currentUser));
+    await waitFor(() => expect(result.current[2]).toBe(true));
+    expect(result.current[0]).toEqual(cloudData);
+
+    // Sign out
+    currentUser = null;
+    rerender();
+    await waitFor(() => expect(result.current[2]).toBe(true));
+
+    expect(result.current[0]).toEqual({});
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
 });

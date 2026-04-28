@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -7,10 +7,14 @@ const MEALPLAN_KEY = 'mealplan_v1';
 export function useMealplan(user) {
   const [mealplan, setMealplanState] = useState({});
   const [loaded, setLoaded] = useState(false);
+  // undefined = initial mount, null/object = previous user value
+  const prevUserRef = useRef(undefined);
 
   // Load from Firestore (signed in) or localStorage (anonymous)
   useEffect(() => {
     setLoaded(false);
+    const wasSignedIn = prevUserRef.current != null;
+    prevUserRef.current = user;
 
     if (user) {
       getDoc(doc(db, 'users', user.uid, 'data', 'mealplan'))
@@ -35,7 +39,13 @@ export function useMealplan(user) {
           if (stored) setMealplanState(JSON.parse(stored));
         })
         .finally(() => setLoaded(true));
+    } else if (wasSignedIn) {
+      // Just signed out: wipe the cached cloud data so it's not visible to the next user
+      localStorage.removeItem(MEALPLAN_KEY);
+      setMealplanState({});
+      setLoaded(true);
     } else {
+      // Anonymous from the start: load any pre-auth localStorage data
       const stored = localStorage.getItem(MEALPLAN_KEY);
       if (stored) setMealplanState(JSON.parse(stored));
       setLoaded(true);
