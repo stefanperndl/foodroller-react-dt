@@ -1152,8 +1152,35 @@ body {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
   margin-top: 12px;
 }
+.macro-servings {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0e7ff;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.servings-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #4338ca;
+  min-width: 64px;
+  text-align: center;
+}
+.servings-btn {
+  background: none;
+  border: none;
+  color: #4338ca;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+}
+.servings-btn:hover { color: #3730a3; }
 .macro-loading {
   font-size: 0.8125rem;
   color: #9ca3af;
