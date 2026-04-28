@@ -1,4 +1,42 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ShoppingCart } from '../components/ShoppingCart';
 import { mergeIngredients } from '../utils/utils';
+
+jest.mock('../utils/exportUtils', () => ({
+  copyToClipboard: jest.fn().mockResolvedValue(undefined),
+  exportCSV: jest.fn(),
+  printList: jest.fn(),
+}));
+
+const samplePlan = {
+  '2026-05-01': { name: 'Pasta', ingredients: ['200g pasta', '1 egg'] },
+};
+
+describe('ShoppingCart component', () => {
+  it('renders export buttons', () => {
+    render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={() => {}} />);
+    expect(screen.getByText('Copy')).toBeInTheDocument();
+    expect(screen.getByText('CSV')).toBeInTheDocument();
+    expect(screen.getByText('Print / PDF')).toBeInTheDocument();
+  });
+
+  it('renders recipe ingredients', () => {
+    render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={() => {}} />);
+    expect(screen.getByText('200g pasta')).toBeInTheDocument();
+  });
+
+  it('calls onClose when Close is clicked', () => {
+    const onClose = jest.fn();
+    render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={onClose} />);
+    fireEvent.click(screen.getByText('Close'));
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('renders without crashing with empty plan', () => {
+    render(<ShoppingCart ingredientsByRecipe={{}} onClose={() => {}} />);
+    expect(screen.getByText('Shopping List')).toBeInTheDocument();
+  });
+});
 
 describe('mergeIngredients', () => {
   it('merges identical ingredients and sums quantities', () => {
