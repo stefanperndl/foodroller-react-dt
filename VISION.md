@@ -1,383 +1,130 @@
 # FoodRoller Vision
 
-## 🎯 Mission Statement
+## Mission Statement
 
-**FoodRoller eliminates decision fatigue and dietary restriction frustration by combining gamified meal discovery with AI-powered personalization, helping people eat better without the planning burden.**
+**FoodRoller is the AI meal planner for people who take their nutrition seriously — macro trackers, weight loss journeys, and the dietitians who guide them.**
 
-We make meal planning effortless: roll the dice for instant inspiration, filter by your dietary needs, and let AI learn what you love.
+We make hitting your macro targets effortless: tell the AI your goals, it builds your week. No manual searching, no spreadsheets, no guesswork.
 
 ---
 
-## 🧑‍🍳 Who We Serve
+## Who We Serve
 
 ### Primary Users
 
-**1. Busy Professionals (30-45 years)**
-- **Pain Point**: "What should I eat this week?" drains mental energy after work
-- **Current Solution**: Order takeout (expensive, unhealthy) or eat same 5 meals on repeat (boring)
-- **FoodRoller Solution**: Roll for instant meal ideas, one-click shopping list, no thinking required
+**1. Macro Trackers / Fitness-Oriented (Main Segment)**
+- **Pain Point**: Hitting daily protein/carb/fat targets while eating varied, real food is genuinely hard. Most apps require manually searching and logging — meals first, macros second.
+- **Current Solution**: MyFitnessPal (log after eating), meal prep blogs (boring repetition), or expensive coaching
+- **FoodRoller Solution**: Set targets once → AI generates a week-long plan that hits your macros automatically → shopping list in one tap
 
-**2. Health-Conscious Individuals (Any Age)**
-- **Pain Point**: Hard to find recipes that match dietary restrictions (gluten-free, vegan, low-carb, etc.)
-- **Current Solution**: Manually search recipe sites, check every ingredient list, give up and eat bland food
-- **FoodRoller Solution**: AI-powered filtering guarantees compatible recipes, dietary badges make it obvious
+**2. People on a Weight Loss Journey**
+- **Pain Point**: Calorie-controlled eating is unsustainable when planning is tedious. Most people quit because the process is exhausting, not because they lack willpower.
+- **Current Solution**: Generic diet plans that don't match food preferences or lifestyle
+- **FoodRoller Solution**: Personalized AI plans within calorie budget, adjusted for restrictions and preferences. The AI handles the math.
 
-**3. Food Enthusiasts (Adventurous Eaters)**
-- **Pain Point**: Bored with same rotation of meals, want variety but don't know what to try
-- **Current Solution**: Scroll Pinterest/Instagram for inspiration (time-consuming, overwhelming)
-- **FoodRoller Solution**: Gamified discovery (roll the dice!), AI suggests based on your taste profile
+**3. Dietitians & Nutrition Coaches (B2B Opportunity)**
+- **Pain Point**: Creating individualized weekly meal plans for clients is time-consuming and repetitive. Dietitians spend hours per client on something an AI can do in seconds.
+- **Current Solution**: Manual spreadsheets or expensive practice management software
+- **FoodRoller Solution**: Dietitian mode — set up client profiles with their targets, generate and share plans instantly, track adherence
 
-### Secondary Users (Future)
-- Families/couples coordinating shared meal plans
-- Budget-conscious students looking for cheap, easy meals
-- Community recipe creators sharing their best dishes
-
----
-
-## ✨ The Magic Moments
-
-**What makes users fall in love with FoodRoller:**
-
-1. **"That looks amazing!" (Gamification Dopamine)**  
-   Roll the dice → beautiful recipe card appears → instant excitement  
-   *The randomness removes decision paralysis, the curated selection ensures quality*
-
-2. **"Finally, something I can actually eat!" (Personalization Relief)**  
-   Toggle "Vegan" filter → every recipe guaranteed safe → no ingredient checking needed  
-   *Dietary restrictions go from barrier to seamless filter*
-
-3. **"It remembered what I bought!" (Smart Pantry)**  
-   Check off shopping list items → app tracks your pantry → roll suggests recipes using those ingredients  
-   *No waste, lower grocery bills, faster planning—the app works for you*
-
-4. **"This knows my taste!" (AI Discovery)**  
-   AI learns you love Mediterranean food → suggests similar recipes → feels like a personal chef  
-   *No explicit preferences needed, just use the app and it gets smarter*
-
-5. **"Shopping list done in 2 seconds" (Convenience Win)**  
-   One button → entire week's ingredients merged → copy to phone → done  
-   *Eliminates the tedious ingredient collection step*
+### Secondary Users
+- Athletes in structured training blocks (bulking/cutting phases)
+- People managing medical nutrition needs (diabetes, PCOS, cholesterol)
+- Health-conscious families wanting balanced, varied meals
 
 ---
 
-## 🚀 3-Year Vision (2025 → 2028)
+## The Core Product Shift
 
-### Success Definition: **Sustainable Lifestyle Tool**
+The original "roll the dice" mechanic stays — but it's no longer random. **Every roll is AI-guided to fit your macros.** The fun of discovery + the precision of nutrition science.
 
-**By October 2028:**
-
-- **Strong user base** planning meals weekly
-- **High engagement** with meal discovery (rolling, browsing, saving)
-- **Excellent retention** after first week (product-market fit validated)
-- **Sustainable & community-driven** growth model
-- **Thriving community** contributing recipes and sharing meal plans
-
-### Key Milestones
-
-**2025-2026: Foundation**
-- Perfect the core experience (roll, filter, plan, shop)
-- Smart pantry tracking (reduce waste, lower grocery costs)
-- AI-powered personalization (learns user preferences)
-- Mobile-optimized (most users plan on phone)
-- Validated product-market fit
-
-**2026-2027: Social Layer**
-- User accounts and meal plan sharing
-- Community recipe contributions
-- Organic growth through shared meal plans
-- Advanced pantry features (expiry alerts, quantity tracking)
-- Self-sustaining growth engine
-
-**2027-2028: AI Maturity**
-- Advanced recommendation engine (taste profiles, seasonal suggestions, pantry optimization)
-- Multi-source recipe data (premium APIs + community)
-- International expansion (localization, global recipes)
-- Pantry partnerships (grocery delivery integrations)
-- Sustainable community-driven platform
+| Before | After |
+|--------|-------|
+| Random roll → hope it fits your diet | AI roll → guaranteed to hit your targets |
+| Dietary filter (ingredient-level) | Macro filter (calorie/protein/carb/fat-level) |
+| General meal planning | Goal-driven nutrition planning |
+| Consumer app | Consumer + B2B (dietitian mode) |
 
 ---
 
-## 🎲 Core Differentiator
+## Magic Moments
 
-### "AI-Powered Dietary Discovery Through Gamification"
+1. **"The AI built my whole week"** — Enter targets, one click, done. Entire week planned, macros balanced, shopping list ready. This is the core value.
 
-**What makes FoodRoller unique:**
+2. **"It fits my macros exactly"** — Roll a meal and see protein/carbs/fat at a glance. The number hits. No recalculation.
 
-1. **The "Roll" Feature** (Nobody Else Has This)
-   - Removes decision paralysis through gamification
-   - Dopamine hit of discovery without commitment
-   - Makes meal planning fun instead of a chore
+3. **"My client loved this week's plan"** — Dietitian generates a plan for a client in 30 seconds, shares a link. Client sees their personal plan with macros.
 
-2. **Smart Pantry Tracking** (Reduces Waste & Cost)
-   - Automatically tracks ingredients when you check off shopping list
-   - Prioritizes recipes using what you already have
-   - Prevents food waste (suggests recipes before ingredients expire)
-   - Helps reduce grocery spending through smart ingredient reuse
-   - No manual inventory management required (works in the background)
+4. **"It adjusted when I swapped a meal"** — Replace one meal and the AI rebalances the rest of the week to stay on target.
 
-3. **Best-in-Class Dietary Filtering** (Our Superpower)
-   - AI validates ingredients against dietary restrictions automatically
-   - Visual badges make dietary compatibility obvious at a glance
-   - Future: AI learns your specific sensitivities (not just presets)
-
-4. **AI That Gets Smarter** (Long-term Moat)
-   - No manual preference setup required
-   - Learns from rolls, saves, skips, and pantry usage
-   - Suggests recipes before you even search
-   - Future: "Your taste profile" sharing (like Spotify Wrapped)
-
-**vs Competitors:**
-- **Mealime/Paprika**: Too much manual work (search, browse, decide)
-- **Yummly**: Overwhelming choice paralysis (millions of recipes, no curation)
-- **Pinterest**: Visual inspiration but no meal planning tools
-- **MyFitnessPal**: Calorie tracking focus, not meal discovery
-
-**FoodRoller**: *Instant inspiration + AI personalization + dietary safety = effortless planning*
+5. **"Shopping list done in 2 seconds"** — Same as before. Still magic.
 
 ---
 
-## 🧭 Guiding Principles
+## 3-Year Vision (2026 → 2029)
 
-### 1. Privacy-First 🔒
-**Belief**: Your food choices are personal. We never sell data or track you unnecessarily.
+### 2026: Macro Foundation
+- AI meal planning that hits user-defined macro targets
+- Real nutritional data per recipe (Edamam integration)
+- Macro dashboard (daily/weekly progress tracking)
+- Dietitian beta (multi-client management, shareable plans)
 
-**In Practice**:
-- Works offline (localStorage by default)
-- Cloud sync is opt-in, not required
-- Minimal analytics (anonymous usage only)
-- Export your data anytime (no lock-in)
-- GDPR/CCPA compliant from day 1
+### 2027: Intelligence Layer
+- AI learns from swap/reject signals to get smarter over time
+- Smart pantry: cross-references what you have with macro-optimal meals
+- Meal plan templates (bulk phase, cut phase, maintenance, Mediterranean, etc.)
+- Dietitian tier launches commercially
 
-**Trade-off**: Slower growth (can't sell data), but users trust us completely.
-
----
-
-### 2. Community-Driven 🤝
-**Belief**: The best recipes come from real people, not algorithms.
-
-**In Practice**:
-- API recipes are starting point, community recipes are endgame
-- Users can share, fork, and remix meal plans
-- Social features amplify good content (likes, saves)
-- Active moderation keeps quality high
-- Contributors get recognition (verified badges, featured profiles)
-
-**Trade-off**: Moderation overhead, but infinite content scalability.
+### 2028: Platform
+- Native mobile app (meal planning happens on the phone)
+- Grocery delivery integrations (export plan directly to Instacart/etc.)
+- Community meal plans: share AI-generated plans, fork others', browse by macro profile
+- API for third-party integrations (PT software, gym apps)
 
 ---
 
-### 3. Free Forever 💚
-**Belief**: Meal planning is a basic need, not a luxury.
+## Core Differentiator
 
-**In Practice**:
-- Core features always free (roll, plan, shop)
-- No ads (clutter ruins experience)
-- Premium features enhance, don't gate (advanced AI, nutrition tracking)
-- Open-source when sustainable (transparency builds trust)
+**"The only meal planner where AI closes the gap between what you want to eat and what your macros require."**
 
-**Future Sustainability**:
-- Optional premium tier for power users (advanced features)
-- Partnerships that add value (grocery delivery integrations)
-- Community contributions reduce content costs
-- Bootstrapped growth model
+vs. Competitors:
+- **MyFitnessPal**: Logs what you already ate. No planning, no suggestions.
+- **Cronometer**: Detailed tracking but zero meal generation.
+- **Mealime**: Recipe-first, macro-second. No AI planning.
+- **Noom**: Behavioral coaching, not macro precision.
+- **ChatGPT**: Can generate plans but no recipe database, no shopping list, no continuity.
 
-**Trade-off**: Sustainable growth focused on user value, not maximizing revenue.
+**FoodRoller**: *AI builds the plan → you approve it → macros are hit → shopping list is ready.*
 
 ---
 
-### 4. Speed ⚡
-**Belief**: Every second of delay loses a user. Fast = respect for their time.
+## Monetization Direction
 
-**In Practice**:
-- Page load < 2 seconds (Lighthouse 90+ score)
-- API responses cached aggressively
-- Lazy loading for images and details
-- Static export (no server wait time)
-- Progressive Web App (feels native)
-
-**Trade-off**: Technical complexity (caching, optimization), but superior UX.
+| Free | Premium (~€9/mo) | Dietitian (~€49/mo per account) |
+|------|-----------------|--------------------------------|
+| Manual meal planning | AI macro planner | All Premium features |
+| Basic dietary filters | Full macro dashboard | Unlimited client profiles |
+| Shopping list (clipboard) | Weekly plan generation | Shareable client plans |
+| — | Meal plan history | White-label plan export (PDF) |
+| — | Smart pantry | Analytics per client |
 
 ---
 
-### 5. Accessibility ♿
-**Belief**: Good food should be accessible to everyone.
+## North Star Metric
 
-**In Practice**:
-- WCAG 2.1 AA compliant (screen readers, keyboard navigation)
-- Color contrast meets standards (dietary badges readable)
-- Mobile-first design (works on any device)
-- Low bandwidth mode (works on slow connections)
-- Multiple languages (future: i18n)
+**Weekly Macro Plans Generated** — users who generate at least one AI macro-planned week per week.
 
-**Trade-off**: Design constraints, but inclusive by default.
+This replaces WAMP (Weekly Active Meal Planners) because it captures the core value proposition: did the AI actually help you hit your goals?
 
 ---
 
-## 🚫 What We're NOT
+## What We're NOT
 
-### Anti-Goals (Scope Control)
-
-**Not a Recipe Database**
-- We're not trying to be Pinterest (millions of recipes = choice paralysis)
-- Focus: Curated discovery through AI, not exhaustive search
-
-**Not a Cooking Tutorial Platform**
-- We're not YouTube (step-by-step video cooking)
-- Focus: Meal planning, not cooking education
-
-**Not a Calorie Tracker**
-- We're not MyFitnessPal (macro tracking, weight loss focus)
-- Focus: Meal inspiration, not nutrition obsession
-- (But we'll show nutrition data if you want it)
-
-**Not a Restaurant Discovery App**
-- We're not Yelp (find restaurants near you)
-- Focus: Home cooking, not dining out
-
-**Not a Grocery Delivery Service**
-- We're not Instacart (we don't fulfill orders)
-- Focus: Shopping list generation, partner with delivery services
-
-**Not a Social Network First**
-- We're not Instagram for food (likes, followers, vanity metrics)
-- Focus: Useful meal planning with social features, not social with meal planning tacked on
+- **Not a calorie logging app** — We plan forward, we don't log backward (MyFitnessPal's job)
+- **Not a cooking tutorial platform** — We plan meals, we don't teach cooking
+- **Not a general recipe browser** — Every recipe exists in the context of your goals
+- **Not a social network first** — Utility before community
 
 ---
 
-## 🎯 Success Metrics
-
-### North Star Metric
-**Weekly Active Meal Planners (WAMP)**  
-*Users who add at least 1 meal to their plan each week*
-
-**Why This Metric:**
-- Captures actual usage (not just browsing)
-- Weekly cadence matches meal planning behavior
-- Leading indicator of retention and value
-
-**Target Growth:**
-- Consistent growth in engaged users planning meals weekly
-- Sustainable adoption and retention rates
-- Community-driven organic growth
-
-### Supporting Metrics
-
-**Engagement:**
-- Meals rolled per user per week (discovery activity)
-- Recipes saved to favorites (personalization signal)
-- Shopping lists exported (completion indicator)
-- Pantry items tracked (smart reuse adoption)
-- Meal plans shared (viral growth driver)
-
-**Retention:**
-- D7 retention (did they come back after first week?)
-- D30 retention (is this a habit?)
-- Pantry users vs non-pantry users retention gap (value proof)
-- Resurrection rate (can we win back churned users?)
-
-**Growth:**
-- Organic growth rate (how effectively does the product spread?)
-- Community recipe contributions (content scaling)
-- Shared meal plan engagement (viral loop effectiveness)
-
-**Quality:**
-- Time to first meal added (onboarding friction)
-- Dietary filter accuracy (false positives hurt trust)
-- Pantry suggestion accuracy (using what you have)
-- App performance (Lighthouse score, load time)
-
-**Impact:**
-- Grocery spending reduction (value from pantry reuse)
-- Food waste reduction (ingredients used before expiry)
-- Meals planned per week (engagement depth)
-
-**Revenue (Future):**
-- Free → Premium conversion rate (optional)
-- Sustainable growth metrics
-- Partnership value (optional)
-
----
-
-## 🗺️ Strategic Roadmap Alignment
-
-### How This Vision Connects to Execution
-
-**ARCHITECTURE.md** (Technical Strategy)  
-→ Enables API flexibility for AI and multi-source data  
-→ Prepares for social features when community is ready  
-→ Ensures speed and accessibility principles in infrastructure
-
-**BACKLOG.md** (Feature Priorities)  
-→ Phase 1: Foundation features support "magic moments" (export, search, history)  
-→ Phase 2: Personalization features enable AI learning (favorites, taste profiles)  
-→ Phase 3: Social features unlock community-driven growth (sharing, profiles, feed)  
-→ Phase 4: Advanced features serve power users (nutrition, mobile app)
-
-**Prioritization Filter:**  
-Before adding any feature, ask:
-1. Does this serve our primary users (professionals, health-conscious, enthusiasts)?
-2. Does this create a "magic moment" (discovery, personalization, convenience)?
-3. Does this align with our principles (privacy, community, free, speed, accessibility)?
-4. Does this move us toward 100K weekly active planners?
-
----
-
-## 📝 Decision Framework
-
-### When Deciding on Features/Changes
-
-**Always Ask:**
-- ✅ **Does this reduce decision fatigue?** (Core mission)
-- ✅ **Does this improve dietary filtering?** (Differentiator)
-- ✅ **Does this reduce waste or save money?** (Pantry intelligence)
-- ✅ **Does this make AI smarter?** (Long-term moat)
-- ✅ **Does this respect privacy?** (Principle #1)
-- ✅ **Does this stay fast?** (Principle #4)
-
-**Red Flags (Say No If):**
-- ❌ Adds complexity without clear user value
-- ❌ Requires selling user data (privacy violation)
-- ❌ Gates core features behind paywall (free forever principle)
-- ❌ Slows performance (speed principle)
-- ❌ Excludes users (accessibility principle)
-
-**Example Decisions:**
-
-**Should we add video cooking tutorials?**
-- ❌ No → Anti-goal (not a cooking education platform)
-- Better: Link to existing YouTube videos if needed
-
-**Should we add calorie tracking?**
-- ⚠️ Maybe → Not core mission, but many users want it
-- Solution: Optional nutrition display (can be premium feature), never required
-
-**Should we partner with grocery delivery?**
-- ✅ Yes → Aligns with convenience, doesn't gate features, adds value
-- Implementation: "Export to Instacart" button (optional)
-
-**Should we use third-party analytics (Google Analytics)?**
-- ❌ No → Privacy violation (tracks users across sites)
-- Better: Self-hosted analytics (Plausible, Fathom) with anonymous data only
-
----
-
-## 🌟 The Future We're Building
-
-### 10-Year Aspirational Vision
-
-**FoodRoller becomes the default meal planning tool for millions**, replacing decision fatigue with instant inspiration. When someone says "I don't know what to cook," the answer is "Just roll it."
-
-**Smart pantry tracking becomes invisible magic**, silently learning what you buy and suggesting recipes that use those ingredients. Users reduce grocery spending and food waste without thinking about it.
-
-**AI learns global food preferences**, suggesting regional recipes based on your location, season, taste profile, and what's in your fridge. A vegan in California with leftover cilantro gets different suggestions than a pescatarian in Tokyo with remaining miso paste—both perfectly personalized.
-
-**Community-contributed recipes** surpass API data, with millions of user-created dishes. Home cooks become local food influencers, sharing their best meals and pantry-friendly variations with the world.
-
-**Dietary accessibility becomes universal**, with AI validating ingredients against any restriction (not just presets). People with rare allergies finally have a tool that works for them.
-
-**Meal planning is no longer a chore** but a moment of inspiration. Rolling for meals becomes a daily ritual, like checking the weather or scrolling social media—but actually useful and rewarding.
-
----
-
-*Last updated: October 27, 2025*  
-*Living document—vision evolves as we learn from users*
+*Last updated: April 28, 2026 — Pivot to macro-focused AI meal planning*

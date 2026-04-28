@@ -1,9 +1,12 @@
 # FoodRoller Backlog
 
-**Primary metric**: Weekly Active Meal Planners (WAMP) — users who add ≥1 meal per week.  
+**North Star Metric**: Weekly Macro Plans Generated — users who generate at least one AI macro-planned week per week.
+
+**Strategic pivot**: FoodRoller targets macro trackers, weight loss journeys, and dietitians. AI is the core product, not a feature.
+
 **Branching**: every item has a dedicated branch off `master`. Master stays stable and deployable at all times.
 
-**Prioritization order**: (1) Core loop completion → (2) Identity + accounts → (3) AI differentiation → (4) Monetization → (5) Social → (6) Scale
+**Prioritization order**: (1) Nutritional data foundation → (2) Macro planning UI → (3) AI plan generation → (4) Dietitian mode → (5) Monetization → (6) Social
 
 ---
 
@@ -11,186 +14,216 @@
 
 | Feature | Version | Notes |
 |---------|---------|-------|
-| Export Shopping List | v1.3 | Copy to clipboard, CSV download, Print/PDF — no new dependencies |
-| Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges, "Add to Date" |
-| Recipe Catalog / Browse View | v1.1 | Grid, category + dietary filter, tab navigation |
-| Dietary Restrictions | v1.0 | Vegetarian, Vegan, Pescatarian with retry + validation |
-| Category-based Filtering | v1.0 | Multi-select with single-category API workaround |
-| Ingredient Merging | v0.9 | Merged shopping cart with unit conversion |
-| Next.js Migration | v0.8 | App Router, static export |
-| Automated Testing (CI) | v0.7 | Jest + RTL, GitHub Actions |
+| User Accounts & Auth | v2.3 | Firebase Auth (Google + email), Firestore sync per user, sign-out clears state |
+| Export Shopping List | v1.3 | Copy, CSV, Print/PDF |
+| Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges |
+| Recipe Catalog / Browse | v1.1 | Grid, category + dietary filter |
+| Dietary Restrictions | v1.0 | Vegetarian, Vegan, Pescatarian |
+| Automated Testing / CI | v0.7 | Jest + RTL, GitHub Actions, GitHub Pages deploy |
 
 ---
 
-## 🎯 Phase 1: Core Loop Completion
-**Goal**: Make the core roll→plan→shop→cook loop fully functional and tested.
-
-### ~~P1.0 — Test Coverage~~ ✅ DONE
-`feature/p1.0-test-coverage` — merged
-
-67 tests: all components (RTL), hooks (useMealplan), utils (dietaryRestrictions), API layer (recipes). jest-dom configured via setupFilesAfterEnv. E2E (Playwright) deferred — unit/integration coverage sufficient for safe refactoring.
+## 🔬 Phase M: Macro Foundation
+**Goal**: Make nutritional data and macro tracking the core of the product. This phase is prerequisite for all AI features.
 
 ---
 
-### ~~P1.1 — Export Shopping List~~ ✅ DONE
-`feature/p1.1-export-shopping-list` — merged v1.3
+### M.1 — Nutritional Data Layer ⭐ HIGHEST PRIORITY
+`feature/m.1-nutritional-data` | **Effort**: 1–2 weeks
 
-Copy to clipboard, CSV download, Print/PDF via browser print. No new dependencies.
+The single most important technical foundation. Without real macro data, nothing else in this roadmap is possible.
 
----
+**What**:
+- Integrate [Edamam Recipe Analysis API](https://developer.edamam.com/edamam-recipe-api) (free tier: 10,000 calls/month)
+- When a recipe is loaded from TheMealDB, send its ingredient list to Edamam and get back: calories, protein (g), carbs (g), fat (g), fiber (g)
+- Cache nutritional data in Firestore per recipe ID (same recipe = same nutrition, fetch once)
+- Extend recipe object shape: `{ ...existing, nutrition: { kcal, protein, carbs, fat, fiber } }`
+- Display macro badges on RecipeCard and RecipeDetailModal
 
-### P1.2 — Recipe Search
-`feature/p1.2-recipe-search` | **Effort**: 4–6 days
+**Acceptance criteria**:
+- Every recipe shows kcal / P / C / F
+- Nutritional data is fetched once and cached (no repeat API calls for same recipe)
+- Graceful fallback if Edamam unavailable (show "nutrition unavailable")
 
-Browse-by-category is limiting. Search by name + ingredient, with autocomplete and search history (localStorage).
-
----
-
-### P1.3 — Recipe History / Recently Viewed
-`feature/p1.3-recipe-history` | **Effort**: 2–3 days
-
-Track last 20 viewed recipes in localStorage. "Recently Viewed" section in Browse. Builds caching patterns for later.
-
----
-
-### P1.4 — Service Layer Refactoring
-`feature/p1.4-service-layer` | **Effort**: 1–2 weeks | **Depends on**: P1.0
-
-Decouple components from TheMealDB. RecipeService + TheMealDBAdapter. Canonical recipe schema. Enables multi-source data.  
-See ARCHITECTURE.md Phase 1 for step-by-step.
+**API keys needed**: Edamam App ID + App Key → add to `.env.local` and GitHub secrets
 
 ---
 
-## 🚀 Phase 2: Identity + AI Differentiation
-**Goal**: Unlock personalization (the core commercial differentiator) via user accounts and AI.
+### M.2 — Macro Profile Setup
+`feature/m.2-macro-profile` | **Effort**: 1 week | **Depends on**: M.1
+
+User defines their daily nutrition targets. Stored per user account (Firestore) or locally (anonymous).
+
+**What**:
+- Profile setup modal/page: daily kcal target, protein (g), carbs (g), fat (g)
+- Optional: goal selector (lose weight / maintain / gain muscle) with auto-calculated targets using Mifflin-St Jeor formula (input: age, weight, height, activity level)
+- Targets visible in header or dashboard at all times
+
+**Acceptance criteria**:
+- User can set/edit their macro targets
+- Targets persist across sessions (Firestore when signed in)
+- Auto-calculator works for the three main goals
+
+---
+
+### M.3 — Macro Dashboard
+`feature/m.3-macro-dashboard` | **Effort**: 1–2 weeks | **Depends on**: M.1, M.2
+
+Daily and weekly macro progress visualized.
+
+**What**:
+- Day view: ring/bar charts for kcal, protein, carbs, fat showing planned vs target
+- Week view: summary table with daily totals and weekly averages
+- Color coding: green = on track, yellow = 10% off, red = >20% off target
+- Updates live as meals are added/removed from the plan
+
+**Acceptance criteria**:
+- Macro totals for current plan week displayed and update in real-time
+- Daily breakdown visible per day in the plan
+- Works for anonymous users (uses localStorage targets) and signed-in users
+
+---
+
+### M.4 — AI Macro-Aware Meal Planner ⭐ CORE PRODUCT
+`feature/m.4-ai-macro-planner` | **Effort**: 2–3 weeks | **Depends on**: M.1, M.2, M.3
+
+This is the headline feature and the reason people pay. AI generates a complete week-long meal plan that hits the user's macro targets.
+
+**What**:
+- "Plan My Week" button → sends to Claude API:
+  - User's daily macro targets
+  - Dietary restrictions
+  - Number of meals per day (2–5)
+  - A pool of available recipes with their nutritional data
+  - Any preferences ("I had chicken yesterday", "no fish this week")
+- Claude returns a structured meal plan: `{ date → meal }` hitting daily targets within ±10%
+- Plan is loaded directly into the mealplan state (same data structure as manual planning)
+- User can regenerate individual days or the full week
+- "Why this meal?" explainability: tap a meal to see which macro it's fulfilling
+
+**Claude API integration**:
+- Use `claude-sonnet-4-6` for plan generation (balance speed + quality)
+- Structured output: JSON meal plan
+- Prompt includes macro targets, available recipes with nutrition, constraints
+- Rate-limit: 1 plan generation per minute per user (prevent abuse)
+
+**Acceptance criteria**:
+- Generated plan hits daily macro targets within ±10%
+- Respects all dietary restrictions
+- No meal repeated more than once per week
+- Works end-to-end: targets → plan → shopping list
+
+---
+
+### M.5 — Macro-Aware Roll
+`feature/m.5-macro-roll` | **Effort**: 3–5 days | **Depends on**: M.1, M.2
+
+The existing "roll" button becomes macro-intelligent. Instead of random, it picks a recipe that fits the day's **remaining** macros.
+
+**What**:
+- When rolling for a day slot, calculate remaining macros (target - already planned meals that day)
+- Pass remaining macros + dietary restrictions to Claude API
+- Claude picks the best-fitting recipe from the available pool
+- Show the macro fit score: "This meal fills 82% of your remaining protein"
+
+**Acceptance criteria**:
+- Rolled meal contributes toward hitting daily targets
+- Falls back to random roll if no macro data available
+- Works without AI (heuristic: pick recipe closest to remaining targets from cache)
+
+---
+
+## 🏥 Phase D: Dietitian Mode
+**Goal**: B2B revenue. Dietitians use FoodRoller to generate and share meal plans with clients at scale.
+
+---
+
+### D.1 — Client Profile Management
+`feature/d.1-client-profiles` | **Effort**: 2–3 weeks | **Depends on**: M.4
+
+**What**:
+- Dietitian account type (role flag in Firestore)
+- Create/edit/delete client profiles: name, macro targets, dietary restrictions, notes
+- Switch between client profiles to plan on their behalf
+- Client profiles listed in a sidebar/dashboard
+
+---
+
+### D.2 — Shareable Meal Plans
+`feature/d.2-shareable-plans` | **Effort**: 2–3 weeks | **Depends on**: D.1
+
+**What**:
+- Generate a shareable read-only link for any meal plan (`/plan/abc123`)
+- Client opens link → sees their week with meals, macros, shopping list
+- Optional: client can mark meals as completed
+- PDF export of the full plan (dietitian branding)
+
+---
+
+## 🚀 Phase 2: Identity & Infrastructure (Existing, Reprioritized)
 
 ### P2.0 — Context Architecture Refactoring
-`feature/p2.0-context-refactor` | **Effort**: 1–2 weeks | **Depends on**: P1.4
+`feature/p2.0-context-refactor` | **Effort**: 1–2 weeks | **Depends on**: M.1
 
-Move global state from App.jsx (11+ useState) to React Context. RecipeContext, MealPlanContext, UIContext. 50%+ reduction in App.jsx. Unlocks React Native portability.  
-See ARCHITECTURE.md Phase 2.
+Move global state from App.jsx (11+ useState) to React Context. Needed before macro dashboard complexity lands. See ARCHITECTURE.md Phase 2.
 
----
-
-### P2.1 — Progressive Web App (PWA)
+### P2.1 — PWA
 `feature/p2.1-favorites` | **Effort**: 3–5 days
 
-> **Note**: Branch was created as `feature/p2.1-favorites` — rename or create `feature/pwa` if splitting.
-
-VISION milestone for 2025–26. Install to home screen, offline browsing of saved plans, push notifications for meal reminders. Uses Next.js PWA plugin (next-pwa).
-
----
+Install to home screen, offline plan viewing. Macro tracking happens on the phone — this matters.
 
 ### P2.2 — Favorite Recipes
 `feature/p2.2-print-recipe` | **Effort**: 3–4 days
 
-> **Note**: Branch mismatch above — see naming note. Actual favorites work:
+Favorites inform the AI planner ("prefer meals from my favorites"). Heart icon on cards, cloud-synced.
 
-Heart icon on recipe cards, Favorites tab in Browse, prioritize favorites in random rolls. localStorage initially, cloud-ready.
+### P1.2 — Recipe Search
+`feature/p1.2-recipe-search` | **Effort**: 4–6 days
 
----
-
-### ~~P2.3 — User Accounts & Authentication~~ ✅ DONE
-`feature/p3.1-user-accounts` — merged
-
-Firebase Auth (Google OAuth + email/password). AuthContext + useAuth() hook. Auto-migrates localStorage mealplan to Firestore on first sign-in. Header sign-in button → AuthModal; signed-in users see avatar + UserMenu.
-**Setup**: copy `.env.local.example` → `.env.local`, fill Firebase project values.
+Search by name + ingredient. Useful for finding macro-friendly recipes specifically.
 
 ---
 
-### P2.4 — AI Personalization ⭐ KEY DIFFERENTIATOR
-`feature/p2.4-recipe-tags` | **Effort**: 2–3 weeks | **Depends on**: P2.3
+## 💰 Monetization
 
-From VISION: "AI that learns preferences automatically." This is what separates FoodRoller from a plain recipe browser.
+### PM.1 — Freemium Implementation
+`feature/pm.1-freemium` | **Effort**: 1 week product + 2 weeks billing | **Depends on**: M.4
 
-- Track which rolls the user keeps vs discards (implicit feedback)
-- Claude API integration: smarter roll suggestions based on history, season, recent meals
-- "Why this meal?" explainability (builds trust)
-- Preference profile stored per user account
+| Free | Premium (~€9/mo) | Dietitian (~€49/mo) |
+|------|-----------------|---------------------|
+| Manual meal planning | **AI macro planner** | All Premium |
+| Basic dietary filters | Full macro dashboard | Unlimited client profiles |
+| Shopping list | Unlimited plan history | Shareable client plans |
+| — | Smart pantry | PDF export |
 
-**Commercial note**: AI-powered rolls are the premium tier anchor feature.
-
----
-
-### P2.5 — Smart Pantry Tracking
-`feature/p1.4-service-layer` | **Effort**: 3–4 weeks | **Depends on**: P2.3
-
-From VISION milestone 2025–26. Track what ingredients the user has; cross-reference with meal plan shopping list to avoid buying duplicates. Reduces food waste (core value prop).
-
-> **Note**: Needs its own branch — `feature/p2.5-smart-pantry`
+- Stripe (or Paddle for EU VAT) for billing
+- Feature gates at natural friction points (plan generation = premium trigger)
 
 ---
 
-## 💰 Phase 2.5: Monetization
-**Goal**: Generate revenue. Without this, no commercial project.
-
-### PM.1 — Freemium Tier Definition
-`feature/pm.1-freemium` (create branch) | **Effort**: 1 week (product) + 2 weeks (billing)
-
-Define and implement free vs premium split. Recommended model:
-
-| Free | Premium (~€5/mo) |
-|------|-----------------|
-| Unlimited rolls | AI-powered roll suggestions |
-| 1 active meal plan | Unlimited saved plans |
-| Basic dietary filters | All dietary profiles + custom |
-| Shopping list (clipboard) | PDF export + email delivery |
-| — | Nutrition data |
-| — | Cloud sync + mobile app |
-
-- Integrate Stripe (or Paddle for EU VAT handling)
-- Gate premium features behind subscription check
-- "Upgrade" prompt at natural friction points (e.g., third plan, AI roll)
-
----
-
-## 🌐 Phase 3: Social Features
-**Goal**: Viral growth through sharing and community. Requires backend from P2.3.
-
-### P3.1 — Share Meal Plan
-`feature/p3.2-share-meal-plan` | **Effort**: 3–4 weeks | **Depends on**: P2.3
-
-Shareable links (`/plans/abc123`), public/private toggle, Open Graph preview cards, "Fork this plan" button.
-
-### P3.2 — Social Feed & Discovery
-`feature/p3.4-social-feed` | **Effort**: 4–6 weeks | **Depends on**: P3.1
-
-Explore feed (popular plans this week), search by tags/dietary/author, likes/saves.
-
-### P3.3 — Comments & Ratings
-`feature/p3.5-comments-ratings` | **Effort**: 3–4 weeks | **Depends on**: P3.2
-
-Star ratings, comments, sort by popularity, moderation queue.
-
-### P3.4 — Admin / User Impersonation
-`feature/p3.3-admin-impersonation` | **Effort**: 1–2 weeks | **Depends on**: P2.3
-
-Admin panel, impersonation banner, audit log. Required for support once user accounts exist.
-
----
-
-## 🎨 Phase 4: Scale & Polish
+## 🌐 Phase 3: Social & Scale
 
 | Item | Branch | Effort | Notes |
 |------|--------|--------|-------|
-| Expand dietary restrictions (Gluten-free, Keto, custom) | `feature/p2.3-dietary-expansion` | 3–5 days | API ingredient data quality limits this |
-| Print Recipe | `feature/p2.2-print-recipe` | 1–2 days | `@media print` + window.print() |
-| Nutritional information | `feature/p4.1-nutritional-info` | 4–6 weeks | Requires premium API (Spoonacular/Edamam) |
-| Calendar view (drag-drop) | `feature/p4.2-calendar-view` | 2–3 weeks | react-big-calendar |
-| Manual recipe entry | `feature/p4.3-manual-recipe-entry` | 3–4 weeks | User-generated content |
-| Native mobile app | `feature/p4.4-mobile-app` | 8–12 weeks | React Native reuse of Context layer |
-| Localization (i18n) | `feature/p4.5-localization` | 3–4 weeks | next-intl; after English PMF |
-| Premium API upgrade | `feature/p4.6-premium-api` | 2–3 weeks | Removes free-API workarounds |
-| Recipe tags / metadata | — | 2–3 days | Blocked on API data |
+| Share meal plan (public link) | `feature/p3.2-share-meal-plan` | 3–4 weeks | Read-only plan pages, OG cards |
+| Plan templates (bulk/cut/etc.) | new | 2–3 weeks | AI-generated starting points |
+| Smart pantry | `feature/p2.5-smart-pantry` | 3–4 weeks | Cross-reference pantry with macro plan |
+| Social feed (browse community plans) | `feature/p3.4-social-feed` | 4–6 weeks | Filter by macro profile |
+| Admin / impersonation | `feature/p3.3-admin-impersonation` | 1–2 weeks | Support tooling |
+| Native mobile app | `feature/p4.4-mobile-app` | 8–12 weeks | React Native, after Context refactor |
+| Grocery delivery integration | new | 3–4 weeks | Export plan to Instacart/etc. |
+| Localization (i18n) | `feature/p4.5-localization` | 3–4 weeks | After PMF |
 
 ---
 
-## ⚠️ Deprioritized
+## ⚠️ Deprioritized / Removed
 
-- Manual category entry (low value, comprehensive existing categories)
-- Halal/Kosher filters (small segment, needs specialized data)
-- Social network features before product-market fit proven
+- **Recipe History / Recently Viewed** (P1.3) — low value in macro-focused product
+- **Service Layer Refactoring** (P1.4) — absorb into Context refactor (P2.0)
+- **Recipe Tags** — superseded by nutritional data as the key metadata
+- **Print Recipe** — covered by PDF export in Dietitian mode
+- **Halal/Kosher filters** — small segment, defer
 
 ---
 
-*Last updated: April 28, 2026 — P1.0 tests · P1.1 export · CI/CD · P2.3 user accounts shipped*
+*Last updated: April 28, 2026 — Strategic pivot to macro-focused AI meal planning for dietitians and macro trackers*
