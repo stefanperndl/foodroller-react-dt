@@ -296,13 +296,20 @@ function App() {
 
       {activeView === 'plan' && !showCart && (
         <div className="roll-button-container">
-          {macroProfile && (
+          {macroProfile ? (
             <button
               className="btn btn-plan-week"
               onClick={() => setShowPlannerModal(true)}
               title="Generate an AI meal plan based on your macro goals"
             >
               Plan My Week
+            </button>
+          ) : (
+            <button
+              className="btn btn-set-goals-cta"
+              onClick={() => setShowMacroModal(true)}
+            >
+              Set nutrition goals → unlock AI planning
             </button>
           )}
           <button

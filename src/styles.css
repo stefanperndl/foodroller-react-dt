@@ -1353,6 +1353,22 @@ body {
 }
 .btn-plan-week:hover { opacity: 0.88; }
 
+.btn-set-goals-cta {
+  background: transparent;
+  color: #a78bfa;
+  border: 1.5px dashed #7c3aed;
+  border-radius: 24px;
+  padding: 11px 28px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-set-goals-cta:hover {
+  background: rgba(139, 92, 246, 0.12);
+  color: #c4b5fd;
+}
+
 /* Planner modal */
 .planner-modal {
   max-width: 520px;
