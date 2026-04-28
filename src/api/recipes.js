@@ -127,6 +127,7 @@ export async function fetchRecipeByCategories(categories, dietaryRestrictions = 
   }
   
   const recipe = {
+    id: meal.idMeal,
     name: meal.strMeal,
     image: meal.strMealThumb,
     ingredients,
@@ -139,7 +140,7 @@ export async function fetchRecipeByCategories(categories, dietaryRestrictions = 
   // Validate against dietary restrictions
   if (dietaryRestrictions && dietaryRestrictions.length > 0) {
     const isValid = validateMealAgainstRestrictions(recipe, dietaryRestrictions);
-    
+
     if (!isValid && maxRetries > 0) {
       // Meal doesn't meet restrictions, try again
       return fetchRecipeByCategories(categories, dietaryRestrictions, maxRetries - 1);
@@ -164,6 +165,7 @@ export async function fetchRecipe(dietaryRestrictions = [], maxRetries = 5) {
   }
   
   const recipe = {
+    id: meal.idMeal,
     name: meal.strMeal,
     image: meal.strMealThumb,
     ingredients,
@@ -176,7 +178,7 @@ export async function fetchRecipe(dietaryRestrictions = [], maxRetries = 5) {
   // Validate against dietary restrictions
   if (dietaryRestrictions && dietaryRestrictions.length > 0) {
     const isValid = validateMealAgainstRestrictions(recipe, dietaryRestrictions);
-    
+
     if (!isValid && maxRetries > 0) {
       // Meal doesn't meet restrictions, try again
       return fetchRecipe(dietaryRestrictions, maxRetries - 1);
