@@ -2,7 +2,13 @@ import { fetchRecipeByCategories } from './recipes';
 import { getNutrition, getNutritionFromCache } from './nutrition';
 import { getDatesInRange } from '../utils/utils';
 
-const ANTHROPIC_API_KEY = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+// In dev the Next.js server proxies to Anthropic (avoids localhost CORS).
+// In the static production build, the dangerous-client-side flag allows direct browser calls.
+const CLAUDE_ENDPOINT =
+  process.env.NODE_ENV === 'development'
+    ? '/api/claude'
+    : 'https://api.anthropic.com/v1/messages';
+
 const DEFAULT_SERVINGS = 4;
 
 async function fetchCandidates(count, selectedCategories, selectedRestrictions) {
@@ -73,14 +79,16 @@ Rules:
 }
 
 async function callClaude(prompt) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const headers = { 'content-type': 'application/json' };
+  if (process.env.NODE_ENV !== 'development') {
+    headers['x-api-key'] = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-client-side-usage-flag'] = 'true';
+  }
+
+  const res = await fetch(CLAUDE_ENDPOINT, {
     method: 'POST',
-    headers: {
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-client-side-usage-flag': 'true',
-      'content-type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 512,
