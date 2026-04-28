@@ -322,6 +322,59 @@ body {
 }
 .macro-save-btn:hover { background: #4338ca; }
 
+/* Macro Dashboard */
+.macro-dashboard { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.macro-dashboard-empty { padding: 40px 16px; text-align: center; color: #6b7280; }
+
+.macro-dashboard-days { display: flex; flex-direction: column; gap: 10px; }
+
+.day-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.day-card-empty { opacity: 0.55; }
+.day-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.day-card-date { font-size: 0.8125rem; font-weight: 700; color: #6b7280; white-space: nowrap; }
+.day-card-meal { font-size: 0.9375rem; font-weight: 600; color: #111827; text-align: right; }
+.day-card-no-nutrition { font-size: 0.8125rem; color: #9ca3af; margin: 0; }
+
+.day-card-bars { display: flex; flex-direction: column; gap: 6px; }
+.macro-bar-row {
+  display: grid;
+  grid-template-columns: 24px 1fr 48px 56px;
+  align-items: center;
+  gap: 8px;
+}
+.macro-bar-label { font-size: 0.75rem; font-weight: 700; color: #6b7280; }
+.macro-bar-track {
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.macro-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+.macro-bar-value { font-size: 0.8125rem; font-weight: 600; color: #111827; text-align: right; }
+.macro-bar-unit { font-size: 0.7rem; color: #6b7280; }
+.macro-bar-target { font-size: 0.75rem; color: #9ca3af; }
+
+.week-summary {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+}
+.week-summary-title { font-size: 0.9375rem; font-weight: 700; color: #111827; margin: 0 0 12px; }
+.week-summary-bars { display: flex; flex-direction: column; gap: 6px; }
+.week-summary-note { font-size: 0.75rem; color: #9ca3af; margin: 10px 0 0; }
+
 /* Timeframe Picker */
 .timeframe-picker {
   position: absolute;

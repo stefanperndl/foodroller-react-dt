@@ -13,6 +13,7 @@ import { useAuth } from "./context/AuthContext";
 import AuthModal from "./components/AuthModal";
 import UserMenu from "./components/UserMenu";
 import MacroProfileModal from "./components/MacroProfileModal";
+import MacroDashboard from "./components/MacroDashboard";
 import { useMacroProfile } from "./hooks/useMacroProfile";
 
 function App() {
@@ -212,7 +213,7 @@ function App() {
           </svg>
           My Plan
         </button>
-        <button 
+        <button
           className={`view-tab ${activeView === 'browse' ? 'active' : ''}`}
           onClick={() => setActiveView('browse')}
         >
@@ -221,6 +222,17 @@ function App() {
             <path d="m21 21-4.35-4.35"></path>
           </svg>
           Browse Recipes
+        </button>
+        <button
+          className={`view-tab ${activeView === 'macros' ? 'active' : ''}`}
+          onClick={() => setActiveView('macros')}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          Macros
         </button>
       </div>
 
@@ -253,19 +265,28 @@ function App() {
             }
           />
           
-          {activeView === 'plan' ? (
+          {activeView === 'plan' && (
             <FoodList
               food={food}
               loading={loading}
               onSave={handleSave}
               onReroll={handleReroll}
             />
-          ) : (
+          )}
+          {activeView === 'browse' && (
             <RecipeBrowser
               categories={categories.map(cat => cat.strCategory)}
               selectedCategories={selectedCategories}
               selectedRestrictions={selectedRestrictions}
               onAddToDate={handleAddMealToDate}
+            />
+          )}
+          {activeView === 'macros' && (
+            <MacroDashboard
+              mealplan={mealplan}
+              macroProfile={macroProfile}
+              startDate={startDate}
+              endDate={endDate}
             />
           )}
         </>

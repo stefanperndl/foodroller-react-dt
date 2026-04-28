@@ -22,6 +22,12 @@ async function fetchFromAPI(ingredients) {
   );
 }
 
+export function getNutritionFromCache(recipeId) {
+  if (!recipeId) return null;
+  const cached = localStorage.getItem(`${CACHE_PREFIX}${recipeId}`);
+  return cached ? JSON.parse(cached) : null;
+}
+
 export async function getNutrition(recipeId, ingredients) {
   if (!ingredients?.length) return null;
 
