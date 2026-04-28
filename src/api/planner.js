@@ -46,20 +46,23 @@ async function enrichWithNutrition(candidates) {
   ).then((r) => r.filter(Boolean));
 }
 
-function buildPrompt(dates, macroProfile, candidates) {
+function buildPrompt(dates, slots, macroProfile, candidates) {
+  const slotLabels = slots.map((s) => `${s.id} (${s.label})`).join(', ');
   const candidateList = candidates
     .map((r, i) =>
       `${i}: "${r.name}" — ${r.nutrition.kcal} kcal, ${r.nutrition.protein}g protein, ${r.nutrition.carbs}g carbs, ${r.nutrition.fat}g fat`
     )
     .join('\n');
 
-  return `You are a nutrition-focused meal planner. Assign one meal per day to hit the user's daily macro targets as closely as possible.
+  return `You are a nutrition-focused meal planner. Assign one meal per slot per day so that the combined daily totals hit the user's daily macro targets as closely as possible.
 
-Daily targets:
+Daily targets (sum across ALL slots):
 - Calories: ${macroProfile.kcal} kcal
 - Protein: ${macroProfile.protein}g
 - Carbs: ${macroProfile.carbs}g
 - Fat: ${macroProfile.fat}g
+
+Slots per day: ${slotLabels}
 
 Days to plan: ${dates.join(', ')}
 
@@ -67,30 +70,41 @@ Available meals (index: name — nutrition per serving):
 ${candidateList}
 
 Rules:
-- Assign exactly one meal per day
+- Assign exactly one meal index per slot per day
 - Use each meal index at most twice across the whole plan
-- Prefer meals that best match the daily macro targets
+- The combined nutrition of all slots on a given day should be as close to the daily targets as possible
+- Vary meals across days
 
 Call the assign_meals tool with your assignments.`;
 }
 
-async function callClaude(prompt) {
+async function callClaude(prompt, slots) {
+  const slotIds = slots.map((s) => s.id);
+  const slotProperties = {};
+  for (const id of slotIds) {
+    slotProperties[id] = { type: 'integer', description: `Meal index for the ${id} slot` };
+  }
+
   const res = await fetch(CLAUDE_ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
+      max_tokens: 2048,
       tools: [{
         name: 'assign_meals',
-        description: 'Assign one meal index per date',
+        description: 'Assign one meal index per slot per date',
         input_schema: {
           type: 'object',
           properties: {
             assignments: {
               type: 'object',
-              additionalProperties: { type: 'integer' },
-              description: 'Map of YYYY-MM-DD date strings to meal indices',
+              additionalProperties: {
+                type: 'object',
+                properties: slotProperties,
+                required: slotIds,
+              },
+              description: 'Map of YYYY-MM-DD date strings to slot→meal-index objects',
             },
           },
           required: ['assignments'],
@@ -114,33 +128,40 @@ export async function generateMealPlan({
   macroProfile,
   selectedCategories,
   selectedRestrictions,
+  slots,
   onProgress,
 }) {
   const dates = getDatesInRange(new Date(startDate), new Date(endDate))
     .map((d) => d.toISOString().slice(0, 10));
 
+  const needed = dates.length * slots.length * 2;
   onProgress('Fetching recipe candidates…');
-  const candidates = await fetchCandidates(dates.length * 2, selectedCategories, selectedRestrictions);
+  const candidates = await fetchCandidates(needed, selectedCategories, selectedRestrictions);
 
-  if (candidates.length < dates.length) {
+  const minNeeded = dates.length * slots.length;
+  if (candidates.length < minNeeded) {
     throw new Error('Not enough recipes available. Try adjusting your category or dietary filters.');
   }
 
   onProgress('Calculating nutrition…');
   const enriched = await enrichWithNutrition(candidates);
 
-  if (enriched.length < dates.length) {
+  if (enriched.length < minNeeded) {
     throw new Error('Could not load nutrition data for enough recipes. Please try again.');
   }
 
   onProgress('Generating your plan with AI…');
-  const prompt = buildPrompt(dates, macroProfile, enriched);
-  const assignment = await callClaude(prompt);
+  const prompt = buildPrompt(dates, slots, macroProfile, enriched);
+  const assignment = await callClaude(prompt, slots);
 
-  // Map Claude's index assignments back to full recipe objects
+  // Map Claude's index assignments back to full recipe objects: { date: { slotId: meal } }
   const plan = {};
-  for (const [date, idx] of Object.entries(assignment)) {
-    if (enriched[idx]) plan[date] = enriched[idx];
+  for (const [date, slotMap] of Object.entries(assignment)) {
+    const daySlots = {};
+    for (const [slotId, idx] of Object.entries(slotMap)) {
+      if (enriched[idx]) daySlots[slotId] = enriched[idx];
+    }
+    if (Object.keys(daySlots).length > 0) plan[date] = daySlots;
   }
 
   if (Object.keys(plan).length === 0) {

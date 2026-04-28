@@ -13,7 +13,6 @@ export default function PlannerModal({
   onClose,
 }) {
   const sortedSlots = [...slots].sort((a, b) => a.order - b.order);
-  const [targetSlotId, setTargetSlotId] = useState(sortedSlots[0]?.id ?? 'dinner');
   const [status, setStatus]     = useState('idle');
   const [progress, setProgress] = useState('');
   const [plan, setPlan]         = useState(null);
@@ -30,6 +29,7 @@ export default function PlannerModal({
         macroProfile,
         selectedCategories,
         selectedRestrictions,
+        slots: sortedSlots,
         onProgress: setProgress,
       });
       setPlan(result);
@@ -41,12 +41,11 @@ export default function PlannerModal({
   }
 
   function handleApply() {
-    onApply(plan, targetSlotId);
+    onApply(plan);
     onClose();
   }
 
   const dateEntries = plan ? Object.entries(plan).sort(([a], [b]) => a.localeCompare(b)) : [];
-  const targetSlotLabel = sortedSlots.find((s) => s.id === targetSlotId)?.label ?? targetSlotId;
 
   return (
     <div className="modal-overlay" data-testid="planner-overlay" onClick={onClose}>
@@ -61,25 +60,10 @@ export default function PlannerModal({
           <span>{macroProfile.fat}g fat</span>
         </div>
 
-        <div className="planner-slot-selector">
-          <label htmlFor="planner-slot">Fill slot</label>
-          <select
-            id="planner-slot"
-            value={targetSlotId}
-            onChange={(e) => setTargetSlotId(e.target.value)}
-            className="planner-slot-select"
-          >
-            {sortedSlots.map((s) => (
-              <option key={s.id} value={s.id}>{s.label}</option>
-            ))}
-          </select>
-        </div>
-
         {status === 'idle' && (
           <div className="planner-idle">
             <p className="planner-description">
-              Claude will select meals from TheMealDB that best match your daily macro targets
-              for each day in your current timeframe, assigned to <strong>{targetSlotLabel}</strong>.
+              Claude will fill all {sortedSlots.length} slot{sortedSlots.length !== 1 ? 's' : ''} ({sortedSlots.map((s) => s.label).join(', ')}) for each day in your timeframe so that the combined daily macros hit your targets.
             </p>
             <button className="planner-generate-btn" onClick={handleGenerate}>
               Generate plan
@@ -104,25 +88,36 @@ export default function PlannerModal({
         {status === 'done' && plan && (
           <>
             <div className="planner-results">
-              {dateEntries.map(([date, recipe]) => {
+              {dateEntries.map(([date, daySlots]) => {
                 const d = new Date(date + 'T12:00:00');
                 const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                 return (
-                  <div key={date} className="planner-result-row">
+                  <div key={date} className="planner-result-day">
                     <span className="planner-result-date">{label}</span>
-                    <span className="planner-result-meal">{recipe.name}</span>
-                    {recipe.nutrition && (
-                      <span className="planner-result-macros">
-                        {recipe.nutrition.kcal} kcal · {recipe.nutrition.protein}g P
-                      </span>
-                    )}
+                    <div className="planner-result-slots">
+                      {sortedSlots.map((slot) => {
+                        const recipe = daySlots[slot.id];
+                        if (!recipe) return null;
+                        return (
+                          <div key={slot.id} className="planner-result-row">
+                            <span className="planner-result-slot-label">{slot.label}</span>
+                            <span className="planner-result-meal">{recipe.name}</span>
+                            {recipe.nutrition && (
+                              <span className="planner-result-macros">
+                                {recipe.nutrition.kcal} kcal · {recipe.nutrition.protein}g P
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 );
               })}
             </div>
             <div className="planner-actions">
               <button className="planner-secondary-btn" onClick={handleGenerate}>Regenerate</button>
-              <button className="planner-apply-btn" onClick={handleApply}>Apply to {targetSlotLabel}</button>
+              <button className="planner-apply-btn" onClick={handleApply}>Apply to plan</button>
             </div>
           </>
         )}

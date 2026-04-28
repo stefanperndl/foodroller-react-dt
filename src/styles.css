@@ -375,6 +375,24 @@ body {
 .week-summary-bars { display: flex; flex-direction: column; gap: 6px; }
 .week-summary-note { font-size: 0.75rem; color: #9ca3af; margin: 10px 0 0; }
 
+/* MacroDashboard — per-slot breakdown */
+.day-card-slots { display: flex; flex-direction: column; gap: 0; }
+.day-slot-row { padding: 8px 0; border-top: 1px solid #f3f4f6; }
+.day-slot-row:first-child { border-top: none; }
+.day-slot-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.day-slot-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #9ca3af; min-width: 60px; }
+.day-slot-meal { font-size: 0.875rem; font-weight: 600; color: #111827; }
+.day-slot-empty { font-weight: 400; color: #d1d5db; font-style: italic; }
+.day-slot-macros { display: flex; gap: 10px; flex-wrap: wrap; padding-left: 68px; }
+.day-slot-macro { font-size: 0.75rem; color: #6b7280; }
+.day-card-total { margin-top: 10px; padding-top: 10px; border-top: 2px solid #e5e7eb; }
+.day-card-total-label { font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 8px; }
+.day-card-bars { display: flex; flex-direction: column; gap: 6px; }
+
+/* PlannerModal — multi-slot result list */
+.planner-result-slots { display: flex; flex-direction: column; gap: 4px; }
+.planner-result-slot-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: #9ca3af; min-width: 64px; }
+
 /* Timeframe Picker */
 .timeframe-picker {
   position: absolute;
@@ -406,8 +424,8 @@ body {
 /* ── Plan view: multi-slot day cards ─────────────────────────────── */
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
   padding: 16px;
   max-width: 1400px;
   margin: 0 auto;
@@ -415,79 +433,160 @@ body {
 
 .plan-day-card {
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
 }
+.plan-day-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.05); }
+.plan-day-card--today { box-shadow: 0 0 0 2px #6366f1, 0 4px 16px rgba(99,102,241,0.15); }
 
 .plan-day-header {
-  padding: 10px 14px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #374151;
-}
-
-.plan-slot-list { display: flex; flex-direction: column; }
-
-.plan-slot-row {
   display: flex;
   align-items: center;
-  padding: 9px 14px;
-  border-bottom: 1px solid #f3f4f6;
-  gap: 10px;
-  min-height: 42px;
+  gap: 8px;
+  padding: 11px 14px 10px;
+  background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
 }
-.plan-slot-row:last-child { border-bottom: none; }
-.plan-slot-row--empty { opacity: 0.6; }
-
-.plan-slot-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #6b7280;
-  width: 78px;
-  flex-shrink: 0;
+.plan-day-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+.plan-day-today-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #6366f1;
+  background: #fff;
+  border-radius: 20px;
+  padding: 1px 8px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
-.plan-slot-meal {
+/* Slot cards */
+.plan-slot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: #f3f4f6;
+  flex: 1;
+}
+
+.plan-slot-card {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  gap: 0;
+  transition: background 0.15s;
+}
+.plan-slot-card:hover { background: #fafafa; }
+.plan-slot-card--empty { opacity: 0.8; }
+
+.plan-slot-card-img {
+  width: 68px;
+  min-width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.plan-slot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.plan-slot-img-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #6366f1;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.plan-slot-card-body {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.plan-slot-card-meta {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.plan-slot-card-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   flex: 1;
+}
+.plan-slot-remove-day-btn {
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #d1d5db;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 0;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.plan-slot-remove-day-btn:hover { color: #dc2626; background: #fee2e2; }
+
+.plan-slot-card-meal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
 }
-
 .plan-slot-meal-name {
   flex: 1;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: #111827;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 .plan-slot-meal-name:hover { color: #6366f1; text-decoration: underline; }
-
 .plan-slot-empty-label {
   flex: 1;
-  font-size: 0.85rem;
-  color: #d1d5db;
+  font-size: 0.8rem;
+  color: #c4c9d4;
   font-style: italic;
 }
-
 .plan-slot-loading {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #9ca3af;
   font-style: italic;
 }
 
 .plan-slot-actions { display: flex; gap: 4px; flex-shrink: 0; }
-
 .plan-slot-btn {
   width: 26px;
   height: 26px;
@@ -504,6 +603,62 @@ body {
 .plan-slot-btn--reroll:hover { background: #e5e7eb; }
 .plan-slot-btn--remove { background: #fee2e2; color: #dc2626; }
 .plan-slot-btn--remove:hover { background: #fecaca; }
+
+/* Day footer: add slot */
+.plan-day-footer {
+  padding: 8px 12px;
+  border-top: 1px solid #f3f4f6;
+}
+.plan-add-slot-wrap { position: relative; display: inline-block; }
+.plan-add-slot-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6366f1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.plan-add-slot-btn:hover { background: #ede9fe; }
+.plan-add-slot-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+.plan-add-slot-dropdown {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 101;
+  min-width: 140px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.plan-add-slot-option {
+  padding: 9px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.plan-add-slot-option:hover { background: #f5f3ff; color: #6366f1; }
+.plan-add-slot-none {
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-style: italic;
+}
 
 /* Slots button */
 .btn-slots {
@@ -1651,11 +1806,7 @@ body {
   overflow-y: auto;
   margin-bottom: 20px;
 }
-.planner-result-row {
-  display: grid;
-  grid-template-columns: 110px 1fr auto;
-  align-items: center;
-  gap: 10px;
+.planner-result-day {
   padding: 10px 12px;
   background: #f9fafb;
   border-radius: 8px;
@@ -1664,8 +1815,16 @@ body {
 .planner-result-date {
   font-size: 0.8125rem;
   color: #6b7280;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
+  display: block;
+  margin-bottom: 6px;
+}
+.planner-result-row {
+  display: grid;
+  grid-template-columns: 68px 1fr auto;
+  align-items: center;
+  gap: 8px;
 }
 .planner-result-meal {
   font-size: 0.9375rem;

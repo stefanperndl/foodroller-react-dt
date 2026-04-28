@@ -5,6 +5,7 @@ import { TimeframePicker } from "./components/TimeframePicker";
 import { fetchRecipeByCategories, fetchMealById } from "./api/recipes";
 import { useMealplan } from "./hooks/useMealplan";
 import { useMealSlots } from "./hooks/useMealSlots";
+import { useDaySlotOverrides } from "./hooks/useDaySlotOverrides";
 import { ShoppingCart } from "./components/ShoppingCart";
 import { CategorySidebar } from "./components/CategorySidebar";
 import RecipeBrowser from "./components/RecipeBrowser";
@@ -30,7 +31,35 @@ function App() {
   const [mealplan, setMealplan, mealplanLoaded] = useMealplan(user);
   const [slots, setSlots]         = useMealSlots(user);
   const [macroProfile, setMacroProfile] = useMacroProfile(user);
+  const [daySlotOverrides, setDaySlotOverrides] = useDaySlotOverrides();
   const [rerollingKey, setRerollingKey] = useState(null);
+
+  const getDaySlots = (date) =>
+    [...(daySlotOverrides[date] ?? slots)].sort((a, b) => a.order - b.order);
+
+  const handleAddSlotToDay = (date, slot) => {
+    setDaySlotOverrides((prev) => {
+      const current = prev[date] ?? slots;
+      if (current.some((s) => s.id === slot.id)) return prev;
+      const updated = [...current, slot].sort((a, b) => a.order - b.order);
+      return { ...prev, [date]: updated };
+    });
+  };
+
+  const handleRemoveSlotFromDay = (date, slotId) => {
+    setDaySlotOverrides((prev) => {
+      const current = prev[date] ?? slots;
+      return { ...prev, [date]: current.filter((s) => s.id !== slotId) };
+    });
+    setMealplan((prev) => {
+      const day = { ...(prev[date] || {}) };
+      delete day[slotId];
+      const next = { ...prev };
+      if (Object.keys(day).length === 0) delete next[date];
+      else next[date] = day;
+      return next;
+    });
+  };
 
   const [showAuthModal, setShowAuthModal]     = useState(false);
   const [showMacroModal, setShowMacroModal]   = useState(false);
@@ -209,9 +238,12 @@ function App() {
               endDate={endDate}
               mealplan={mealplan}
               slots={slots}
+              getDaySlots={getDaySlots}
               rerollingKey={rerollingKey}
               onReroll={handleReroll}
               onRemove={handleRemoveMeal}
+              onAddSlotToDay={handleAddSlotToDay}
+              onRemoveSlotFromDay={handleRemoveSlotFromDay}
             />
           )}
           {activeView === 'browse' && (
@@ -228,6 +260,7 @@ function App() {
               macroProfile={macroProfile}
               startDate={startDate}
               endDate={endDate}
+              slots={slots}
             />
           )}
         </>
@@ -288,11 +321,11 @@ function App() {
           selectedCategories={selectedCategories}
           selectedRestrictions={selectedRestrictions}
           slots={slots}
-          onApply={(plan, slotId) => {
+          onApply={(plan) => {
             setMealplan((prev) => {
               const next = { ...prev };
-              for (const [date, meal] of Object.entries(plan)) {
-                next[date] = { ...(next[date] || {}), [slotId]: meal };
+              for (const [date, daySlots] of Object.entries(plan)) {
+                next[date] = { ...(next[date] || {}), ...daySlots };
               }
               return next;
             });
