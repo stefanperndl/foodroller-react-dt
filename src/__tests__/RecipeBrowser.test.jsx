@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import RecipeBrowser from '../components/RecipeBrowser';
 import { fetchMealsByCategory } from '../api/recipes';
 
@@ -35,34 +35,34 @@ describe('RecipeBrowser', () => {
   it('renders meal cards after successful fetch', async () => {
     fetchMealsByCategory.mockResolvedValue([meals[0]]);
     render(<RecipeBrowser {...defaultProps} />);
-    await waitFor(() => expect(screen.getByText('Beef Stew')).toBeInTheDocument());
+    expect(await screen.findByText('Beef Stew')).toBeInTheDocument();
   });
 
   it('shows empty state when fetch returns no meals', async () => {
     fetchMealsByCategory.mockResolvedValue([]);
     render(<RecipeBrowser {...defaultProps} />);
-    await waitFor(() => expect(screen.getByText(/no recipes found/i)).toBeInTheDocument());
+    expect(await screen.findByText(/no recipes found/i)).toBeInTheDocument();
   });
 
   it('shows error state when fetch fails', async () => {
     fetchMealsByCategory.mockRejectedValue(new Error('fail'));
     render(<RecipeBrowser {...defaultProps} />);
-    await waitFor(() => expect(screen.getByText(/failed to load/i)).toBeInTheDocument());
+    expect(await screen.findByText(/failed to load/i)).toBeInTheDocument();
   });
 
   it('calls onAddToDate when Add to Date button clicked', async () => {
     const onAddToDate = jest.fn();
     fetchMealsByCategory.mockResolvedValue([meals[0]]);
     render(<RecipeBrowser {...defaultProps} onAddToDate={onAddToDate} />);
-    await waitFor(() => screen.getByText('Beef Stew'));
+    await screen.findByText('Beef Stew');
     fireEvent.click(screen.getByText('Add to Date'));
     expect(onAddToDate).toHaveBeenCalledWith(meals[0]);
   });
 
   it('filters meals that fail dietary restriction validation', async () => {
     fetchMealsByCategory
-      .mockResolvedValueOnce([meals[0]])  // Beef category → Beef Stew
-      .mockResolvedValueOnce([meals[1]]); // Vegetarian category → Greek Salad
+      .mockResolvedValueOnce([meals[0]])
+      .mockResolvedValueOnce([meals[1]]);
     render(
       <RecipeBrowser
         {...defaultProps}
@@ -78,16 +78,14 @@ describe('RecipeBrowser', () => {
   it('opens modal when recipe card is clicked', async () => {
     fetchMealsByCategory.mockResolvedValue([meals[0]]);
     render(<RecipeBrowser {...defaultProps} />);
-    await waitFor(() => screen.getByText('Beef Stew'));
-    fireEvent.click(screen.getByText('Beef Stew'));
+    fireEvent.click(await screen.findByText('Beef Stew'));
     expect(screen.getByTestId('modal')).toBeInTheDocument();
   });
 
   it('closes modal on close button click', async () => {
     fetchMealsByCategory.mockResolvedValue([meals[0]]);
     render(<RecipeBrowser {...defaultProps} />);
-    await waitFor(() => screen.getByText('Beef Stew'));
-    fireEvent.click(screen.getByText('Beef Stew'));
+    fireEvent.click(await screen.findByText('Beef Stew'));
     fireEvent.click(screen.getByText('Close'));
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
   });

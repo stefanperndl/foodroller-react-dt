@@ -9,8 +9,12 @@ import { ShoppingCart } from "./components/ShoppingCart";
 import { CategorySidebar } from "./components/CategorySidebar";
 import RecipeBrowser from "./components/RecipeBrowser";
 import AddToDateModal from "./components/AddToDateModal";
+import { useAuth } from "./context/AuthContext";
+import AuthModal from "./components/AuthModal";
+import UserMenu from "./components/UserMenu";
 
 function App() {
+  const { user } = useAuth();
   const today = new Date();
   const defaultEnd = new Date();
   defaultEnd.setDate(today.getDate() + 4);
@@ -19,7 +23,8 @@ function App() {
   const [endDate, setEndDate] = useState(defaultEnd.toISOString().slice(0, 10));
   const [food, setFood] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mealplan, setMealplan, mealplanLoaded] = useMealplan();
+  const [mealplan, setMealplan, mealplanLoaded] = useMealplan(user);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -154,7 +159,30 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        FoodRoller
+        <div className="app-header-top">
+          <span className="app-title">FoodRoller</span>
+          <div className="app-header-actions">
+            <div
+              className="cart-icon"
+              onClick={() => setShowCart(true)}
+              title="Show shopping list"
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14l.84-2h7.45c.75 0 1.41-.41 1.75-1.03l3.24-5.88A1 1 0 0 0 19.45 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12z"
+                  fill="#fff"
+                />
+              </svg>
+            </div>
+            {user ? (
+              <UserMenu />
+            ) : (
+              <button className="btn-signin" onClick={() => setShowAuthModal(true)}>
+                Sign in
+              </button>
+            )}
+          </div>
+        </div>
         <TimeframePicker
           startDate={startDate}
           endDate={endDate}
@@ -162,19 +190,6 @@ function App() {
           onEndChange={setEndDate}
           disabled={loading}
         />
-        <div
-          className="cart-icon"
-          onClick={() => setShowCart(true)}
-          title="Show shopping list"
-        >
-          {/* SVG cart icon */}
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14l.84-2h7.45c.75 0 1.41-.41 1.75-1.03l3.24-5.88A1 1 0 0 0 19.45 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12z"
-              fill="#fff"
-            />
-          </svg>
-        </div>
       </header>
 
       {/* View Tabs */}
@@ -268,6 +283,10 @@ function App() {
           onConfirm={confirmAddMealToDate}
           onCancel={() => setSelectedMealForDate(null)}
         />
+      )}
+
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} />
       )}
     </div>
   );
