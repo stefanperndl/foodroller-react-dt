@@ -56,6 +56,20 @@ body {
 }
 
 /* Sign-in button */
+.btn-goals {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-goals:hover { background: rgba(255,255,255,0.25); }
+
 .btn-signin {
   background: transparent;
   color: #fff;
@@ -261,6 +275,52 @@ body {
   border-radius: 6px;
   padding: 8px 12px;
 }
+
+/* Macro Profile Modal */
+.macro-profile-modal { max-width: 480px; padding: 28px 28px 24px; }
+.macro-profile-title { font-size: 1.2rem; font-weight: 700; margin: 0 0 16px; color: #111827; }
+
+.macro-goal-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.macro-goal-tab {
+  flex: 1; padding: 8px 0; border: 1px solid #d1d5db; border-radius: 8px;
+  background: #f9fafb; font-size: 0.875rem; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; color: #374151;
+}
+.macro-goal-tab.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+
+.macro-calculator { background: #f9fafb; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+.macro-calc-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.macro-calc-field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.macro-calc-field label { font-size: 0.8125rem; font-weight: 600; color: #374151; }
+.macro-calc-full { margin-bottom: 12px; }
+.macro-calc-input {
+  border: 1px solid #d1d5db; border-radius: 6px; padding: 7px 10px;
+  font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.macro-calc-input:focus { border-color: #6366f1; }
+.macro-sex-toggle { display: flex; gap: 6px; }
+.macro-sex-toggle button {
+  flex: 1; padding: 7px 0; border: 1px solid #d1d5db; border-radius: 6px;
+  background: #fff; font-size: 0.875rem; cursor: pointer; transition: all 0.15s;
+}
+.macro-sex-toggle button.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+.macro-calc-btn {
+  width: 100%; background: #6366f1; color: #fff; border: none; border-radius: 8px;
+  padding: 9px 0; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.macro-calc-btn:hover { background: #4f46e5; }
+
+.macro-targets-form { display: flex; flex-direction: column; gap: 12px; }
+.macro-targets-hint { font-size: 0.8125rem; color: #6b7280; margin: 0; }
+.macro-targets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.macro-target-field { display: flex; flex-direction: column; gap: 4px; }
+.macro-target-field label { font-size: 0.8125rem; font-weight: 600; color: #374151; }
+.macro-save-btn {
+  width: 100%; background: #4f46e5; color: #fff; border: none; border-radius: 8px;
+  padding: 10px 0; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.macro-save-btn:hover { background: #4338ca; }
 
 /* Timeframe Picker */
 .timeframe-picker {

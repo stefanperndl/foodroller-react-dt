@@ -12,6 +12,8 @@ import AddToDateModal from "./components/AddToDateModal";
 import { useAuth } from "./context/AuthContext";
 import AuthModal from "./components/AuthModal";
 import UserMenu from "./components/UserMenu";
+import MacroProfileModal from "./components/MacroProfileModal";
+import { useMacroProfile } from "./hooks/useMacroProfile";
 
 function App() {
   const { user } = useAuth();
@@ -24,7 +26,9 @@ function App() {
   const [food, setFood] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mealplan, setMealplan, mealplanLoaded] = useMealplan(user);
+  const [macroProfile, setMacroProfile] = useMacroProfile(user);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showMacroModal, setShowMacroModal] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -161,6 +165,9 @@ function App() {
         <div className="app-header-top">
           <span className="app-title">FoodRoller</span>
           <div className="app-header-actions">
+            <button className="btn-goals" onClick={() => setShowMacroModal(true)}>
+              {macroProfile ? `${macroProfile.kcal} kcal · ${macroProfile.protein}g P` : 'Set goals'}
+            </button>
             <div
               className="cart-icon"
               onClick={() => setShowCart(true)}
@@ -286,6 +293,14 @@ function App() {
 
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} />
+      )}
+
+      {showMacroModal && (
+        <MacroProfileModal
+          profile={macroProfile}
+          onSave={setMacroProfile}
+          onClose={() => setShowMacroModal(false)}
+        />
       )}
     </div>
   );
