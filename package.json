@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npx serve build",
     "lint": "next lint",
     "test": "jest"
   },

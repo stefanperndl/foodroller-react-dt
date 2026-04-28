@@ -102,14 +102,16 @@ function App() {
 
   // In App.js
   const getIngredientsByRecipe = () => {
-    // Only include saved meals
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const result = {};
     Object.entries(mealplan).forEach(([date, recipe]) => {
-      console.log(recipe);
-      result[date] = {
-        name: recipe.name,
-        ingredients: recipe.ingredients || [],
-      };
+      if (new Date(date) >= today) {
+        result[date] = {
+          name: recipe.name,
+          ingredients: recipe.ingredients || [],
+        };
+      }
     });
     return result;
   };
@@ -248,7 +250,7 @@ function App() {
         </>
       )}
 
-      {activeView === 'plan' && (
+      {activeView === 'plan' && !showCart && (
         <div className="roll-button-container">
           <button
             className="btn btn-roll-main"
