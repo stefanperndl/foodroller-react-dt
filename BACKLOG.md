@@ -19,7 +19,7 @@
 | Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges |
 | Recipe Catalog / Browse | v1.1 | Grid, category + dietary filter |
 | Dietary Restrictions | v1.0 | Vegetarian, Vegan, Pescatarian |
-| Automated Testing / CI | v0.7 | Jest + RTL, GitHub Actions, GitHub Pages deploy |
+| Automated Testing / CI | v0.7 | Jest + RTL, GitHub Actions, Vercel deploy |
 
 ---
 

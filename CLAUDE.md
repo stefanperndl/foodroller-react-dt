@@ -10,8 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm run dev       # Start dev server at http://localhost:3000
-npm run build     # Production build (static export → /build)
-npm start         # Serve the static production build locally (npx serve build)
+npm run build     # Production build (Next.js server build → /.next)
+npm start         # Start the Next.js production server locally
 npm run lint      # ESLint
 npm test          # Run all Jest tests
 
@@ -24,7 +24,7 @@ npm test -- --testNamePattern="merges identical ingredients"
 
 ## Architecture
 
-FoodRoller is a React 19 / Next.js 15 meal planning SPA (static export). It generates random meal suggestions via TheMealDB API, lets users filter by dietary restriction, and saves meals to a date-based plan stored in localStorage.
+FoodRoller is a React 19 / Next.js 15 meal planning app deployed on Vercel. It generates random meal suggestions via TheMealDB API, lets users filter by dietary restriction, and saves meals to a date-based plan stored in localStorage.
 
 ### Layers
 
@@ -60,5 +60,5 @@ Restrictions are defined in `src/utils/dietaryRestrictions.js` (`DIETARY_RESTRIC
 - `src/components/App.jsx` — main orchestrator, all global state
 - `src/api/recipes.js` — only place TheMealDB is called
 - `src/utils/dietaryRestrictions.js` — add/modify restriction profiles here
-- `next.config.ts` — static export config, output dir `./build`
+- `next.config.ts` — Next.js config (Vercel deployment, no static export)
 - `jest.config.js` — jsdom environment, Babel transform

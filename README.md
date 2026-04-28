@@ -293,7 +293,7 @@ yarn test
 ## 📦 Tech Stack
 
 - **React** (with hooks)
-- **Next.js 15** (App Router with static export)
+- **Next.js 15** (App Router, deployed on Vercel)
 - **CSS** (custom, responsive)
 - **[TheMealDB API](https://www.themealdb.com/api.php)** for recipes and categories
 - **Jest & React Testing Library** for testing
