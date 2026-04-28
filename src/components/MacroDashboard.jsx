@@ -101,25 +101,29 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
   const dates = getDatesInRange(new Date(startDate), new Date(endDate))
     .map((d) => d.toISOString().slice(0, 10));
 
-  // Fetch nutrition for all planned meals that aren't cached yet
+  // Fetch nutrition for all planned meals that aren't cached yet.
+  // Use meal.id as cache key when available, fall back to meal.name
+  // so meals saved before the id fix still work.
   useEffect(() => {
     let cancelled = false;
     const meals = dates
       .map((date) => mealplan[date])
-      .filter((m) => m?.id && m?.ingredients?.length && !getNutritionFromCache(m.id));
+      .filter((m) => m?.ingredients?.length)
+      .map((m) => ({ ...m, cacheKey: m.id ?? m.name }))
+      .filter((m) => !getNutritionFromCache(m.cacheKey));
 
     if (meals.length === 0) return;
 
     Promise.all(
       meals.map((m) =>
-        getNutrition(m.id, m.ingredients)
-          .then((n) => ({ id: m.id, n }))
+        getNutrition(m.cacheKey, m.ingredients)
+          .then((n) => ({ key: m.cacheKey, n }))
           .catch(() => null)
       )
     ).then((results) => {
       if (cancelled) return;
       const map = {};
-      results.forEach((r) => { if (r) map[r.id] = r.n; });
+      results.forEach((r) => { if (r) map[r.key] = r.n; });
       setNutritionMap((prev) => ({ ...prev, ...map }));
     });
 
@@ -137,7 +141,8 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
 
   const days = dates.map((date) => {
     const meal = mealplan[date] ?? null;
-    const raw = meal?.id ? (getNutritionFromCache(meal.id) ?? nutritionMap[meal.id]) : null;
+    const cacheKey = meal?.id ?? meal?.name;
+    const raw = cacheKey ? (getNutritionFromCache(cacheKey) ?? nutritionMap[cacheKey]) : null;
     const n = raw
       ? {
           kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),

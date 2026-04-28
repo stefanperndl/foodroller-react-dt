@@ -6,17 +6,19 @@ export function useNutrition(recipe) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!recipe?.id || !recipe?.ingredients?.length) return;
+    if (!recipe?.ingredients?.length) return;
+    const cacheKey = recipe.id ?? recipe.name;
+    if (!cacheKey) return;
     let cancelled = false;
 
     setLoading(true);
-    getNutrition(recipe.id, recipe.ingredients)
+    getNutrition(cacheKey, recipe.ingredients)
       .then((data) => { if (!cancelled) setNutrition(data); })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-  }, [recipe?.id]);
+  }, [recipe?.id, recipe?.name]);
 
   return { nutrition, loading };
 }
