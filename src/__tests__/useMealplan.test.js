@@ -1,5 +1,6 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useMealplan } from '../hooks/useMealplan';
+import { getDoc, setDoc } from 'firebase/firestore';
 
 // Mock Firebase so tests run without a real project config
 jest.mock('../lib/firebase', () => ({ db: {} }));
@@ -8,8 +9,6 @@ jest.mock('firebase/firestore', () => ({
   getDoc: jest.fn(),
   setDoc: jest.fn(),
 }));
-
-import { getDoc, setDoc } from 'firebase/firestore';
 
 const KEY = 'mealplan_v1';
 

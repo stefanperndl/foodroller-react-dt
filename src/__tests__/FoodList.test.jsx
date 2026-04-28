@@ -35,7 +35,7 @@ describe('FoodList', () => {
 
   it('renders nothing when food list is empty', () => {
     const { container } = render(<FoodList {...defaultProps} food={[]} />);
-    expect(container.firstChild).toBeNull();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('renders a tile with the date and recipe name', () => {

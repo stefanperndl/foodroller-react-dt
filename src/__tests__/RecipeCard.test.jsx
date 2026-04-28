@@ -30,7 +30,7 @@ describe('RecipeCard', () => {
 
   it('returns null when Food is missing', () => {
     const { container } = render(<RecipeCard />);
-    expect(container.firstChild).toBeNull();
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('omits category paragraph when category is absent', () => {
