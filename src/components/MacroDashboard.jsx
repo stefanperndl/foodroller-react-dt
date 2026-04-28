@@ -1,6 +1,7 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { getDatesInRange } from '../utils/utils';
-import { getNutritionFromCache } from '../api/nutrition';
+import { getNutrition, getNutritionFromCache } from '../api/nutrition';
 
 const DEFAULT_SERVINGS = 4;
 
@@ -33,16 +34,7 @@ function MacroBar({ label, value, target, unit = 'g', color }) {
   );
 }
 
-function DayCard({ date, meal, profile }) {
-  const nutrition = meal?.id ? getNutritionFromCache(meal.id) : null;
-  const n = nutrition
-    ? {
-        kcal:    Math.round(nutrition.kcal    / DEFAULT_SERVINGS),
-        protein: Math.round(nutrition.protein / DEFAULT_SERVINGS),
-        carbs:   Math.round(nutrition.carbs   / DEFAULT_SERVINGS),
-        fat:     Math.round(nutrition.fat     / DEFAULT_SERVINGS),
-      }
-    : null;
+function DayCard({ date, meal, profile, n }) {
 
   const d = new Date(date + 'T12:00:00');
   const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -54,7 +46,7 @@ function DayCard({ date, meal, profile }) {
         <span className="day-card-meal">{meal?.name ?? 'No meal planned'}</span>
       </div>
       {meal && !n && (
-        <p className="day-card-no-nutrition">Open recipe to load nutrition data</p>
+        <p className="day-card-no-nutrition">Loading nutrition…</p>
       )}
       {n && (
         <div className="day-card-bars">
@@ -104,6 +96,37 @@ function WeekSummary({ days, profile }) {
 }
 
 export default function MacroDashboard({ mealplan, macroProfile, startDate, endDate }) {
+  const [nutritionMap, setNutritionMap] = useState({});
+
+  const dates = getDatesInRange(new Date(startDate), new Date(endDate))
+    .map((d) => d.toISOString().slice(0, 10));
+
+  // Fetch nutrition for all planned meals that aren't cached yet
+  useEffect(() => {
+    let cancelled = false;
+    const meals = dates
+      .map((date) => mealplan[date])
+      .filter((m) => m?.id && m?.ingredients?.length && !getNutritionFromCache(m.id));
+
+    if (meals.length === 0) return;
+
+    Promise.all(
+      meals.map((m) =>
+        getNutrition(m.id, m.ingredients)
+          .then((n) => ({ id: m.id, n }))
+          .catch(() => null)
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      const map = {};
+      results.forEach((r) => { if (r) map[r.id] = r.n; });
+      setNutritionMap((prev) => ({ ...prev, ...map }));
+    });
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate, endDate, mealplan]);
+
   if (!macroProfile) {
     return (
       <div className="macro-dashboard-empty">
@@ -112,18 +135,15 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
     );
   }
 
-  const dates = getDatesInRange(new Date(startDate), new Date(endDate))
-    .map((d) => d.toISOString().slice(0, 10));
-
   const days = dates.map((date) => {
     const meal = mealplan[date] ?? null;
-    const nutrition = meal?.id ? getNutritionFromCache(meal.id) : null;
-    const n = nutrition
+    const raw = meal?.id ? (getNutritionFromCache(meal.id) ?? nutritionMap[meal.id]) : null;
+    const n = raw
       ? {
-          kcal:    Math.round(nutrition.kcal    / DEFAULT_SERVINGS),
-          protein: Math.round(nutrition.protein / DEFAULT_SERVINGS),
-          carbs:   Math.round(nutrition.carbs   / DEFAULT_SERVINGS),
-          fat:     Math.round(nutrition.fat     / DEFAULT_SERVINGS),
+          kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
+          protein: Math.round(raw.protein / DEFAULT_SERVINGS),
+          carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
+          fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
         }
       : null;
     return { date, meal, n };
@@ -132,8 +152,8 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
   return (
     <div className="macro-dashboard">
       <div className="macro-dashboard-days">
-        {days.map(({ date, meal }) => (
-          <DayCard key={date} date={date} meal={meal} profile={macroProfile} />
+        {days.map(({ date, meal, n }) => (
+          <DayCard key={date} date={date} meal={meal} profile={macroProfile} n={n} />
         ))}
       </div>
       <WeekSummary days={days} profile={macroProfile} />
