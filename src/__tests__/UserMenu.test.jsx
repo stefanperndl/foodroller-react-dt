@@ -50,7 +50,7 @@ describe('UserMenu', () => {
     render(<UserMenu />);
     fireEvent.click(screen.getByRole('button', { name: /user menu/i }));
     expect(screen.getByText('Sign out')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('Sign out').closest('.user-menu-dropdown').previousSibling);
+    fireEvent.click(screen.getByTestId('user-menu-backdrop'));
     expect(screen.queryByText('Sign out')).toBeNull();
   });
 });

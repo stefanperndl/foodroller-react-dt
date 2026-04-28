@@ -34,7 +34,7 @@ export default function UserMenu() {
 
       {open && (
         <>
-          <div className="user-menu-backdrop" onClick={() => setOpen(false)} />
+          <div className="user-menu-backdrop" data-testid="user-menu-backdrop" onClick={() => setOpen(false)} />
           <div className="user-menu-dropdown">
             <p className="user-menu-name">{user.displayName || user.email}</p>
             <p className="user-menu-email">{user.email}</p>

@@ -3,7 +3,7 @@ import React from 'react';
 import { useState, useEffect } from "react";
 import { TimeframePicker } from "./components/TimeframePicker";
 import { getDatesInRange } from "./utils/utils";
-import { fetchRecipe, fetchRecipeByCategories, fetchMealById } from "./api/recipes";
+import { fetchRecipeByCategories, fetchMealById } from "./api/recipes";
 import { useMealplan } from "./hooks/useMealplan";
 import { ShoppingCart } from "./components/ShoppingCart";
 import { CategorySidebar } from "./components/CategorySidebar";
