@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { fetchMealById } from '../api/recipes';
 import { getMatchingDietaryRestrictions } from '../utils/dietaryRestrictions';
+import { useNutrition } from '../hooks/useNutrition';
 
 export default function RecipeDetailModal({ meal, onClose, onAddToDate }) {
   const [fullRecipe, setFullRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { nutrition, loading: nutritionLoading } = useNutrition(fullRecipe);
 
   useEffect(() => {
     async function loadFullDetails() {
@@ -89,6 +91,36 @@ export default function RecipeDetailModal({ meal, onClose, onAddToDate }) {
                     <span key={idx} className="recipe-meta-tag recipe-meta-tag-secondary">{tag}</span>
                   ))}
                 </div>
+              </div>
+
+              <div className="recipe-macros" aria-label="Nutrition per serving">
+                {nutritionLoading && <span className="macro-loading">Loading nutrition…</span>}
+                {nutrition && !nutritionLoading && (
+                  <>
+                    <div className="macro-item">
+                      <span className="macro-value">{Math.round(nutrition.kcal)}</span>
+                      <span className="macro-label">kcal</span>
+                    </div>
+                    <div className="macro-item macro-protein">
+                      <span className="macro-value">{Math.round(nutrition.protein)}g</span>
+                      <span className="macro-label">protein</span>
+                    </div>
+                    <div className="macro-item macro-carbs">
+                      <span className="macro-value">{Math.round(nutrition.carbs)}g</span>
+                      <span className="macro-label">carbs</span>
+                    </div>
+                    <div className="macro-item macro-fat">
+                      <span className="macro-value">{Math.round(nutrition.fat)}g</span>
+                      <span className="macro-label">fat</span>
+                    </div>
+                    {nutrition.fiber > 0 && (
+                      <div className="macro-item macro-fiber">
+                        <span className="macro-value">{Math.round(nutrition.fiber)}g</span>
+                        <span className="macro-label">fiber</span>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
