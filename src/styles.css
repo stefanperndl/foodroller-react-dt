@@ -1339,3 +1339,151 @@ body {
   font-size: 0.9375rem;
 }
 
+/* Plan My Week button */
+.btn-plan-week {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-plan-week:hover { opacity: 0.88; }
+
+/* Planner modal */
+.planner-modal {
+  max-width: 520px;
+  width: 100%;
+}
+.planner-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 12px;
+}
+.planner-targets {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.planner-targets span {
+  background: #ede9fe;
+  color: #4c1d95;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.planner-idle { text-align: center; padding: 20px 0; }
+.planner-description {
+  color: #6b7280;
+  font-size: 0.9375rem;
+  margin: 0 0 20px;
+  line-height: 1.55;
+}
+.planner-generate-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.planner-generate-btn:hover { opacity: 0.88; }
+.planner-generating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0;
+  gap: 16px;
+}
+.planner-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.planner-progress {
+  color: #6b7280;
+  font-size: 0.9375rem;
+}
+.planner-error {
+  text-align: center;
+  padding: 20px 0;
+  color: #dc2626;
+}
+.planner-error p { margin: 0 0 16px; }
+.planner-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+.planner-result-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+.planner-result-date {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.planner-result-meal {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #111827;
+}
+.planner-result-macros {
+  font-size: 0.8125rem;
+  color: #4c1d95;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.planner-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.planner-secondary-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 24px;
+  padding: 10px 22px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.planner-secondary-btn:hover { background: #e5e7eb; }
+.planner-apply-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 28px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.planner-apply-btn:hover { opacity: 0.88; }
+

@@ -15,6 +15,7 @@ import UserMenu from "./components/UserMenu";
 import MacroProfileModal from "./components/MacroProfileModal";
 import MacroDashboard from "./components/MacroDashboard";
 import { useMacroProfile } from "./hooks/useMacroProfile";
+import PlannerModal from "./components/PlannerModal";
 
 function App() {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ function App() {
   const [macroProfile, setMacroProfile] = useMacroProfile(user);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMacroModal, setShowMacroModal] = useState(false);
+  const [showPlannerModal, setShowPlannerModal] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -294,6 +296,15 @@ function App() {
 
       {activeView === 'plan' && !showCart && (
         <div className="roll-button-container">
+          {macroProfile && (
+            <button
+              className="btn btn-plan-week"
+              onClick={() => setShowPlannerModal(true)}
+              title="Generate an AI meal plan based on your macro goals"
+            >
+              Plan My Week
+            </button>
+          )}
           <button
             className="btn btn-roll-main"
             onClick={handleRoll}
@@ -321,6 +332,20 @@ function App() {
           profile={macroProfile}
           onSave={setMacroProfile}
           onClose={() => setShowMacroModal(false)}
+        />
+      )}
+
+      {showPlannerModal && macroProfile && (
+        <PlannerModal
+          macroProfile={macroProfile}
+          startDate={startDate}
+          endDate={endDate}
+          selectedCategories={selectedCategories}
+          selectedRestrictions={selectedRestrictions}
+          onApply={(plan) => {
+            setMealplan((prev) => ({ ...prev, ...plan }));
+          }}
+          onClose={() => setShowPlannerModal(false)}
         />
       )}
     </div>
