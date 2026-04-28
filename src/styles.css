@@ -383,18 +383,21 @@ body {
 }
 
 @media print {
-  body > *:not(.shopping-cart-view),
-  .close-cart,
+  .app-header,
+  .view-tabs,
+  .shopping-cart-header,
   .shopping-export-actions {
     display: none !important;
   }
 
+  .app-container,
   .shopping-cart-view {
     box-shadow: none;
     margin: 0;
     padding: 16px;
     max-width: 100%;
     width: 100%;
+    background: white;
   }
 }
 
