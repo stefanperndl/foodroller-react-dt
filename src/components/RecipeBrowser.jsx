@@ -4,48 +4,41 @@ import { fetchMealsByCategory } from '../api/recipes';
 import { validateMealAgainstRestrictions } from '../utils/dietaryRestrictions';
 import RecipeDetailModal from './RecipeDetailModal';
 
-export default function RecipeBrowser({ 
-  categories, 
-  selectedCategories, 
+export default function RecipeBrowser({
+  categories,
+  selectedCategories,
   selectedRestrictions,
-  onAddToDate 
+  onAddToDate
 }) {
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedMeal, setSelectedMeal] = useState(null);
 
-  // Fetch meals when categories or restrictions change
   useEffect(() => {
     async function loadMeals() {
       setLoading(true);
       setError(null);
-      
+
       try {
-        // If no categories selected, show all categories
-        const categoriesToFetch = selectedCategories.length > 0 
-          ? selectedCategories 
+        const categoriesToFetch = selectedCategories.length > 0
+          ? selectedCategories
           : categories;
-        
-        // Fetch meals from all selected categories
+
         const promises = categoriesToFetch.map(cat => fetchMealsByCategory(cat));
         const results = await Promise.all(promises);
-        
-        // Flatten array of arrays into single array
+
         let allMeals = results.flat();
-        
-        // Filter by dietary restrictions if any selected
+
         if (selectedRestrictions.length > 0) {
-          allMeals = allMeals.filter(meal => {
-            // Basic validation - check category against restrictions
-            // (Full ingredient validation happens when meal is added)
-            return validateMealAgainstRestrictions(
-              { category: meal.category, ingredients: [] }, 
+          allMeals = allMeals.filter(meal =>
+            validateMealAgainstRestrictions(
+              { category: meal.category, ingredients: [] },
               selectedRestrictions
-            );
-          });
+            )
+          );
         }
-        
+
         setMeals(allMeals);
       } catch (err) {
         console.error('Error loading meals:', err);
@@ -76,17 +69,18 @@ export default function RecipeBrowser({
 
   return (
     <div className="recipe-browser">
-      <div className="recipe-browser-header">
+      <div className="browse-header">
         <h2>Browse Recipes</h2>
-        <p className="recipe-count">{meals.length} recipes found</p>
+        <span className="browse-count">{meals.length} recipes found</span>
       </div>
-      
-      <div className="recipe-browser-grid">
+
+      <div className="browse-grid">
         {meals.map(meal => (
           <div key={meal.id} className="recipe-browser-item">
             <RecipeCard Food={meal} onClick={() => setSelectedMeal(meal)} />
-            <button 
-              className="btn btn-primary add-to-date-btn"
+            <button
+              className="btn btn--sm btn--primary"
+              style={{ width: '100%' }}
               onClick={() => onAddToDate(meal)}
             >
               Add to Date
