@@ -1,4 +1,5 @@
 import { ArrowLeft } from 'lucide-react';
+import ScrollUnlock from './ScrollUnlock';
 
 export const metadata = {
   title: 'Dietitian Mode — FoodRoller Guide',
@@ -37,6 +38,7 @@ function Callout({ children }) {
 export default function DietitianGuide() {
   return (
     <div className="dg-page">
+      <ScrollUnlock />
       <a href="/" className="dg-back">
         <ArrowLeft size={14} strokeWidth={2} /> Back to FoodRoller
       </a>

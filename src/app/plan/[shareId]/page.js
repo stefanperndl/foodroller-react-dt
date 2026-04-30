@@ -48,6 +48,16 @@ export default function SharedPlanPage({ params }) {
   const [completed, setCompleted]     = useState({});
   const [nutritionMap, setNutritionMap] = useState({});
 
+  // Let the page scroll — main app locks #root overflow for SPA layout
+  useEffect(() => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    const prev = { overflow: root.style.overflow, height: root.style.height };
+    root.style.overflow = 'auto';
+    root.style.height = 'auto';
+    return () => { root.style.overflow = prev.overflow; root.style.height = prev.height; };
+  }, []);
+
   // Load plan
   useEffect(() => {
     getSharedPlan(shareId)
