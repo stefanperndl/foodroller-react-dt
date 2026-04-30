@@ -3,6 +3,7 @@ import { useState, useEffect, use } from 'react';
 import { Printer } from 'lucide-react';
 import { getSharedPlan, markMealCompleted } from '../../../utils/shareUtils';
 import { getDatesInRange, mergeIngredients } from '../../../utils/utils';
+import { getNutrition } from '../../../api/nutrition';
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -31,21 +32,58 @@ function MealImage({ src, alt }) {
 
 export default function SharedPlanPage({ params }) {
   const { shareId } = use(params);
-  const [plan, setPlan]           = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [expired, setExpired]     = useState(false);
-  const [completed, setCompleted] = useState({});
+  const [plan, setPlan]               = useState(null);
+  const [loading, setLoading]         = useState(true);
+  const [expired, setExpired]         = useState(false);
+  const [completed, setCompleted]     = useState({});
+  const [nutritionMap, setNutritionMap] = useState({});
 
+  // Load plan
   useEffect(() => {
     getSharedPlan(shareId)
       .then((data) => {
         if (!data) { setExpired(true); return; }
         setPlan(data);
         setCompleted(data.completedMeals ?? {});
+        setNutritionMap(data.nutritionMap ?? {});
       })
       .catch(() => setExpired(true))
       .finally(() => setLoading(false));
   }, [shareId]);
+
+  // Backfill nutrition for any meals missing from the snapshot
+  useEffect(() => {
+    if (!plan) return;
+    const meals = [];
+    for (const daySlots of Object.values(plan.meals)) {
+      for (const meal of Object.values(daySlots)) {
+        if (meal?.ingredients?.length) meals.push(meal);
+      }
+    }
+    const missing = meals.filter((m) => {
+      const k = m.id ?? m.name;
+      return k && !nutritionMap[k];
+    });
+    if (!missing.length) return;
+
+    let cancelled = false;
+    Promise.all(
+      missing.map((m) =>
+        getNutrition(m.id ?? m.name, m.ingredients)
+          .then((n) => n ? { key: m.id ?? m.name, n } : null)
+          .catch(() => null)
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      const additions = {};
+      results.forEach((r) => { if (r) additions[r.key] = r.n; });
+      if (Object.keys(additions).length) {
+        setNutritionMap((prev) => ({ ...prev, ...additions }));
+      }
+    });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan]);
 
   function handleToggleComplete(date, slotId) {
     const key = `${date}-${slotId}`;
@@ -71,7 +109,7 @@ export default function SharedPlanPage({ params }) {
     );
   }
 
-  const { meals, slots, nutritionMap, macroProfile, dateRange, title, ownerDisplayName } = plan;
+  const { meals, slots, macroProfile, dateRange, title, ownerDisplayName } = plan;
   const dates = getDatesInRange(
     new Date(dateRange.start + 'T12:00:00'),
     new Date(dateRange.end + 'T12:00:00')
@@ -131,6 +169,7 @@ export default function SharedPlanPage({ params }) {
                 const meal = dayMeals[slot.id];
                 const key = `${date}-${slot.id}`;
                 const done = !!completed[key];
+                const n = meal ? nutritionMap[meal.id ?? meal.name] : null;
                 if (!meal) {
                   return (
                     <div key={slot.id} className="shared-slot shared-slot--empty">
@@ -151,12 +190,12 @@ export default function SharedPlanPage({ params }) {
                     <div className="shared-slot__info">
                       <span className="shared-slot__slot-label">{slot.label}</span>
                       <p className="shared-slot__name">{meal.name}</p>
-                      {nutritionMap[meal.id ?? meal.name] && (
+                      {n && (
                         <p className="shared-slot__macros">
-                          {Math.round(nutritionMap[meal.id ?? meal.name].kcal)} kcal ·{' '}
-                          {Math.round(nutritionMap[meal.id ?? meal.name].protein)}g P ·{' '}
-                          {Math.round(nutritionMap[meal.id ?? meal.name].carbs)}g C ·{' '}
-                          {Math.round(nutritionMap[meal.id ?? meal.name].fat)}g F
+                          {Math.round(n.kcal)} kcal ·{' '}
+                          {Math.round(n.protein)}g P ·{' '}
+                          {Math.round(n.carbs)}g C ·{' '}
+                          {Math.round(n.fat)}g F
                         </p>
                       )}
                     </div>
