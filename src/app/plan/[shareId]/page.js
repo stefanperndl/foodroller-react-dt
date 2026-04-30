@@ -3,7 +3,7 @@ import { useState, useEffect, use } from 'react';
 import { Printer } from 'lucide-react';
 import { getSharedPlan, markMealCompleted } from '../../../utils/shareUtils';
 import { getDatesInRange, mergeIngredients } from '../../../utils/utils';
-import { getNutrition } from '../../../api/nutrition';
+import { getNutrition, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../../../api/nutrition';
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -20,6 +20,16 @@ function statusColor(pct) {
   if (pct < 0.8) return 'var(--color-warning, #f59e0b)';
   if (pct <= 1.1) return 'var(--color-success, #22c55e)';
   return 'var(--color-danger, #ef4444)';
+}
+
+function norm(raw) {
+  if (!raw || raw.kcal < MIN_KCAL_TOTAL) return null;
+  return {
+    kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
+    protein: Math.round(raw.protein / DEFAULT_SERVINGS),
+    carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
+    fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
+  };
 }
 
 function MealImage({ src, alt }) {
@@ -151,12 +161,12 @@ export default function SharedPlanPage({ params }) {
           let dayKcal = 0, dayProtein = 0, dayCarbs = 0, dayFat = 0;
           if (macroProfile) {
             for (const meal of Object.values(dayMeals)) {
-              const n = meal ? nutritionMap[meal.id ?? meal.name] : null;
+              const n = meal ? norm(nutritionMap[meal.id ?? meal.name]) : null;
               if (n) {
-                dayKcal    += n.kcal    ?? 0;
-                dayProtein += n.protein ?? 0;
-                dayCarbs   += n.carbs   ?? 0;
-                dayFat     += n.fat     ?? 0;
+                dayKcal    += n.kcal;
+                dayProtein += n.protein;
+                dayCarbs   += n.carbs;
+                dayFat     += n.fat;
               }
             }
           }
@@ -169,7 +179,7 @@ export default function SharedPlanPage({ params }) {
                 const meal = dayMeals[slot.id];
                 const key = `${date}-${slot.id}`;
                 const done = !!completed[key];
-                const n = meal ? nutritionMap[meal.id ?? meal.name] : null;
+                const n = meal ? norm(nutritionMap[meal.id ?? meal.name]) : null;
                 if (!meal) {
                   return (
                     <div key={slot.id} className="shared-slot shared-slot--empty">
@@ -192,10 +202,7 @@ export default function SharedPlanPage({ params }) {
                       <p className="shared-slot__name">{meal.name}</p>
                       {n && (
                         <p className="shared-slot__macros">
-                          {Math.round(n.kcal)} kcal ·{' '}
-                          {Math.round(n.protein)}g P ·{' '}
-                          {Math.round(n.carbs)}g C ·{' '}
-                          {Math.round(n.fat)}g F
+                          {n.kcal} kcal · {n.protein}g P · {n.carbs}g C · {n.fat}g F
                         </p>
                       )}
                     </div>
