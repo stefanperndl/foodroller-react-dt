@@ -113,7 +113,6 @@ export default function DietitianGuide() {
             <li><strong>Day-by-day meal cards</strong> — recipe name, photo, and macro breakdown per meal.</li>
             <li><strong>Daily macro totals</strong> — colour-coded against their targets (green = on track, amber = under, red = over).</li>
             <li><strong>Merged shopping list</strong> — all ingredients combined across the week, with quantities summed.</li>
-            <li><strong>Completion checkboxes</strong> — the client can tick off meals as they eat them. Progress persists across sessions.</li>
           </ul>
 
           <h3 className="dg-sub">Printing or saving as PDF</h3>
@@ -151,10 +150,6 @@ export default function DietitianGuide() {
             The <strong>↺ reroll</strong> button on any slot uses the client's <em>remaining</em> daily macros (target minus meals already planned that day) to pick the best-fitting recipe. This works meal-by-meal, so you can build a plan incrementally without over- or under-shooting targets.
           </p>
 
-          <h3 className="dg-sub">Slot management</h3>
-          <Step n={1}>Click <strong>Slots</strong> in the bottom action bar to configure which meal slots appear (Breakfast, Lunch, Dinner, Snack, or custom).</Step>
-          <Step n={2}>You can override slots per day by adding or removing them directly on a day card.</Step>
-          <Note>Slot configuration is per-account, not per-client. Set up your standard slots once and apply them across all clients.</Note>
         </Section>
 
       </main>

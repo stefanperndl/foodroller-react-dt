@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 const TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -37,10 +37,4 @@ export async function getSharedPlan(shareId) {
   const data = snap.data();
   if (data.expiresAt < Date.now()) return null;
   return data;
-}
-
-export async function markMealCompleted(shareId, dateSlotKey, completed) {
-  await updateDoc(doc(db, 'sharedPlans', shareId), {
-    [`completedMeals.${dateSlotKey}`]: completed,
-  });
 }

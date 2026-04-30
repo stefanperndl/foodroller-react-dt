@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import { Printer } from 'lucide-react';
-import { getSharedPlan, markMealCompleted } from '../../../utils/shareUtils';
+import { getSharedPlan } from '../../../utils/shareUtils';
 import { getDatesInRange, mergeIngredients } from '../../../utils/utils';
 import { getNutrition, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../../../api/nutrition';
 
@@ -45,7 +45,6 @@ export default function SharedPlanPage({ params }) {
   const [plan, setPlan]               = useState(null);
   const [loading, setLoading]         = useState(true);
   const [expired, setExpired]         = useState(false);
-  const [completed, setCompleted]     = useState({});
   const [nutritionMap, setNutritionMap] = useState({});
 
   // Let the page scroll — main app locks #root overflow for SPA layout
@@ -64,7 +63,6 @@ export default function SharedPlanPage({ params }) {
       .then((data) => {
         if (!data) { setExpired(true); return; }
         setPlan(data);
-        setCompleted(data.completedMeals ?? {});
         setNutritionMap(data.nutritionMap ?? {});
       })
       .catch(() => setExpired(true))
@@ -104,13 +102,6 @@ export default function SharedPlanPage({ params }) {
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan]);
-
-  function handleToggleComplete(date, slotId) {
-    const key = `${date}-${slotId}`;
-    const next = !completed[key];
-    setCompleted((prev) => ({ ...prev, [key]: next }));
-    markMealCompleted(shareId, key, next).catch(() => {});
-  }
 
   if (loading) {
     return (
@@ -187,8 +178,6 @@ export default function SharedPlanPage({ params }) {
 
               {slots.map((slot) => {
                 const meal = dayMeals[slot.id];
-                const key = `${date}-${slot.id}`;
-                const done = !!completed[key];
                 const n = meal ? norm(nutritionMap[meal.id ?? meal.name]) : null;
                 if (!meal) {
                   return (
@@ -198,14 +187,7 @@ export default function SharedPlanPage({ params }) {
                   );
                 }
                 return (
-                  <div key={slot.id} className={`shared-slot${done ? ' shared-slot--done' : ''}`}>
-                    <label className="shared-slot__check shared-plan-no-print">
-                      <input
-                        type="checkbox"
-                        checked={done}
-                        onChange={() => handleToggleComplete(date, slot.id)}
-                      />
-                    </label>
+                  <div key={slot.id} className="shared-slot">
                     <MealImage src={meal.image} alt={meal.name} />
                     <div className="shared-slot__info">
                       <span className="shared-slot__slot-label">{slot.label}</span>

@@ -1421,10 +1421,7 @@ body {
   background: var(--bg-card, #fff); transition: opacity 0.2s;
 }
 .shared-slot--empty { opacity: 0.4; align-items: center; padding: 8px 10px; }
-.shared-slot--done { opacity: 0.55; }
-.shared-slot--done .shared-slot__name { text-decoration: line-through; }
-.shared-slot__check { display: flex; align-items: center; flex-shrink: 0; cursor: pointer; margin-top: 2px; }
-.shared-slot__check input { width: 15px; height: 15px; cursor: pointer; accent-color: var(--accent, #16a34a); }
+
 .shared-slot-img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
 .shared-slot-img-placeholder {
   width: 52px; height: 52px; border-radius: 6px; flex-shrink: 0;
@@ -1449,7 +1446,6 @@ body {
 
 /* ── PRINT STYLES ───────────────────────────────────────────── */
 @media print {
-  .shared-plan-no-print { display: none !important; }
   .shared-plan-page { padding: 0; max-width: 100%; }
   .shared-plan-header { border-bottom: 2px solid #000; }
   .shared-plan-header__owner { font-size: 10px; }
