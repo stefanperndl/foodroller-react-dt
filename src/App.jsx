@@ -1,10 +1,7 @@
 import { FoodList } from "./components/FoodList";
 import React, { useState, useEffect } from "react";
 import { TimeframePicker } from "./components/TimeframePicker";
-import { fetchRecipeByCategories, fetchMealById } from "./api/recipes";
-import { useMealplan } from "./hooks/useMealplan";
-import { useMealSlots } from "./hooks/useMealSlots";
-import { useDaySlotOverrides } from "./hooks/useDaySlotOverrides";
+import { fetchMealById } from "./api/recipes";
 import { ShoppingCart } from "./components/ShoppingCart";
 import { FilterBar } from "./components/FilterBar";
 import RecipeBrowser from "./components/RecipeBrowser";
@@ -14,107 +11,39 @@ import AuthModal from "./components/AuthModal";
 import UserMenu from "./components/UserMenu";
 import MacroProfileModal from "./components/MacroProfileModal";
 import MacroDashboard from "./components/MacroDashboard";
-import { useMacroProfile } from "./hooks/useMacroProfile";
 import PlannerModal from "./components/PlannerModal";
 import SlotManagerModal from "./components/SlotManagerModal";
 import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun } from "lucide-react";
-import { getNutrition, getNutritionFromCache } from "./api/nutrition";
-import { macroAwareRoll } from "./api/macroRoll";
-import { useDietitianRole } from "./hooks/useDietitianRole";
-import { useClients } from "./hooks/useClients";
 import ClientManagerModal from "./components/ClientManagerModal";
+import { useMacroContext } from "./context/MacroContext";
+import { useMealPlanContext } from "./context/MealPlanContext";
 
 function App() {
   const { user } = useAuth();
+  const {
+    effectiveMacroProfile,
+    isDietitian, claimDietitianRole,
+    clients,
+    activeClient, setActiveClient,
+  } = useMacroContext();
+  const { setMealplan, cartCount } = useMealPlanContext();
+
   const today = new Date();
   const defaultEnd = new Date();
   defaultEnd.setDate(today.getDate() + 4);
 
   const [startDate, setStartDate] = useState(today.toISOString().slice(0, 10));
   const [endDate, setEndDate]     = useState(defaultEnd.toISOString().slice(0, 10));
-  const [mealplan, setMealplan] = useMealplan(user);
-  const [slots, setSlots]         = useMealSlots(user);
-  const [macroProfile, setMacroProfile] = useMacroProfile(user);
-  const [isDietitian, claimDietitianRole] = useDietitianRole(user);
-  const [clients, addClient, updateClient, deleteClient] = useClients(user, isDietitian);
-  const [activeClient, setActiveClient] = useState(null);
-  const [showClientManager, setShowClientManager] = useState(false);
-  const [daySlotOverrides, setDaySlotOverrides] = useDaySlotOverrides();
-  const [rerollingKey, setRerollingKey] = useState(null);
   const [darkMode, setDarkMode]   = useState(false);
-
-  const getDaySlots = (date) =>
-    [...(daySlotOverrides[date] ?? slots)].sort((a, b) => a.order - b.order);
-
-  const handleAddSlotToDay = (date, slot) => {
-    setDaySlotOverrides((prev) => {
-      const current = prev[date] ?? slots;
-      if (current.some((s) => s.id === slot.id)) return prev;
-      const updated = [...current, slot].sort((a, b) => a.order - b.order);
-      return { ...prev, [date]: updated };
-    });
-  };
-
-  const handleRemoveSlotFromDay = (date, slotId) => {
-    setDaySlotOverrides((prev) => {
-      const current = prev[date] ?? slots;
-      return { ...prev, [date]: current.filter((s) => s.id !== slotId) };
-    });
-    setMealplan((prev) => {
-      const day = { ...(prev[date] || {}) };
-      delete day[slotId];
-      const next = { ...prev };
-      if (Object.keys(day).length === 0) delete next[date];
-      else next[date] = day;
-      return next;
-    });
-  };
-
+  const [activeView, setActiveView]               = useState('plan');
+  const [selectedMealForDate, setSelectedMealForDate] = useState(null);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showMacroModal, setShowMacroModal]     = useState(false);
   const [showPlannerModal, setShowPlannerModal] = useState(false);
   const [showSlotManager, setShowSlotManager]   = useState(false);
   const [showCart, setShowCart]                 = useState(false);
+  const [showClientManager, setShowClientManager] = useState(false);
 
-  const [categories, setCategories]               = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedRestrictions, setSelectedRestrictions] = useState([]);
-  const [activeView, setActiveView]               = useState('plan');
-  const [selectedMealForDate, setSelectedMealForDate] = useState(null);
-  const [slotFilters, setSlotFilters]             = useState({}); // { [slotId]: { restrictions: [], categories: [] } }
-  const [nutritionMap, setNutritionMap]           = useState({});
-
-  // Fetch nutrition for all meals in the plan (results cached in localStorage)
-  useEffect(() => {
-    const meals = [];
-    for (const day of Object.values(mealplan)) {
-      for (const meal of Object.values(day)) {
-        if (meal?.ingredients?.length) meals.push(meal);
-      }
-    }
-    const uncached = meals.filter((m) => {
-      const k = m.id ?? m.name;
-      return k && !getNutritionFromCache(k) && !nutritionMap[k];
-    });
-    if (!uncached.length) return;
-    let cancelled = false;
-    Promise.all(
-      uncached.map((m) =>
-        getNutrition(m.id ?? m.name, m.ingredients)
-          .then((n) => ({ key: m.id ?? m.name, n }))
-          .catch(() => null)
-      )
-    ).then((results) => {
-      if (cancelled) return;
-      const map = {};
-      results.forEach((r) => { if (r) map[r.key] = r.n; });
-      if (Object.keys(map).length) setNutritionMap((prev) => ({ ...prev, ...map }));
-    });
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mealplan]);
-
-  // Apply design tokens to <html>
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute('data-theme', 'herb');
@@ -122,55 +51,6 @@ function App() {
     root.setAttribute('data-density', 'comfortable');
     root.setAttribute('data-dark', darkMode ? 'true' : 'false');
   }, [darkMode]);
-
-  useEffect(() => {
-    fetch("https://www.themealdb.com/api/json/v1/1/categories.php")
-      .then((res) => res.json())
-      .then((data) => setCategories(data.categories || []));
-  }, []);
-
-  const handleReroll = async (date, slotId) => {
-    const key = `${date}-${slotId}`;
-    const sf = slotFilters[slotId];
-    const cats = sf?.categories?.length ? sf.categories : selectedCategories;
-    const restr = sf?.restrictions?.length ? sf.restrictions : selectedRestrictions;
-    setRerollingKey(key);
-    try {
-      let fullRecipe = null;
-      if (effectiveMacroProfile) {
-        fullRecipe = await macroAwareRoll({
-          date, slotId,
-          mealplan, nutritionMap, macroProfile: effectiveMacroProfile,
-          categories: cats,
-          restrictions: restr,
-        });
-      }
-      if (!fullRecipe) {
-        const recipe = await fetchRecipeByCategories(cats, restr);
-        fullRecipe = recipe.ingredients ? recipe : await fetchMealById(recipe.id);
-      }
-      setMealplan((prev) => ({
-        ...prev,
-        [date]: { ...(prev[date] || {}), [slotId]: fullRecipe },
-      }));
-    } finally {
-      setRerollingKey(null);
-    }
-  };
-
-  const handleRemoveMeal = (date, slotId) => {
-    setMealplan((prev) => {
-      const day = { ...(prev[date] || {}) };
-      delete day[slotId];
-      const next = { ...prev };
-      if (Object.keys(day).length === 0) {
-        delete next[date];
-      } else {
-        next[date] = day;
-      }
-      return next;
-    });
-  };
 
   const handleAddMealToDate = (meal) => {
     setSelectedMealForDate(meal);
@@ -190,30 +70,6 @@ function App() {
       alert('Failed to add meal. Please try again.');
     }
   };
-
-  const getIngredientsByRecipe = () => {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const result = {};
-    for (const [date, daySlots] of Object.entries(mealplan)) {
-      if (new Date(date) < todayStart) continue;
-      for (const [slotId, meal] of Object.entries(daySlots)) {
-        if (meal?.ingredients?.length) {
-          result[`${date}-${slotId}`] = { name: meal.name, ingredients: meal.ingredients };
-        }
-      }
-    }
-    return result;
-  };
-
-  const effectiveMacroProfile = activeClient
-    ? { kcal: activeClient.kcal, protein: activeClient.protein, carbs: activeClient.carbs, fat: activeClient.fat, goal: activeClient.goal }
-    : macroProfile;
-
-  const cartCount = Object.values(mealplan).reduce(
-    (n, day) => n + Object.values(day).filter((m) => m?.ingredients?.length).length,
-    0
-  );
 
   return (
     <div className="app-container">
@@ -294,26 +150,7 @@ function App() {
       </nav>
 
       <div className="app-body">
-        {activeView === 'browse' && (
-          <FilterBar
-            categories={categories}
-            selectedCategories={selectedCategories}
-            restrictions={selectedRestrictions}
-            onRestrictionToggle={(restriction) =>
-              setSelectedRestrictions((prev) =>
-                prev.includes(restriction)
-                  ? prev.filter((r) => r !== restriction)
-                  : [...prev, restriction]
-              )
-            }
-            onSelect={(cat) =>
-              setSelectedCategories((prev) =>
-                prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-              )
-            }
-            onClearCategories={() => setSelectedCategories([])}
-          />
-        )}
+        {activeView === 'browse' && <FilterBar />}
 
         <main className="main-content">
           {activeView === 'plan' && (
@@ -324,25 +161,7 @@ function App() {
                 onStartChange={setStartDate}
                 onEndChange={setEndDate}
               />
-              <FoodList
-                startDate={startDate}
-                endDate={endDate}
-                mealplan={mealplan}
-                slots={slots}
-                getDaySlots={getDaySlots}
-                rerollingKey={rerollingKey}
-                onReroll={handleReroll}
-                onRemove={handleRemoveMeal}
-                onAddSlotToDay={handleAddSlotToDay}
-                onRemoveSlotFromDay={handleRemoveSlotFromDay}
-                categories={categories}
-                slotFilters={slotFilters}
-                onSlotFilterChange={(slotId, filters) =>
-                  setSlotFilters((prev) => ({ ...prev, [slotId]: filters }))
-                }
-                nutritionMap={nutritionMap}
-                macroProfile={effectiveMacroProfile}
-              />
+              <FoodList startDate={startDate} endDate={endDate} />
               <div className="roll-button-container">
                 <button
                   className="btn-slots"
@@ -371,37 +190,19 @@ function App() {
             </>
           )}
           {activeView === 'browse' && (
-            <RecipeBrowser
-              categories={categories.map((cat) => cat.strCategory)}
-              selectedCategories={selectedCategories}
-              selectedRestrictions={selectedRestrictions}
-              onAddToDate={handleAddMealToDate}
-            />
+            <RecipeBrowser onAddToDate={handleAddMealToDate} />
           )}
           {activeView === 'macros' && (
-            <MacroDashboard
-              mealplan={mealplan}
-              macroProfile={effectiveMacroProfile}
-              startDate={startDate}
-              endDate={endDate}
-              slots={slots}
-              nutritionMap={nutritionMap}
-            />
+            <MacroDashboard startDate={startDate} endDate={endDate} />
           )}
         </main>
       </div>
 
-      {showCart && (
-        <ShoppingCart
-          ingredientsByRecipe={getIngredientsByRecipe()}
-          onClose={() => setShowCart(false)}
-        />
-      )}
+      {showCart && <ShoppingCart onClose={() => setShowCart(false)} />}
 
       {selectedMealForDate && (
         <AddToDateModal
           meal={selectedMealForDate}
-          slots={slots}
           onConfirm={confirmAddMealToDate}
           onCancel={() => setSelectedMealForDate(null)}
         />
@@ -409,22 +210,12 @@ function App() {
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
 
-      {showMacroModal && (
-        <MacroProfileModal
-          profile={macroProfile}
-          onSave={setMacroProfile}
-          onClose={() => setShowMacroModal(false)}
-        />
-      )}
+      {showMacroModal && <MacroProfileModal onClose={() => setShowMacroModal(false)} />}
 
       {showPlannerModal && effectiveMacroProfile && (
         <PlannerModal
-          macroProfile={effectiveMacroProfile}
           startDate={startDate}
           endDate={endDate}
-          selectedCategories={selectedCategories}
-          selectedRestrictions={selectedRestrictions}
-          slots={slots}
           onApply={(plan) => {
             setMealplan((prev) => {
               const next = { ...prev };
@@ -438,24 +229,9 @@ function App() {
         />
       )}
 
-      {showSlotManager && (
-        <SlotManagerModal
-          slots={slots}
-          onSave={setSlots}
-          onClose={() => setShowSlotManager(false)}
-        />
-      )}
+      {showSlotManager && <SlotManagerModal onClose={() => setShowSlotManager(false)} />}
 
-      {showClientManager && (
-        <ClientManagerModal
-          clients={clients}
-          onAdd={addClient}
-          onUpdate={updateClient}
-          onDelete={deleteClient}
-          onSelectClient={(c) => { setActiveClient(c); setShowClientManager(false); }}
-          onClose={() => setShowClientManager(false)}
-        />
-      )}
+      {showClientManager && <ClientManagerModal onClose={() => setShowClientManager(false)} />}
     </div>
   );
 }

@@ -3,13 +3,10 @@ import { RecipeCard } from './RecipeCard';
 import { fetchMealsByCategory } from '../api/recipes';
 import { validateMealAgainstRestrictions } from '../utils/dietaryRestrictions';
 import RecipeDetailModal from './RecipeDetailModal';
+import { useFilterContext } from '../context/FilterContext';
 
-export default function RecipeBrowser({
-  categories,
-  selectedCategories,
-  selectedRestrictions,
-  onAddToDate
-}) {
+export default function RecipeBrowser({ onAddToDate }) {
+  const { categories, selectedCategories, selectedRestrictions } = useFilterContext();
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,7 +20,7 @@ export default function RecipeBrowser({
       try {
         const categoriesToFetch = selectedCategories.length > 0
           ? selectedCategories
-          : categories;
+          : categories.map((c) => c.strCategory ?? c);
 
         const promises = categoriesToFetch.map(cat => fetchMealsByCategory(cat));
         const results = await Promise.all(promises);

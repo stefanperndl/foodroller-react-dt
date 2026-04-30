@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { calculateMacros } from '../utils/macroCalculator';
+import { useMacroContext } from '../context/MacroContext';
 
 const GOALS = [
   { key: 'lose',     label: 'Lose weight' },
@@ -16,18 +17,19 @@ const ACTIVITIES = [
   { key: 'very_active', label: 'Very active (athlete / physical job)' },
 ];
 
-export default function MacroProfileModal({ profile, onSave, onClose }) {
-  const [goal, setGoal]         = useState(profile?.goal ?? 'lose');
+export default function MacroProfileModal({ onClose }) {
+  const { macroProfile, setMacroProfile } = useMacroContext();
+  const [goal, setGoal]         = useState(macroProfile?.goal ?? 'lose');
   const [sex, setSex]           = useState('male');
   const [age, setAge]           = useState('');
   const [weight, setWeight]     = useState('');
   const [height, setHeight]     = useState('');
   const [activity, setActivity] = useState('moderate');
 
-  const [kcal,    setKcal]    = useState(profile?.kcal    ?? '');
-  const [protein, setProtein] = useState(profile?.protein ?? '');
-  const [carbs,   setCarbs]   = useState(profile?.carbs   ?? '');
-  const [fat,     setFat]     = useState(profile?.fat     ?? '');
+  const [kcal,    setKcal]    = useState(macroProfile?.kcal    ?? '');
+  const [protein, setProtein] = useState(macroProfile?.protein ?? '');
+  const [carbs,   setCarbs]   = useState(macroProfile?.carbs   ?? '');
+  const [fat,     setFat]     = useState(macroProfile?.fat     ?? '');
 
   function handleCalculate() {
     if (!age || !weight || !height) return;
@@ -44,7 +46,7 @@ export default function MacroProfileModal({ profile, onSave, onClose }) {
   function handleSave(e) {
     e.preventDefault();
     if (!kcal || !protein || !carbs || !fat) return;
-    onSave({ kcal: Number(kcal), protein: Number(protein), carbs: Number(carbs), fat: Number(fat), goal });
+    setMacroProfile({ kcal: Number(kcal), protein: Number(protein), carbs: Number(carbs), fat: Number(fat), goal });
     onClose();
   }
 

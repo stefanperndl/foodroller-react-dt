@@ -1,17 +1,15 @@
 'use client';
 import { useState } from 'react';
 import { generateMealPlan } from '../api/planner';
+import { useFilterContext } from '../context/FilterContext';
+import { useMacroContext } from '../context/MacroContext';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
-export default function PlannerModal({
-  macroProfile,
-  startDate,
-  endDate,
-  selectedCategories,
-  selectedRestrictions,
-  slots,
-  onApply,
-  onClose,
-}) {
+export default function PlannerModal({ startDate, endDate, onApply, onClose }) {
+  const { selectedCategories, selectedRestrictions } = useFilterContext();
+  const { effectiveMacroProfile } = useMacroContext();
+  const { slots } = useMealPlanContext();
+
   const sortedSlots = [...slots].sort((a, b) => a.order - b.order);
   const [status, setStatus]     = useState('idle');
   const [progress, setProgress] = useState('');
@@ -26,7 +24,7 @@ export default function PlannerModal({
       const result = await generateMealPlan({
         startDate,
         endDate,
-        macroProfile,
+        macroProfile: effectiveMacroProfile,
         selectedCategories,
         selectedRestrictions,
         slots: sortedSlots,
@@ -54,10 +52,10 @@ export default function PlannerModal({
         <h2 className="planner-title">AI Meal Planner</h2>
 
         <div className="planner-targets">
-          <span>{macroProfile.kcal} kcal</span>
-          <span>{macroProfile.protein}g protein</span>
-          <span>{macroProfile.carbs}g carbs</span>
-          <span>{macroProfile.fat}g fat</span>
+          <span>{effectiveMacroProfile.kcal} kcal</span>
+          <span>{effectiveMacroProfile.protein}g protein</span>
+          <span>{effectiveMacroProfile.carbs}g carbs</span>
+          <span>{effectiveMacroProfile.fat}g fat</span>
         </div>
 
         {status === 'idle' && (

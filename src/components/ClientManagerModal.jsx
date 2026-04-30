@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { DIETARY_RESTRICTIONS } from '../utils/dietaryRestrictions';
+import { useMacroContext } from '../context/MacroContext';
 
 const GOALS = [
   { key: 'lose',     label: 'Lose weight' },
@@ -41,7 +42,8 @@ function ClientRow({ client, onEdit, onSelectClient, pendingDelete, onDeleteRequ
   );
 }
 
-export default function ClientManagerModal({ clients, onAdd, onUpdate, onDelete, onSelectClient, onClose }) {
+export default function ClientManagerModal({ onClose }) {
+  const { clients, addClient, updateClient, deleteClient, setActiveClient } = useMacroContext();
   const [mode, setMode] = useState('list');
   const [editTarget, setEditTarget] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
@@ -96,8 +98,8 @@ export default function ClientManagerModal({ clients, onAdd, onUpdate, onDelete,
     };
     setSaving(true);
     try {
-      if (mode === 'add') await onAdd(data);
-      else await onUpdate(editTarget.id, data);
+      if (mode === 'add') await addClient(data);
+      else await updateClient(editTarget.id, data);
       setMode('list');
     } finally {
       setSaving(false);
@@ -105,7 +107,7 @@ export default function ClientManagerModal({ clients, onAdd, onUpdate, onDelete,
   }
 
   async function handleDeleteConfirm(id) {
-    await onDelete(id);
+    await deleteClient(id);
     setPendingDelete(null);
   }
 
@@ -129,7 +131,7 @@ export default function ClientManagerModal({ clients, onAdd, onUpdate, onDelete,
                 key={client.id}
                 client={client}
                 onEdit={openEdit}
-                onSelectClient={(c) => { onSelectClient(c); onClose(); }}
+                onSelectClient={(c) => { setActiveClient(c); onClose(); }}
                 pendingDelete={pendingDelete}
                 onDeleteRequest={setPendingDelete}
                 onDeleteConfirm={handleDeleteConfirm}

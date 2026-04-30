@@ -6,6 +6,9 @@ import { getNutritionFromCache, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../api/
 import { getDatesInRange } from '../utils/utils';
 import { DIETARY_RESTRICTIONS } from '../utils/dietaryRestrictions';
 import RecipeDetailModal from './RecipeDetailModal';
+import { useFilterContext } from '../context/FilterContext';
+import { useMacroContext } from '../context/MacroContext';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -256,12 +259,18 @@ function AddSlotDropdown({ date, daySlots, allSlots, onAdd, onClose }) {
   );
 }
 
-export function FoodList({
-  startDate, endDate, mealplan, slots,
-  getDaySlots, rerollingKey,
-  onReroll, onRemove, onAddSlotToDay, onRemoveSlotFromDay,
-  categories, slotFilters, onSlotFilterChange, nutritionMap, macroProfile,
-}) {
+export function FoodList({ startDate, endDate }) {
+  const { categories } = useFilterContext();
+  const { effectiveMacroProfile } = useMacroContext();
+  const {
+    mealplan, slots,
+    getDaySlots, rerollingKey,
+    slotFilters, nutritionMap,
+    handleReroll, handleRemoveMeal,
+    handleAddSlotToDay, handleRemoveSlotFromDay,
+    handleSlotFilterChange,
+  } = useMealPlanContext();
+
   const [detailMeal, setDetailMeal] = useState(null);
   const [addSlotOpen, setAddSlotOpen] = useState(null);
 
@@ -294,15 +303,15 @@ export function FoodList({
                       meal={meal}
                       isRerolling={rerollingKey === key}
                       date={date}
-                      onReroll={onReroll}
-                      onRemove={onRemove}
-                      onRemoveSlot={onRemoveSlotFromDay}
+                      onReroll={handleReroll}
+                      onRemove={handleRemoveMeal}
+                      onRemoveSlot={handleRemoveSlotFromDay}
                       onDetail={setDetailMeal}
                       categories={categories}
                       slotFilter={slotFilters?.[slot.id]}
-                      onSlotFilterChange={onSlotFilterChange}
+                      onSlotFilterChange={handleSlotFilterChange}
                       nutritionMap={nutritionMap}
-                      macroProfile={macroProfile}
+                      macroProfile={effectiveMacroProfile}
                       dayMeals={dayMeals}
                     />
                   );
@@ -319,7 +328,7 @@ export function FoodList({
                       date={date}
                       daySlots={daySlots}
                       allSlots={slots}
-                      onAdd={onAddSlotToDay}
+                      onAdd={handleAddSlotToDay}
                       onClose={() => setAddSlotOpen(null)}
                     />
                   )}

@@ -3,8 +3,11 @@ import { useState } from 'react';
 import { X, Copy, FileDown, Printer } from 'lucide-react';
 import { mergeIngredients } from '../utils/utils';
 import { copyToClipboard, exportCSV, printList } from '../utils/exportUtils';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
-export function ShoppingCart({ ingredientsByRecipe, onClose }) {
+export function ShoppingCart({ onClose }) {
+  const { getIngredientsByRecipe } = useMealPlanContext();
+  const ingredientsByRecipe = getIngredientsByRecipe();
   const [copied, setCopied] = useState(false);
   const mergedIngredients = mergeIngredients(ingredientsByRecipe);
 

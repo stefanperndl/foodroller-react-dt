@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
-export default function AddToDateModal({ meal, slots, onConfirm, onCancel }) {
+export default function AddToDateModal({ meal, onConfirm, onCancel }) {
+  const { slots } = useMealPlanContext();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(slots[0]?.id ?? 'dinner');
 
