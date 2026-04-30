@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { getDatesInRange } from '../utils/utils';
-import { getNutrition, getNutritionFromCache } from '../api/nutrition';
+import { getNutrition, getNutritionFromCache, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../api/nutrition';
 
 
 function pct(value, target) {
@@ -54,11 +54,11 @@ function DayCard({ date, slots, mealplanDay, profile, nutritionMap }) {
     const meal = mealplanDay?.[slot.id] ?? null;
     const key = meal ? (meal.id ?? meal.name) : null;
     const raw = key ? (getNutritionFromCache(key) ?? nutritionMap?.[key] ?? null) : null;
-    const n = raw ? {
-      kcal:    Math.round(raw.kcal),
-      protein: Math.round(raw.protein),
-      carbs:   Math.round(raw.carbs),
-      fat:     Math.round(raw.fat),
+    const n = (raw && raw.kcal >= MIN_KCAL_TOTAL) ? {
+      kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
+      protein: Math.round(raw.protein / DEFAULT_SERVINGS),
+      carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
+      fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
     } : null;
     if (n) {
       if (!total) total = { kcal: 0, protein: 0, carbs: 0, fat: 0 };

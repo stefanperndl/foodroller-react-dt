@@ -20,6 +20,7 @@ import SlotManagerModal from "./components/SlotManagerModal";
 import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun } from "lucide-react";
 import { DIETARY_RESTRICTIONS } from "./utils/dietaryRestrictions";
 import { getNutrition, getNutritionFromCache } from "./api/nutrition";
+import { macroAwareRoll } from "./api/macroRoll";
 
 function App() {
   const { user } = useAuth();
@@ -129,8 +130,19 @@ function App() {
     const restr = sf?.restrictions?.length ? sf.restrictions : selectedRestrictions;
     setRerollingKey(key);
     try {
-      const recipe = await fetchRecipeByCategories(cats, restr);
-      const fullRecipe = recipe.ingredients ? recipe : await fetchMealById(recipe.id);
+      let fullRecipe = null;
+      if (macroProfile) {
+        fullRecipe = await macroAwareRoll({
+          date, slotId,
+          mealplan, nutritionMap, macroProfile,
+          categories: cats,
+          restrictions: restr,
+        });
+      }
+      if (!fullRecipe) {
+        const recipe = await fetchRecipeByCategories(cats, restr);
+        fullRecipe = recipe.ingredients ? recipe : await fetchMealById(recipe.id);
+      }
       setMealplan((prev) => ({
         ...prev,
         [date]: { ...(prev[date] || {}), [slotId]: fullRecipe },
@@ -301,6 +313,7 @@ function App() {
                   setSlotFilters((prev) => ({ ...prev, [slotId]: filters }))
                 }
                 nutritionMap={nutritionMap}
+                macroProfile={macroProfile}
               />
               <div className="roll-button-container">
                 <button

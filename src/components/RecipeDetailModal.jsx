@@ -3,12 +3,13 @@ import { X } from 'lucide-react';
 import { fetchMealById } from '../api/recipes';
 import { getMatchingDietaryRestrictions } from '../utils/dietaryRestrictions';
 import { useNutrition } from '../hooks/useNutrition';
+import { DEFAULT_SERVINGS } from '../api/nutrition';
 
 export default function RecipeDetailModal({ meal, onClose, onAddToDate }) {
   const [fullRecipe, setFullRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [servings, setServings] = useState(1);
+  const [servings, setServings] = useState(DEFAULT_SERVINGS);
   const { nutrition, loading: nutritionLoading } = useNutrition(fullRecipe);
 
   const per = (val) => Math.round(val / servings);
@@ -91,7 +92,7 @@ export default function RecipeDetailModal({ meal, onClose, onAddToDate }) {
                           className="recipe-servings-input"
                           aria-label="Number of portions"
                         />
-                        <span className="recipe-servings-label">portion{servings !== 1 ? 's' : ''} · est. whole recipe</span>
+                        <span className="recipe-servings-label">serving{servings !== 1 ? 's' : ''}</span>
                       </div>
                     </>
                   )}
