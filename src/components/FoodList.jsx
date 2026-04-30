@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { RotateCcw, X, SlidersHorizontal } from 'lucide-react';
-import { getNutritionFromCache } from '../api/nutrition';
+import { getNutritionFromCache, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../api/nutrition';
 
 import { getDatesInRange } from '../utils/utils';
 import { DIETARY_RESTRICTIONS } from '../utils/dietaryRestrictions';
@@ -99,7 +99,7 @@ function SlotFilterPopover({ slotId, filters, categories, onChange, onClose, rec
   );
 }
 
-function SlotCard({ slot, meal, isRerolling, date, onReroll, onRemove, onRemoveSlot, onDetail, categories, slotFilter, onSlotFilterChange, nutritionMap }) {
+function SlotCard({ slot, meal, isRerolling, date, onReroll, onRemove, onRemoveSlot, onDetail, categories, slotFilter, onSlotFilterChange, nutritionMap, macroProfile, dayMeals }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterRect, setFilterRect] = useState(null);
   const filters = slotFilter || { restrictions: [], categories: [] };
@@ -139,14 +139,38 @@ function SlotCard({ slot, meal, isRerolling, date, onReroll, onRemove, onRemoveS
               {(() => {
                 const key = meal.id ?? meal.name;
                 const raw = key ? (getNutritionFromCache(key) ?? nutritionMap?.[key]) : null;
-                if (!raw) return null;
+                if (!raw || raw.kcal < MIN_KCAL_TOTAL) return null;
+                const n = {
+                  kcal:    Math.round(raw.kcal    / DEFAULT_SERVINGS),
+                  protein: Math.round(raw.protein / DEFAULT_SERVINGS),
+                  carbs:   Math.round(raw.carbs   / DEFAULT_SERVINGS),
+                  fat:     Math.round(raw.fat     / DEFAULT_SERVINGS),
+                };
+                const fitPct = (() => {
+                  if (!macroProfile || !dayMeals) return null;
+                  let sumOther = 0;
+                  for (const [sid, m] of Object.entries(dayMeals)) {
+                    if (sid === slot.id || !m) continue;
+                    const k = m.id ?? m.name;
+                    const r = k ? (getNutritionFromCache(k) ?? nutritionMap?.[k]) : null;
+                    if (r) sumOther += r.protein / DEFAULT_SERVINGS;
+                  }
+                  const remaining = Math.max(macroProfile.protein - sumOther, 1);
+                  const pct = Math.min(Math.round((n.protein / remaining) * 100), 100);
+                  return pct > 0 ? pct : null;
+                })();
                 return (
-                  <span className="plan-slot-macros">
-                    ~{Math.round(raw.kcal)} kcal&ensp;
-                    <span className="macro-tag macro-tag--pro">{Math.round(raw.protein)}g pro</span>
-                    <span className="macro-tag macro-tag--carb">{Math.round(raw.carbs)}g carb</span>
-                    <span className="macro-tag macro-tag--fat">{Math.round(raw.fat)}g fat</span>
-                  </span>
+                  <>
+                    <span className="plan-slot-macros">
+                      ~{n.kcal} kcal&ensp;
+                      <span className="macro-tag macro-tag--pro">{n.protein}g pro</span>
+                      <span className="macro-tag macro-tag--carb">{n.carbs}g carb</span>
+                      <span className="macro-tag macro-tag--fat">{n.fat}g fat</span>
+                    </span>
+                    {fitPct !== null && (
+                      <span className="plan-slot-fit">▸ fills {fitPct}% of remaining protein</span>
+                    )}
+                  </>
                 );
               })()}
             </div>
@@ -236,7 +260,7 @@ export function FoodList({
   startDate, endDate, mealplan, slots,
   getDaySlots, rerollingKey,
   onReroll, onRemove, onAddSlotToDay, onRemoveSlotFromDay,
-  categories, slotFilters, onSlotFilterChange, nutritionMap,
+  categories, slotFilters, onSlotFilterChange, nutritionMap, macroProfile,
 }) {
   const [detailMeal, setDetailMeal] = useState(null);
   const [addSlotOpen, setAddSlotOpen] = useState(null);
@@ -278,6 +302,8 @@ export function FoodList({
                       slotFilter={slotFilters?.[slot.id]}
                       onSlotFilterChange={onSlotFilterChange}
                       nutritionMap={nutritionMap}
+                      macroProfile={macroProfile}
+                      dayMeals={dayMeals}
                     />
                   );
                 })}

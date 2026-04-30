@@ -1,6 +1,9 @@
 import { db } from '../lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
+export const DEFAULT_SERVINGS = 4;
+export const MIN_KCAL_TOTAL = 100;
+
 const API_KEY = process.env.NEXT_PUBLIC_CALORIE_NINJAS_API_KEY;
 const BASE_URL = 'https://api.calorieninjas.com/v1/nutrition';
 const CACHE_PREFIX = 'nutrition_v1_';

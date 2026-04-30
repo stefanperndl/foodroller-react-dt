@@ -1,10 +1,8 @@
 import { fetchRecipeByCategories } from './recipes';
-import { getNutrition, getNutritionFromCache } from './nutrition';
+import { getNutrition, getNutritionFromCache, DEFAULT_SERVINGS } from './nutrition';
 import { getDatesInRange } from '../utils/utils';
 
 const CLAUDE_ENDPOINT = '/api/claude';
-
-const DEFAULT_SERVINGS = 4;
 
 async function fetchCandidates(count, selectedCategories, selectedRestrictions) {
   const results = [];
@@ -26,7 +24,7 @@ async function fetchCandidates(count, selectedCategories, selectedRestrictions) 
   return results;
 }
 
-async function enrichWithNutrition(candidates) {
+export async function enrichWithNutrition(candidates) {
   return Promise.all(
     candidates.map(async (recipe) => {
       const cacheKey = recipe.id ?? recipe.name;

@@ -868,6 +868,7 @@ body {
 /* ── PLAN SLOT MACRO INLINE ─────────────────────────────────── */
 .plan-slot-meal-info { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
 .plan-slot-macros { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-muted); font-weight: 500; flex-wrap: wrap; }
+.plan-slot-fit { font-size: 10px; color: var(--text-muted); font-style: italic; }
 .macro-tag { padding: 1px 5px; border-radius: 4px; font-size: 10px; font-weight: 600; }
 .macro-tag--pro  { background: oklch(93% 0.05 148); color: oklch(38% 0.12 148); }
 .macro-tag--carb { background: oklch(94% 0.05 65);  color: oklch(42% 0.14 65); }
