@@ -3,6 +3,8 @@ import RecipeBrowser from '../components/RecipeBrowser';
 import { fetchMealsByCategory } from '../api/recipes';
 
 jest.mock('../api/recipes', () => ({ fetchMealsByCategory: jest.fn() }));
+jest.mock('../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
+jest.mock('../api/nutrition', () => ({ getNutritionFromCache: jest.fn(() => null) }));
 jest.mock('../components/RecipeDetailModal', () => ({ meal, onClose, onAddToDate }) => (
   <div data-testid="modal">
     <span>{meal.name}</span>

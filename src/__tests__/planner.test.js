@@ -4,6 +4,8 @@ import * as nutrition from '../api/nutrition';
 
 jest.mock('../api/recipes');
 jest.mock('../api/nutrition');
+jest.mock('../lib/firebase', () => ({ db: null }));
+jest.mock('firebase/firestore', () => ({ doc: jest.fn(), getDoc: jest.fn(), setDoc: jest.fn() }));
 
 const SLOTS = [
   { id: 'breakfast', label: 'Breakfast', order: 0 },

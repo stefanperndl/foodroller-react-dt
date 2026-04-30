@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { RecipeCard } from '../RecipeCard';
 
+jest.mock('../../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
+
 describe('RecipeCard', () => {
   const mockRecipe = {
     id: '52772',

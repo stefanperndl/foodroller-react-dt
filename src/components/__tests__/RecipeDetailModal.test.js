@@ -4,10 +4,8 @@ import '@testing-library/jest-dom';
 import RecipeDetailModal from '../RecipeDetailModal';
 import { fetchMealById } from '../../api/recipes';
 
-// Mock the API
-jest.mock('../../api/recipes', () => ({
-  fetchMealById: jest.fn(),
-}));
+jest.mock('../../api/recipes', () => ({ fetchMealById: jest.fn() }));
+jest.mock('../../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
 
 describe('RecipeDetailModal', () => {
   const mockMeal = {

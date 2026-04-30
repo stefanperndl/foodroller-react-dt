@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RecipeCard } from '../components/RecipeCard';
 
-const meal = { name: 'Chicken Tikka', image: 'chicken.jpg', category: 'Chicken' };
+const meal = { id: 'meal-1', name: 'Chicken Tikka', image: 'chicken.jpg', category: 'Chicken' };
 
 describe('RecipeCard', () => {
   it('renders name and category', () => {

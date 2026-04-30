@@ -1,4 +1,13 @@
-import { getNutrition } from '../api/nutrition';
+import { getNutrition, getNutritionFromCache } from '../api/nutrition';
+
+jest.mock('../lib/firebase', () => ({ db: null }));
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  getDoc: jest.fn(),
+  setDoc: jest.fn(),
+}));
+
+import { getDoc, setDoc } from 'firebase/firestore';
 
 const mockItems = [
   { calories: 200, protein_g: 25, carbohydrates_total_g: 10, fat_total_g: 8, fiber_g: 2 },
@@ -8,6 +17,24 @@ const mockItems = [
 beforeEach(() => {
   localStorage.clear();
   global.fetch = jest.fn();
+  getDoc.mockReset();
+  setDoc.mockReset();
+});
+
+describe('getNutritionFromCache', () => {
+  it('returns null for missing id', () => {
+    expect(getNutritionFromCache(null)).toBeNull();
+  });
+
+  it('returns null when nothing cached', () => {
+    expect(getNutritionFromCache('recipe-x')).toBeNull();
+  });
+
+  it('returns parsed value from localStorage', () => {
+    const data = { kcal: 300, protein: 20, carbs: 30, fat: 10, fiber: 3 };
+    localStorage.setItem('nutrition_v1_recipe-x', JSON.stringify(data));
+    expect(getNutritionFromCache('recipe-x')).toEqual(data);
+  });
 });
 
 describe('getNutrition', () => {
@@ -32,7 +59,7 @@ describe('getNutrition', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('returns cached value without hitting API', async () => {
+  it('returns localStorage cached value without hitting API', async () => {
     const cached = { kcal: 500, protein: 40, carbs: 50, fat: 20, fiber: 5 };
     localStorage.setItem('nutrition_v1_recipe-3', JSON.stringify(cached));
 
@@ -51,5 +78,14 @@ describe('getNutrition', () => {
   it('throws when API returns non-ok status', async () => {
     fetch.mockResolvedValue({ ok: false, status: 403 });
     await expect(getNutrition('recipe-5', ['1 egg'])).rejects.toThrow('CalorieNinjas error: 403');
+  });
+
+  it('skips Firestore when db is null', async () => {
+    fetch.mockResolvedValue({ ok: true, json: async () => ({ items: mockItems }) });
+
+    await getNutrition('recipe-nodb', ['chicken']);
+
+    expect(getDoc).not.toHaveBeenCalled();
+    expect(setDoc).not.toHaveBeenCalled();
   });
 });

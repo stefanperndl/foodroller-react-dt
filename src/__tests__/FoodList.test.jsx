@@ -1,6 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FoodList } from '../components/FoodList';
 
+jest.mock('../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
+jest.mock('../api/nutrition', () => ({ getNutritionFromCache: jest.fn(() => null) }));
+
 jest.mock('../components/RecipeDetailModal', () => ({ meal, onClose }) => (
   <div data-testid="modal">
     <span>{meal.name}</span>
