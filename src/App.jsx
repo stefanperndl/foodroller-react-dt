@@ -162,31 +162,6 @@ function App() {
                 onEndChange={setEndDate}
               />
               <FoodList startDate={startDate} endDate={endDate} />
-              <div className="roll-button-container">
-                <button
-                  className="btn-slots"
-                  onClick={() => setShowSlotManager(true)}
-                  title="Manage meal slots"
-                >
-                  Slots
-                </button>
-                {effectiveMacroProfile ? (
-                  <button
-                    className="btn btn-plan-week"
-                    onClick={() => setShowPlannerModal(true)}
-                    title="Generate an AI meal plan based on your macro goals"
-                  >
-                    Plan My Week
-                  </button>
-                ) : (
-                  <button
-                    className="btn btn-set-goals-cta"
-                    onClick={() => setShowMacroModal(true)}
-                  >
-                    Set nutrition goals → unlock AI planning
-                  </button>
-                )}
-              </div>
             </>
           )}
           {activeView === 'browse' && (
@@ -196,6 +171,34 @@ function App() {
             <MacroDashboard startDate={startDate} endDate={endDate} />
           )}
         </main>
+
+        {activeView === 'plan' && (
+          <div className="roll-button-container">
+            <button
+              className="btn-slots"
+              onClick={() => setShowSlotManager(true)}
+              title="Manage meal slots"
+            >
+              Slots
+            </button>
+            {effectiveMacroProfile ? (
+              <button
+                className="btn btn-plan-week"
+                onClick={() => setShowPlannerModal(true)}
+                title="Generate an AI meal plan based on your macro goals"
+              >
+                Plan My Week
+              </button>
+            ) : (
+              <button
+                className="btn btn-set-goals-cta"
+                onClick={() => setShowMacroModal(true)}
+              >
+                Set nutrition goals → unlock AI planning
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {showCart && <ShoppingCart onClose={() => setShowCart(false)} />}

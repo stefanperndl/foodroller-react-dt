@@ -413,8 +413,9 @@ body {
 /* ── PLAN GRID ──────────────────────────────────────────────── */
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--gap);
+  align-items: stretch;
 }
 
 /* ── DAY CARD ───────────────────────────────────────────────── */
@@ -601,14 +602,12 @@ body {
   cursor: pointer; transition: all var(--transition);
 }
 .btn-slots:hover { border-color: var(--accent); color: var(--accent); }
-.btn-plan-week, .btn btn-plan-week {
+.btn-plan-week, .btn.btn-plan-week {
   padding: 9px 22px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600;
   background: var(--accent); color: white; border: none; cursor: pointer;
   transition: all var(--transition);
 }
 .btn-plan-week:hover, .btn.btn-plan-week:hover { background: var(--accent-d); transform: translateY(-1px); }
-.btn.btn-plan-week { padding: 9px 22px; font-size: 14px; font-weight: 600; background: var(--accent); color: white; }
-.btn.btn-plan-week:hover { background: var(--accent-d); transform: translateY(-1px); }
 .btn-set-goals-cta, .btn.btn-set-goals-cta {
   padding: 9px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
   border: 2px solid var(--accent); background: var(--accent-l); color: var(--accent-d);
