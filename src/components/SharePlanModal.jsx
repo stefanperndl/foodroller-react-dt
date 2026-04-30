@@ -61,15 +61,15 @@ export default function SharePlanModal({ startDate, endDate, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-panel share-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-panel__header">
+      <div className="modal-content share-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="share-modal__header">
           <h2><Link size={16} strokeWidth={1.75} /> Share Meal Plan</h2>
           <button className="btn btn--ghost btn--icon" onClick={onClose} aria-label="Close">
             <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
-        <div className="modal-panel__body">
+        <div className="share-modal__body">
           {!shareUrl ? (
             <>
               <div className="share-modal__field">
