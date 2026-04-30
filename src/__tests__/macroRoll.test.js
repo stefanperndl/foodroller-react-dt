@@ -1,4 +1,6 @@
 import { computeRemainingMacros, pickBestFit, macroAwareRoll } from '../api/macroRoll';
+import { fetchRecipeByCategories } from '../api/recipes';
+import { enrichWithNutrition } from '../api/planner';
 
 jest.mock('../lib/firebase', () => ({ db: null }));
 jest.mock('firebase/firestore', () => ({ doc: jest.fn(), getDoc: jest.fn(), setDoc: jest.fn() }));
@@ -13,16 +15,8 @@ jest.mock('../api/planner', () => ({
   enrichWithNutrition: jest.fn(),
 }));
 
-import { getNutritionFromCache } from '../api/nutrition';
-import { fetchRecipeByCategories } from '../api/recipes';
-import { enrichWithNutrition } from '../api/planner';
-
 const profile = { kcal: 2000, protein: 150, carbs: 200, fat: 65 };
 
-const mealWithRaw = (id, rawKcal, rawProtein) => ({
-  id, name: `Meal ${id}`, ingredients: ['x'],
-  _raw: { kcal: rawKcal, protein: rawProtein, carbs: 100, fat: 20, fiber: 2 },
-});
 
 beforeEach(() => {
   jest.clearAllMocks();
