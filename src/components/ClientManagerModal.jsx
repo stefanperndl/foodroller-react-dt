@@ -121,7 +121,12 @@ export default function ClientManagerModal({ onClose }) {
         <div className="cm-sidebar">
           <div className="cm-sidebar-header">
             <span className="cm-sidebar-title">Clients</span>
-            <button type="button" className="cm-add-btn" onClick={openAdd} aria-label="Add client">+ Add</button>
+            <div className="cm-sidebar-header-actions">
+              <a href="/dietitian-guide" target="_blank" rel="noopener noreferrer" className="cm-guide-link" title="Dietitian mode guide">
+                Guide ↗
+              </a>
+              <button type="button" className="cm-add-btn" onClick={openAdd} aria-label="Add client">+ Add</button>
+            </div>
           </div>
           {clients.length === 0 ? (
             <p className="cm-empty">No clients yet. Add one to get started.</p>
