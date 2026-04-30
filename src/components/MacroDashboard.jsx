@@ -1,8 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
 import { getDatesInRange } from '../utils/utils';
-import { getNutrition, getNutritionFromCache, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../api/nutrition';
-
+import { getNutritionFromCache, DEFAULT_SERVINGS, MIN_KCAL_TOTAL } from '../api/nutrition';
+import { useMacroContext } from '../context/MacroContext';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
 function pct(value, target) {
   if (!target || value === 0) return 0;
@@ -103,45 +103,16 @@ function DayCard({ date, slots, mealplanDay, profile, nutritionMap }) {
   );
 }
 
-export default function MacroDashboard({ mealplan, macroProfile, startDate, endDate, slots, nutritionMap: propMap }) {
-  const [localMap, setLocalMap] = useState({});
-  const nutritionMap = { ...localMap, ...propMap };
+export default function MacroDashboard({ startDate, endDate }) {
+  const { effectiveMacroProfile } = useMacroContext();
+  const { mealplan, slots, nutritionMap } = useMealPlanContext();
 
   const dates = getDatesInRange(new Date(startDate), new Date(endDate))
     .map((d) => d.toISOString().slice(0, 10));
 
   const sortedSlots = [...(slots || [])].sort((a, b) => a.order - b.order);
 
-  useEffect(() => {
-    let cancelled = false;
-    const meals = [];
-    for (const date of dates) {
-      for (const meal of Object.values(mealplan[date] || {})) {
-        if (meal?.ingredients?.length) meals.push(meal);
-      }
-    }
-    const uncached = meals.filter((m) => {
-      const k = m.id ?? m.name;
-      return k && !getNutritionFromCache(k) && !propMap?.[k] && !localMap[k];
-    });
-    if (!uncached.length) return;
-    Promise.all(
-      uncached.map((m) =>
-        getNutrition(m.id ?? m.name, m.ingredients)
-          .then((n) => ({ key: m.id ?? m.name, n }))
-          .catch(() => null)
-      )
-    ).then((results) => {
-      if (cancelled) return;
-      const map = {};
-      results.forEach((r) => { if (r) map[r.key] = r.n; });
-      if (Object.keys(map).length) setLocalMap((p) => ({ ...p, ...map }));
-    });
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startDate, endDate, mealplan]);
-
-  if (!macroProfile) {
+  if (!effectiveMacroProfile) {
     return (
       <div className="macro-dashboard-empty">
         <p>Set your nutrition goals to see macro tracking.</p>
@@ -158,7 +129,7 @@ export default function MacroDashboard({ mealplan, macroProfile, startDate, endD
             date={date}
             slots={sortedSlots}
             mealplanDay={mealplan[date] || {}}
-            profile={macroProfile}
+            profile={effectiveMacroProfile}
             nutritionMap={nutritionMap}
           />
         ))}

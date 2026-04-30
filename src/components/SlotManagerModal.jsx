@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import { ChevronUp, ChevronDown, X } from 'lucide-react';
 import { newSlotId } from '../hooks/useMealSlots';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
-export default function SlotManagerModal({ slots, onSave, onClose }) {
+export default function SlotManagerModal({ onClose }) {
+  const { slots, setSlots } = useMealPlanContext();
   const [draft, setDraft] = useState(slots.map((s) => ({ ...s })));
   const [editingId, setEditingId] = useState(null);
   const [editLabel, setEditLabel] = useState('');
@@ -42,7 +44,7 @@ export default function SlotManagerModal({ slots, onSave, onClose }) {
   }
 
   function handleSave() {
-    onSave(draft.map((s, i) => ({ ...s, order: i })));
+    setSlots(draft.map((s, i) => ({ ...s, order: i })));
     onClose();
   }
 

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ShoppingCart } from '../components/ShoppingCart';
 import { mergeIngredients } from '../utils/utils';
+import { useMealPlanContext } from '../context/MealPlanContext';
 
 jest.mock('../utils/exportUtils', () => ({
   copyToClipboard: jest.fn().mockResolvedValue(undefined),
@@ -8,32 +9,42 @@ jest.mock('../utils/exportUtils', () => ({
   printList: jest.fn(),
 }));
 
+jest.mock('../context/MealPlanContext', () => ({
+  useMealPlanContext: jest.fn(),
+}));
+
 const samplePlan = {
   '2026-05-01': { name: 'Pasta', ingredients: ['200g pasta', '1 egg'] },
 };
 
+beforeEach(() => {
+  jest.clearAllMocks();
+  useMealPlanContext.mockReturnValue({ getIngredientsByRecipe: () => samplePlan });
+});
+
 describe('ShoppingCart component', () => {
   it('renders export buttons', () => {
-    render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={() => {}} />);
+    render(<ShoppingCart onClose={() => {}} />);
     expect(screen.getByText('Copy')).toBeInTheDocument();
     expect(screen.getByText('CSV')).toBeInTheDocument();
     expect(screen.getByText('Print')).toBeInTheDocument();
   });
 
   it('renders recipe ingredients', () => {
-    render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={() => {}} />);
+    render(<ShoppingCart onClose={() => {}} />);
     expect(screen.getByText('200g pasta')).toBeInTheDocument();
   });
 
   it('calls onClose when Close is clicked', () => {
     const onClose = jest.fn();
-    render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={onClose} />);
+    render(<ShoppingCart onClose={onClose} />);
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(onClose).toHaveBeenCalled();
   });
 
   it('renders without crashing with empty plan', () => {
-    render(<ShoppingCart ingredientsByRecipe={{}} onClose={() => {}} />);
+    useMealPlanContext.mockReturnValue({ getIngredientsByRecipe: () => ({}) });
+    render(<ShoppingCart onClose={() => {}} />);
     expect(screen.getByText('Shopping List')).toBeInTheDocument();
   });
 });

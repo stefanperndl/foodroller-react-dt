@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { DIETARY_RESTRICTIONS, getCompatibleCategories } from '../utils/dietaryRestrictions';
+import { useFilterContext } from '../context/FilterContext';
 
-export function FilterBar({ categories, selectedCategories, restrictions, onRestrictionToggle, onSelect, onClearCategories }) {
+export function FilterBar() {
+  const { categories, selectedCategories, selectedRestrictions, toggleCategory, toggleRestriction, clearCategories } = useFilterContext();
   const [catOpen, setCatOpen] = useState(false);
   const popoverRef = useRef(null);
 
   const compatibleCategories = useMemo(
-    () => getCompatibleCategories(restrictions, categories),
-    [categories, restrictions]
+    () => getCompatibleCategories(selectedRestrictions, categories),
+    [categories, selectedRestrictions]
   );
 
   useEffect(() => {
@@ -28,8 +30,8 @@ export function FilterBar({ categories, selectedCategories, restrictions, onRest
         {Object.entries(DIETARY_RESTRICTIONS).map(([key, restriction]) => (
           <button
             key={key}
-            className={`dietary-chip ${restrictions.includes(key) ? 'active' : ''}`}
-            onClick={() => onRestrictionToggle(key)}
+            className={`dietary-chip ${selectedRestrictions.includes(key) ? 'active' : ''}`}
+            onClick={() => toggleRestriction(key)}
             title={restriction.name}
           >
             {restriction.icon} {restriction.name}
@@ -54,7 +56,7 @@ export function FilterBar({ categories, selectedCategories, restrictions, onRest
             <div className="cat-popover__header">
               <span>Categories</span>
               {selectedCount > 0 && (
-                <button className="btn btn--ghost" style={{ fontSize: 11, padding: '2px 6px' }} onClick={onClearCategories}>
+                <button className="btn btn--ghost" style={{ fontSize: 11, padding: '2px 6px' }} onClick={clearCategories}>
                   Clear
                 </button>
               )}
@@ -64,7 +66,7 @@ export function FilterBar({ categories, selectedCategories, restrictions, onRest
                 <button
                   key={cat.strCategory}
                   className={`cat-chip ${selectedCategories.includes(cat.strCategory) ? 'selected' : ''}`}
-                  onClick={() => onSelect(cat.strCategory)}
+                  onClick={() => toggleCategory(cat.strCategory)}
                 >
                   {cat.strCategory}
                 </button>

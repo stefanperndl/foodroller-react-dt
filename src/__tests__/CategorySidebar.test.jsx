@@ -1,5 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { FilterBar } from '../components/FilterBar';
+import { useFilterContext } from '../context/FilterContext';
+
+jest.mock('../context/FilterContext', () => ({
+  useFilterContext: jest.fn(),
+}));
 
 const categories = [
   { idCategory: '1', strCategory: 'Beef' },
@@ -7,45 +12,55 @@ const categories = [
   { idCategory: '3', strCategory: 'Chicken' },
 ];
 
-const defaultProps = {
-  categories,
-  selectedCategories: [],
-  restrictions: [],
-  onRestrictionToggle: jest.fn(),
-  onSelect: jest.fn(),
-  onClearCategories: jest.fn(),
-};
+const mockToggleRestriction = jest.fn();
+const mockToggleCategory = jest.fn();
+const mockClearCategories = jest.fn();
 
-beforeEach(() => jest.clearAllMocks());
+function setDefaultMocks(overrides = {}) {
+  useFilterContext.mockReturnValue({
+    categories,
+    selectedCategories: [],
+    selectedRestrictions: [],
+    toggleRestriction: mockToggleRestriction,
+    toggleCategory: mockToggleCategory,
+    clearCategories: mockClearCategories,
+    ...overrides,
+  });
+}
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  setDefaultMocks();
+});
 
 describe('FilterBar', () => {
   it('renders dietary restriction chips', () => {
-    render(<FilterBar {...defaultProps} />);
+    render(<FilterBar />);
     expect(screen.getByTitle('Vegetarian')).toBeInTheDocument();
     expect(screen.getByTitle('Vegan')).toBeInTheDocument();
     expect(screen.getByTitle('Pescatarian')).toBeInTheDocument();
   });
 
   it('marks active restriction chip', () => {
-    render(<FilterBar {...defaultProps} restrictions={['vegetarian']} />);
+    setDefaultMocks({ selectedRestrictions: ['vegetarian'] });
+    render(<FilterBar />);
     expect(screen.getByTitle('Vegetarian').className).toContain('active');
     expect(screen.getByTitle('Vegan').className).not.toContain('active');
   });
 
-  it('calls onRestrictionToggle with the restriction key', () => {
-    const onRestrictionToggle = jest.fn();
-    render(<FilterBar {...defaultProps} onRestrictionToggle={onRestrictionToggle} />);
+  it('calls toggleRestriction with the restriction key', () => {
+    render(<FilterBar />);
     fireEvent.click(screen.getByTitle('Vegan'));
-    expect(onRestrictionToggle).toHaveBeenCalledWith('vegan');
+    expect(mockToggleRestriction).toHaveBeenCalledWith('vegan');
   });
 
   it('renders Categories button', () => {
-    render(<FilterBar {...defaultProps} />);
+    render(<FilterBar />);
     expect(screen.getByText(/Categories/i)).toBeInTheDocument();
   });
 
   it('opens category popover on button click', () => {
-    render(<FilterBar {...defaultProps} />);
+    render(<FilterBar />);
     fireEvent.click(screen.getByText(/Categories/i));
     expect(screen.getByText('Beef')).toBeInTheDocument();
     expect(screen.getByText('Vegetarian')).toBeInTheDocument();
@@ -53,31 +68,32 @@ describe('FilterBar', () => {
   });
 
   it('hides incompatible categories when restriction is active', () => {
-    render(<FilterBar {...defaultProps} restrictions={['vegetarian']} />);
+    setDefaultMocks({ selectedRestrictions: ['vegetarian'] });
+    render(<FilterBar />);
     fireEvent.click(screen.getByText(/Categories/i));
     expect(screen.queryByText('Beef')).not.toBeInTheDocument();
     expect(screen.queryByText('Chicken')).not.toBeInTheDocument();
     expect(screen.getByText('Vegetarian')).toBeInTheDocument();
   });
 
-  it('calls onSelect when a category chip is clicked', () => {
-    const onSelect = jest.fn();
-    render(<FilterBar {...defaultProps} onSelect={onSelect} />);
+  it('calls toggleCategory when a category chip is clicked', () => {
+    render(<FilterBar />);
     fireEvent.click(screen.getByText(/Categories/i));
     fireEvent.click(screen.getByText('Beef'));
-    expect(onSelect).toHaveBeenCalledWith('Beef');
+    expect(mockToggleCategory).toHaveBeenCalledWith('Beef');
   });
 
   it('shows count badge when categories are selected', () => {
-    render(<FilterBar {...defaultProps} selectedCategories={['Beef', 'Chicken']} />);
+    setDefaultMocks({ selectedCategories: ['Beef', 'Chicken'] });
+    render(<FilterBar />);
     expect(screen.getByText('2')).toBeInTheDocument();
   });
 
-  it('calls onClearCategories when Clear is clicked', () => {
-    const onClearCategories = jest.fn();
-    render(<FilterBar {...defaultProps} selectedCategories={['Beef']} onClearCategories={onClearCategories} />);
+  it('calls clearCategories when Clear is clicked', () => {
+    setDefaultMocks({ selectedCategories: ['Beef'] });
+    render(<FilterBar />);
     fireEvent.click(screen.getByText(/Categories/i));
     fireEvent.click(screen.getByText('Clear'));
-    expect(onClearCategories).toHaveBeenCalled();
+    expect(mockClearCategories).toHaveBeenCalled();
   });
 });
