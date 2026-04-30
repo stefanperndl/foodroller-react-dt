@@ -2,13 +2,13 @@
 
 **North Star Metric**: Weekly Macro Plans Generated — users who generate at least one AI macro-planned week per week.
 
-**Strategic pivot**: FoodRoller targets macro trackers, weight loss journeys, and dietitians. AI is the core product, not a feature.
+**Strategic direction**: Consumer adoption first. Reach alpha (family & friends, all features free) with a complete, personal experience. Monetization deferred until adoption is proven.
 
-**Branching**: every item has a dedicated branch off `master`. Master stays stable and deployable at all times.
+**Key insight**: TheMealDB is demo data. Custom recipes are the unlock — the AI planner only becomes personal and sticky when users own their recipe corpus.
 
-**Prioritization order**: (1) Nutritional data foundation → (2) Macro planning UI → (3) AI plan generation → (4) Dietitian mode → (5) Monetization → (6) Social
+**Prioritization order**: (1) Consumer core UX → (2) Own your data (custom recipes) → (3) Polish & personalization → 🎯 Alpha launch → (4) Dietitian completion → (5) Intelligence layer → (6) Platform/social → (7) Go paid
 
-**Current focus**: Phase D — D.2 Shareable Meal Plans
+**Current focus**: Milestone 1 — Consumer Core
 
 ---
 
@@ -24,6 +24,7 @@
 | Macro-Aware Roll (M.5) | v2.5 | Claude-powered slot roll against remaining daily macros |
 | Nutritional Data Layer (M.1) | v2.4 | Edamam integration, Firestore cache, per-recipe macro badges |
 | User Accounts & Auth | v2.3 | Firebase Auth (Google + email), Firestore sync per user, sign-out clears state |
+| Shareable Meal Plans (D.2) | v2.3 | Snapshot link `/plan/abc123`, 30-day TTL, client view with macros + shopping list |
 | Export Shopping List | v1.3 | Copy, CSV, Print/PDF |
 | Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges |
 | Recipe Catalog / Browse | v1.1 | Grid, category + dietary filter |
@@ -32,166 +33,190 @@
 
 ---
 
-## 🔬 Phase M: Macro Foundation
-**Goal**: Make nutritional data and macro tracking the core of the product. This phase is prerequisite for all AI features.
+## 🎯 Milestone 1 — Consumer Core
+**Goal**: All 5 VISION.md magic moments are playable. A new user can reach value in under 5 minutes.
 
 ---
 
-### M.1 — Nutritional Data Layer ⭐ HIGHEST PRIORITY
-`feature/m.1-nutritional-data` | **Effort**: 1–2 weeks
+### UX.1 — Onboarding Wizard ⭐ HIGHEST PRIORITY
+`feature/ux.1-onboarding` | **Effort**: ~1 week | **Depends on**: M.4, M.2
 
-The single most important technical foundation. Without real macro data, nothing else in this roadmap is possible.
+Without this, every new user must self-navigate to the macro profile setup, enter targets, find the AI planner, and discover rolling on their own. Onboarding is the bridge between sign-up and the North Star metric.
 
 **What**:
-- Integrate [Edamam Recipe Analysis API](https://developer.edamam.com/edamam-recipe-api) (free tier: 10,000 calls/month)
-- When a recipe is loaded from TheMealDB, send its ingredient list to Edamam and get back: calories, protein (g), carbs (g), fat (g), fiber (g)
-- Cache nutritional data in Firestore per recipe ID (same recipe = same nutrition, fetch once)
-- Extend recipe object shape: `{ ...existing, nutrition: { kcal, protein, carbs, fat, fiber } }`
-- Display macro badges on RecipeCard and RecipeDetailModal
+- 4-step guided flow on first login: (1) choose goal (lose weight / maintain / gain), (2) set targets (auto-calculated or manual), (3) dietary restrictions, (4) generate first AI week
+- Skip option at any step; progress saved so users can return
+- Ends with a generated weekly plan — immediate "aha" moment
+- Persistent: once completed, never shown again
 
 **Acceptance criteria**:
-- Every recipe shows kcal / P / C / F
-- Nutritional data is fetched once and cached (no repeat API calls for same recipe)
-- Graceful fallback if Edamam unavailable (show "nutrition unavailable")
-
-**API keys needed**: Edamam App ID + App Key → add to `.env.local` and GitHub secrets
+- New user can go from sign-up to first AI-generated week in under 5 minutes
+- Onboarding completion rate measurable in analytics
+- Works on mobile (PWA-ready layout)
 
 ---
 
-### M.5 — Macro-Aware Roll
-`feature/m.5-macro-roll` | **Effort**: 3–5 days | **Depends on**: M.1, M.2
+### M.6 — AI Meal Swap & Rebalance
+`feature/m.6-meal-swap` | **Effort**: ~1 week | **Depends on**: M.4
 
-The existing "roll" button becomes macro-intelligent. Instead of random, it picks a recipe that fits the day's **remaining** macros.
+Magic Moment #4 from VISION.md: *"It adjusted when I swapped a meal."* Currently when a user replaces a meal the rest of the week stays static. This feature makes the AI rebalance.
 
 **What**:
-- When rolling for a day slot, calculate remaining macros (target - already planned meals that day)
-- Pass remaining macros + dietary restrictions to Claude API
-- Claude picks the best-fitting recipe from the available pool
-- Show the macro fit score: "This meal fills 82% of your remaining protein"
+- When a user swaps out a planned meal, call Claude with: removed meal macros + remaining day/week targets + existing planned meals
+- Claude suggests replacement meals that close the macro gap for the week
+- Show delta: "Swapping this adds 20g protein to your gap — here's a meal that fills it"
+- Falls back gracefully if Claude unavailable (random roll from pool)
 
 **Acceptance criteria**:
-- Rolled meal contributes toward hitting daily targets
-- Falls back to random roll if no macro data available
-- Works without AI (heuristic: pick recipe closest to remaining targets from cache)
+- Swapping a meal triggers a rebalanced suggestion for the slot
+- Weekly macro totals visibly improve after accepting a swap
+- Works with both TheMealDB and future custom recipes
 
 ---
 
-## 🏥 Phase D: Dietitian Mode
-**Goal**: B2B revenue. Dietitians use FoodRoller to generate and share meal plans with clients at scale.
+## 📦 Milestone 2 — Own Your Recipe Data
+**Goal**: TheMealDB is no longer the primary corpus. Users build and own their personal recipe library. The AI plans from real, relevant recipes.
 
 ---
 
-### D.1 — Client Profile Management ✅
-`feature/d.1-client-profiles` | Merged to master
+### S.1 — Custom Recipe Creation & Import ⭐ (Promoted from Phase 3)
+`feature/s.1-custom-recipes` | **Effort**: 2–3 weeks | **Depends on**: M.1, User Accounts
+
+TheMealDB is public demo data with no personal relevance. Custom recipes are the foundation of a personal, sticky product. Promoted to near-term from Phase 3.
+
+**What**:
+- **Create**: form to build a recipe from scratch (name, servings, ingredients with amounts, instructions, image upload via Vercel Blob, dietary tags)
+- **Fork / Modify**: clone any TheMealDB recipe as a personal copy, edit freely — this is the migration path away from demo data
+- **Nutrition**: auto-analyze via Edamam on save (reuses M.1); manual override allowed
+- **Import from URL**: paste any recipe URL → scrape via serverless function → prefill create form for review before saving
+- **Storage**: custom recipes saved to Firestore under `users/{uid}/recipes`; `source: "custom"` flag distinguishes from TheMealDB
+- **AI planner integration**: custom recipes appear in the AI planner pool alongside (or eventually replacing) TheMealDB recipes
+- **Privacy**: all recipes private by default; `published` toggle for future social feed (S.2)
+
+**Acceptance criteria**:
+- User can create, edit, delete their own recipes
+- Forking a TheMealDB recipe produces an editable personal copy
+- Nutrition auto-calculated on save; graceful fallback if Edamam unavailable
+- URL import prefills form with >80% accuracy for common recipe sites
+- Custom recipes appear in AI planner pool and can be rolled
+- Published recipes queryable for future social feed
 
 ---
 
-### D.2 — Shareable Meal Plans ✅
-`feature/d.2-shareable-plans` | Merged to master
+## 🎯 Alpha Launch — Family & Friends (all free)
+Product is genuinely personal and useful with user-owned recipe data. All magic moments work.
 
-Snapshot-based shareable link (`/plan/abc123`). 30-day TTL. Client sees meals, macros, shopping list. Can mark meals completed. Print/PDF via browser print. Dietitian name shown as header.
+**Measure after launch**:
+- Weekly Macro Plans Generated (North Star)
+- Custom recipes created per user
+- Onboarding completion rate
+- Meal swap / rebalance usage
+- URL import success rate
 
 ---
+
+## 🔜 Post-Alpha: Polish & Personalization
 
 ### D.3 — Share Management UI
 `feature/d.3-share-management` | **Effort**: 3–5 days | **Depends on**: D.2
 
-Dietitian sees a list of all active shared plan links they've created and can revoke/delete individual links.
+Dietitian sees a list of all active shared plan links and can revoke/delete them.
 
 **What**:
-- Firestore query: `sharedPlans` where `ownerId == uid` (requires adding `ownerId` field in D.2 — already included)
-- UI: list of shares with title, date range, created date, expiry status
+- Firestore query: `sharedPlans` where `ownerId == uid`
+- List with title, date range, created date, expiry status
 - Delete button per share → removes from Firestore
-- Accessible via Dietitian mode menu or client manager
+- Accessible via Dietitian mode menu
 
 ---
 
-## 🚀 Phase 2: Identity & Infrastructure (Existing, Reprioritized)
+### D.4 — White-label PDF Export *(New)*
+`feature/d.4-pdf-export` | **Effort**: ~3 days | **Depends on**: D.2
 
-### P2.0 — Context Architecture Refactoring ✅
-`feature/p2.0-context-refactor` | Merged to master
+Dietitian tier promises branded PDF delivery. Browser print (D.2) is not sufficient — clients expect a polished PDF with the dietitian's name/practice.
 
-FilterContext / MacroContext / MealPlanContext. App.jsx 460→130 LOC. D.2 route stub at `/plan/[shareId]`.
+**What**:
+- PDF template with dietitian name + practice name as header
+- Includes meals, macros per meal, daily totals, shopping list
+- Generated server-side (avoid browser print limitations)
+- Downloadable from the share management UI and the shared plan page
+
+---
+
+### D.5 — Client Analytics Dashboard *(New)*
+`feature/d.5-client-analytics` | **Effort**: ~1 week | **Depends on**: D.2, D.3
+
+Dietitian tier promises "Analytics per client." Simple adherence and macro achievement read from existing Firestore data.
+
+**What**:
+- Per-client view: meals marked complete vs planned, macro achievement % per week
+- Week-over-week trend (simple line chart)
+- Accessible from client manager (D.1 UI)
+
+---
 
 ### P2.1 — PWA
-`feature/p2.1-favorites` | **Effort**: 3–5 days
+`feature/p2.1-pwa` | **Effort**: 3–5 days
 
-Install to home screen, offline plan viewing. Macro tracking happens on the phone — this matters.
-
-### P2.2 — Favorite Recipes
-`feature/p2.2-print-recipe` | **Effort**: 3–4 days
-
-Favorites inform the AI planner ("prefer meals from my favorites"). Heart icon on cards, cloud-synced.
-
-### P1.2 — Recipe Search
-`feature/p1.2-recipe-search` | **Effort**: 4–6 days
-
-Search by name + ingredient. Useful for finding macro-friendly recipes specifically.
+Install to home screen, offline plan viewing. Macro tracking and meal planning happen on the phone — this matters for fitness users.
 
 ---
 
-## 💰 Monetization
+### P2.2 — Favorite Recipes
+`feature/p2.2-favorites` | **Effort**: 3–4 days
 
-### PM.1 — Freemium Implementation
-`feature/pm.1-freemium` | **Effort**: 1 week product + 2 weeks billing | **Depends on**: M.4
+Heart icon on cards, cloud-synced to Firestore. Favorites are the primary personalization signal fed to the AI planner ("prefer meals from my favorites").
+
+---
+
+## 🧠 Milestone 4 — Intelligence Layer *(2027)*
+
+| Item | Effort | Notes |
+|------|--------|-------|
+| Smart pantry | 3–4 weeks | Cross-reference pantry with macro-optimal meals |
+| Plan templates (bulk/cut/maintenance) | 2–3 weeks | AI-generated starting points for common goals |
+| Swap learning | ongoing | AI improves from reject/swap signals over time |
+
+---
+
+## 🌐 Milestone 5 — Platform & Social *(2027–2028)*
+
+| Item | Branch | Effort | Notes |
+|------|--------|--------|-------|
+| Social feed (browse community plans) | `feature/p3.4-social-feed` | 4–6 weeks | Filter by macro profile; **depends on S.1** |
+| Native mobile app | `feature/p4.4-mobile-app` | 8–12 weeks | React Native |
+| Grocery delivery integration | new | 3–4 weeks | Export plan to Instacart/etc. |
+| Localization (i18n) | `feature/p4.5-localization` | 3–4 weeks | After PMF |
+
+---
+
+## 💰 Go Paid — Freemium + Billing *(post-PMF)*
+
+**Trigger**: consistent North Star engagement + positive alpha feedback signal.
 
 | Free | Premium (~€9/mo) | Dietitian (~€49/mo) |
 |------|-----------------|---------------------|
 | Manual meal planning | **AI macro planner** | All Premium |
 | Basic dietary filters | Full macro dashboard | Unlimited client profiles |
 | Shopping list | Unlimited plan history | Shareable client plans |
-| — | Smart pantry | PDF export |
+| — | Smart pantry | White-label PDF export |
+| — | — | Analytics per client |
 
-- Stripe (or Paddle for EU VAT) for billing
-- Feature gates at natural friction points (plan generation = premium trigger)
-
----
-
-## 🌐 Phase 3: Social & Scale
-
-### S.1 — Custom Recipe Creation & Import ⭐ SOCIAL PREREQUISITE
-`feature/s.1-custom-recipes` | **Effort**: 2–3 weeks | **Depends on**: M.1, User Accounts
-
-Users can create their own recipes and import from URLs. Custom recipes feed the AI planner pool and are the atomic unit of the social network — without them, the social feed has nothing user-generated to share.
-
-**What**:
-- **Create**: form to build a recipe from scratch (name, servings, ingredients with amounts, instructions, image upload via Vercel Blob, dietary tags)
-- **Nutrition**: auto-analyze via Edamam on save (reuses M.1 infrastructure); manual override allowed
-- **Import from URL**: paste any recipe URL → scrape via a serverless function (use `recipe-scraper` or similar) → prefill the create form for review before saving
-- **Storage**: custom recipes saved to Firestore under `users/{uid}/recipes`; a `source: "custom"` flag distinguishes them from TheMealDB recipes
-- **AI planner integration**: custom recipes appear in the pool available to M.4 and M.5 alongside TheMealDB recipes
-- **Publish toggle**: recipes start private; user can publish to make them discoverable in the social feed (S.2)
-
-**Acceptance criteria**:
-- User can create, edit, and delete their own recipes
-- Nutrition is auto-calculated on save; falls back gracefully if Edamam unavailable
-- URL import prefills form with >80% accuracy for common recipe sites
-- Custom recipes appear in AI planner pool and can be rolled
-- Published recipes are queryable for the social feed
-
----
-
-| Item | Branch | Effort | Notes |
-|------|--------|--------|-------|
-| Share meal plan (public link) | `feature/p3.2-share-meal-plan` | 3–4 weeks | Read-only plan pages, OG cards |
-| Plan templates (bulk/cut/etc.) | new | 2–3 weeks | AI-generated starting points |
-| Smart pantry | `feature/p2.5-smart-pantry` | 3–4 weeks | Cross-reference pantry with macro plan |
-| Social feed (browse community plans) | `feature/p3.4-social-feed` | 4–6 weeks | Filter by macro profile; **depends on S.1** |
-| Admin / impersonation | `feature/p3.3-admin-impersonation` | 1–2 weeks | Support tooling |
-| Native mobile app | `feature/p4.4-mobile-app` | 8–12 weeks | React Native, after Context refactor |
-| Grocery delivery integration | new | 3–4 weeks | Export plan to Instacart/etc. |
-| Localization (i18n) | `feature/p4.5-localization` | 3–4 weeks | After PMF |
+- Billing: Paddle (recommended for EU VAT handling) or Stripe
+- Feature gates at natural friction points (AI plan generation = premium trigger)
 
 ---
 
 ## ⚠️ Deprioritized / Removed
 
+- **Recipe Search** (P1.2) — AI handles discovery; low value in AI-first model
+- **Admin / Impersonation** — support tooling; defer until user base warrants it
 - **Recipe History / Recently Viewed** (P1.3) — low value in macro-focused product
-- **Service Layer Refactoring** (P1.4) — absorb into Context refactor (P2.0)
+- **Service Layer Refactoring** (P1.4) — absorbed into Context refactor (P2.0)
 - **Recipe Tags** — superseded by nutritional data as the key metadata
 - **Print Recipe** — covered by PDF export in Dietitian mode
 - **Halal/Kosher filters** — small segment, defer
 
 ---
 
-*Last updated: April 30, 2026 — P2.0 + D.1 complete; D.2 Shareable Meal Plans now active*
+*Last updated: April 30, 2026 — Groomed for consumer-first alpha strategy; S.1 promoted, UX.1 + M.6 + D.4 + D.5 added, PM.1 deferred to post-PMF*
