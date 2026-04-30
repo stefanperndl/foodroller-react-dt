@@ -8,12 +8,19 @@
 
 **Prioritization order**: (1) Nutritional data foundation → (2) Macro planning UI → (3) AI plan generation → (4) Dietitian mode → (5) Monetization → (6) Social
 
+**Current focus**: Phase D — Dietitian Mode
+
 ---
 
 ## ✅ Recently Completed
 
 | Feature | Version | Notes |
 |---------|---------|-------|
+| AI Macro-Aware Meal Planner (M.4) | v3.0 | Claude API tool-use, candidate fetch + nutrition enrichment |
+| Macro Dashboard (M.3) | v3.0 | Day cards with SVG rings, color-coded status, real-time updates |
+| Macro Profile Setup (M.2) | v3.0 | Goal calculator (Mifflin-St Jeor), Firestore + localStorage sync |
+| Macro-Aware Roll (M.5) | v2.5 | Claude-powered slot roll against remaining daily macros |
+| Nutritional Data Layer (M.1) | v2.4 | Edamam integration, Firestore cache, per-recipe macro badges |
 | User Accounts & Auth | v2.3 | Firebase Auth (Google + email), Firestore sync per user, sign-out clears state |
 | Export Shopping List | v1.3 | Copy, CSV, Print/PDF |
 | Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges |
@@ -46,72 +53,6 @@ The single most important technical foundation. Without real macro data, nothing
 - Graceful fallback if Edamam unavailable (show "nutrition unavailable")
 
 **API keys needed**: Edamam App ID + App Key → add to `.env.local` and GitHub secrets
-
----
-
-### M.2 — Macro Profile Setup
-`feature/m.2-macro-profile` | **Effort**: 1 week | **Depends on**: M.1
-
-User defines their daily nutrition targets. Stored per user account (Firestore) or locally (anonymous).
-
-**What**:
-- Profile setup modal/page: daily kcal target, protein (g), carbs (g), fat (g)
-- Optional: goal selector (lose weight / maintain / gain muscle) with auto-calculated targets using Mifflin-St Jeor formula (input: age, weight, height, activity level)
-- Targets visible in header or dashboard at all times
-
-**Acceptance criteria**:
-- User can set/edit their macro targets
-- Targets persist across sessions (Firestore when signed in)
-- Auto-calculator works for the three main goals
-
----
-
-### M.3 — Macro Dashboard
-`feature/m.3-macro-dashboard` | **Effort**: 1–2 weeks | **Depends on**: M.1, M.2
-
-Daily and weekly macro progress visualized.
-
-**What**:
-- Day view: ring/bar charts for kcal, protein, carbs, fat showing planned vs target
-- Week view: summary table with daily totals and weekly averages
-- Color coding: green = on track, yellow = 10% off, red = >20% off target
-- Updates live as meals are added/removed from the plan
-
-**Acceptance criteria**:
-- Macro totals for current plan week displayed and update in real-time
-- Daily breakdown visible per day in the plan
-- Works for anonymous users (uses localStorage targets) and signed-in users
-
----
-
-### M.4 — AI Macro-Aware Meal Planner ⭐ CORE PRODUCT
-`feature/m.4-ai-macro-planner` | **Effort**: 2–3 weeks | **Depends on**: M.1, M.2, M.3
-
-This is the headline feature and the reason people pay. AI generates a complete week-long meal plan that hits the user's macro targets.
-
-**What**:
-- "Plan My Week" button → sends to Claude API:
-  - User's daily macro targets
-  - Dietary restrictions
-  - Number of meals per day (2–5)
-  - A pool of available recipes with their nutritional data
-  - Any preferences ("I had chicken yesterday", "no fish this week")
-- Claude returns a structured meal plan: `{ date → meal }` hitting daily targets within ±10%
-- Plan is loaded directly into the mealplan state (same data structure as manual planning)
-- User can regenerate individual days or the full week
-- "Why this meal?" explainability: tap a meal to see which macro it's fulfilling
-
-**Claude API integration**:
-- Use `claude-sonnet-4-6` for plan generation (balance speed + quality)
-- Structured output: JSON meal plan
-- Prompt includes macro targets, available recipes with nutrition, constraints
-- Rate-limit: 1 plan generation per minute per user (prevent abuse)
-
-**Acceptance criteria**:
-- Generated plan hits daily macro targets within ±10%
-- Respects all dietary restrictions
-- No meal repeated more than once per week
-- Works end-to-end: targets → plan → shopping list
 
 ---
 
@@ -203,12 +144,34 @@ Search by name + ingredient. Useful for finding macro-friendly recipes specifica
 
 ## 🌐 Phase 3: Social & Scale
 
+### S.1 — Custom Recipe Creation & Import ⭐ SOCIAL PREREQUISITE
+`feature/s.1-custom-recipes` | **Effort**: 2–3 weeks | **Depends on**: M.1, User Accounts
+
+Users can create their own recipes and import from URLs. Custom recipes feed the AI planner pool and are the atomic unit of the social network — without them, the social feed has nothing user-generated to share.
+
+**What**:
+- **Create**: form to build a recipe from scratch (name, servings, ingredients with amounts, instructions, image upload via Vercel Blob, dietary tags)
+- **Nutrition**: auto-analyze via Edamam on save (reuses M.1 infrastructure); manual override allowed
+- **Import from URL**: paste any recipe URL → scrape via a serverless function (use `recipe-scraper` or similar) → prefill the create form for review before saving
+- **Storage**: custom recipes saved to Firestore under `users/{uid}/recipes`; a `source: "custom"` flag distinguishes them from TheMealDB recipes
+- **AI planner integration**: custom recipes appear in the pool available to M.4 and M.5 alongside TheMealDB recipes
+- **Publish toggle**: recipes start private; user can publish to make them discoverable in the social feed (S.2)
+
+**Acceptance criteria**:
+- User can create, edit, and delete their own recipes
+- Nutrition is auto-calculated on save; falls back gracefully if Edamam unavailable
+- URL import prefills form with >80% accuracy for common recipe sites
+- Custom recipes appear in AI planner pool and can be rolled
+- Published recipes are queryable for the social feed
+
+---
+
 | Item | Branch | Effort | Notes |
 |------|--------|--------|-------|
 | Share meal plan (public link) | `feature/p3.2-share-meal-plan` | 3–4 weeks | Read-only plan pages, OG cards |
 | Plan templates (bulk/cut/etc.) | new | 2–3 weeks | AI-generated starting points |
 | Smart pantry | `feature/p2.5-smart-pantry` | 3–4 weeks | Cross-reference pantry with macro plan |
-| Social feed (browse community plans) | `feature/p3.4-social-feed` | 4–6 weeks | Filter by macro profile |
+| Social feed (browse community plans) | `feature/p3.4-social-feed` | 4–6 weeks | Filter by macro profile; **depends on S.1** |
 | Admin / impersonation | `feature/p3.3-admin-impersonation` | 1–2 weeks | Support tooling |
 | Native mobile app | `feature/p4.4-mobile-app` | 8–12 weeks | React Native, after Context refactor |
 | Grocery delivery integration | new | 3–4 weeks | Export plan to Instacart/etc. |
@@ -226,4 +189,4 @@ Search by name + ingredient. Useful for finding macro-friendly recipes specifica
 
 ---
 
-*Last updated: April 28, 2026 — Strategic pivot to macro-focused AI meal planning for dietitians and macro trackers*
+*Last updated: April 30, 2026 — M.2/M.3/M.4 moved to Recently Completed; D.1 now active*

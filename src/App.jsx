@@ -20,6 +20,9 @@ import SlotManagerModal from "./components/SlotManagerModal";
 import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun } from "lucide-react";
 import { getNutrition, getNutritionFromCache } from "./api/nutrition";
 import { macroAwareRoll } from "./api/macroRoll";
+import { useDietitianRole } from "./hooks/useDietitianRole";
+import { useClients } from "./hooks/useClients";
+import ClientManagerModal from "./components/ClientManagerModal";
 
 function App() {
   const { user } = useAuth();
@@ -32,6 +35,10 @@ function App() {
   const [mealplan, setMealplan] = useMealplan(user);
   const [slots, setSlots]         = useMealSlots(user);
   const [macroProfile, setMacroProfile] = useMacroProfile(user);
+  const [isDietitian, claimDietitianRole] = useDietitianRole(user);
+  const [clients, addClient, updateClient, deleteClient] = useClients(user, isDietitian);
+  const [activeClient, setActiveClient] = useState(null);
+  const [showClientManager, setShowClientManager] = useState(false);
   const [daySlotOverrides, setDaySlotOverrides] = useDaySlotOverrides();
   const [rerollingKey, setRerollingKey] = useState(null);
   const [darkMode, setDarkMode]   = useState(false);
@@ -130,10 +137,10 @@ function App() {
     setRerollingKey(key);
     try {
       let fullRecipe = null;
-      if (macroProfile) {
+      if (effectiveMacroProfile) {
         fullRecipe = await macroAwareRoll({
           date, slotId,
-          mealplan, nutritionMap, macroProfile,
+          mealplan, nutritionMap, macroProfile: effectiveMacroProfile,
           categories: cats,
           restrictions: restr,
         });
@@ -199,6 +206,10 @@ function App() {
     return result;
   };
 
+  const effectiveMacroProfile = activeClient
+    ? { kcal: activeClient.kcal, protein: activeClient.protein, carbs: activeClient.carbs, fat: activeClient.fat, goal: activeClient.goal }
+    : macroProfile;
+
   const cartCount = Object.values(mealplan).reduce(
     (n, day) => n + Object.values(day).filter((m) => m?.ingredients?.length).length,
     0
@@ -249,13 +260,31 @@ function App() {
           >
             {darkMode ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />}
           </button>
+          {isDietitian && (
+            <button className="btn--clients" onClick={() => setShowClientManager(true)}>
+              Clients{clients.length > 0 ? ` (${clients.length})` : ''}
+            </button>
+          )}
+          {activeClient && (
+            <span className="navbar__active-client">
+              {activeClient.name}
+              <button onClick={() => setActiveClient(null)} aria-label="Back to own plan">×</button>
+            </span>
+          )}
           <button className="btn--goals" onClick={() => setShowMacroModal(true)}>
-            {macroProfile
-              ? `${macroProfile.kcal} kcal · ${macroProfile.protein}g P`
+            {effectiveMacroProfile
+              ? `${effectiveMacroProfile.kcal} kcal · ${effectiveMacroProfile.protein}g P`
               : 'Goals'}
           </button>
           {user ? (
-            <UserMenu />
+            <>
+              {!isDietitian && (
+                <button className="btn--dietitian-upgrade" onClick={claimDietitianRole}>
+                  Dietitian mode
+                </button>
+              )}
+              <UserMenu />
+            </>
           ) : (
             <button className="btn--login" onClick={() => setShowAuthModal(true)}>
               Log in
@@ -312,7 +341,7 @@ function App() {
                   setSlotFilters((prev) => ({ ...prev, [slotId]: filters }))
                 }
                 nutritionMap={nutritionMap}
-                macroProfile={macroProfile}
+                macroProfile={effectiveMacroProfile}
               />
               <div className="roll-button-container">
                 <button
@@ -322,7 +351,7 @@ function App() {
                 >
                   Slots
                 </button>
-                {macroProfile ? (
+                {effectiveMacroProfile ? (
                   <button
                     className="btn btn-plan-week"
                     onClick={() => setShowPlannerModal(true)}
@@ -352,7 +381,7 @@ function App() {
           {activeView === 'macros' && (
             <MacroDashboard
               mealplan={mealplan}
-              macroProfile={macroProfile}
+              macroProfile={effectiveMacroProfile}
               startDate={startDate}
               endDate={endDate}
               slots={slots}
@@ -388,9 +417,9 @@ function App() {
         />
       )}
 
-      {showPlannerModal && macroProfile && (
+      {showPlannerModal && effectiveMacroProfile && (
         <PlannerModal
-          macroProfile={macroProfile}
+          macroProfile={effectiveMacroProfile}
           startDate={startDate}
           endDate={endDate}
           selectedCategories={selectedCategories}
@@ -414,6 +443,17 @@ function App() {
           slots={slots}
           onSave={setSlots}
           onClose={() => setShowSlotManager(false)}
+        />
+      )}
+
+      {showClientManager && (
+        <ClientManagerModal
+          clients={clients}
+          onAdd={addClient}
+          onUpdate={updateClient}
+          onDelete={deleteClient}
+          onSelectClient={(c) => { setActiveClient(c); setShowClientManager(false); }}
+          onClose={() => setShowClientManager(false)}
         />
       )}
     </div>
