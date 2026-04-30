@@ -17,6 +17,9 @@ import MacroDashboard from "./components/MacroDashboard";
 import { useMacroProfile } from "./hooks/useMacroProfile";
 import PlannerModal from "./components/PlannerModal";
 import SlotManagerModal from "./components/SlotManagerModal";
+import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun } from "lucide-react";
+import { DIETARY_RESTRICTIONS } from "./utils/dietaryRestrictions";
+import { getNutrition, getNutritionFromCache } from "./api/nutrition";
 
 function App() {
   const { user } = useAuth();
@@ -71,6 +74,38 @@ function App() {
   const [selectedRestrictions, setSelectedRestrictions] = useState([]);
   const [activeView, setActiveView]               = useState('plan');
   const [selectedMealForDate, setSelectedMealForDate] = useState(null);
+  const [slotFilters, setSlotFilters]             = useState({}); // { [slotId]: { restrictions: [], categories: [] } }
+  const [nutritionMap, setNutritionMap]           = useState({});
+
+  // Fetch nutrition for all meals in the plan (results cached in localStorage)
+  useEffect(() => {
+    const meals = [];
+    for (const day of Object.values(mealplan)) {
+      for (const meal of Object.values(day)) {
+        if (meal?.ingredients?.length) meals.push(meal);
+      }
+    }
+    const uncached = meals.filter((m) => {
+      const k = m.id ?? m.name;
+      return k && !getNutritionFromCache(k) && !nutritionMap[k];
+    });
+    if (!uncached.length) return;
+    let cancelled = false;
+    Promise.all(
+      uncached.map((m) =>
+        getNutrition(m.id ?? m.name, m.ingredients)
+          .then((n) => ({ key: m.id ?? m.name, n }))
+          .catch(() => null)
+      )
+    ).then((results) => {
+      if (cancelled) return;
+      const map = {};
+      results.forEach((r) => { if (r) map[r.key] = r.n; });
+      if (Object.keys(map).length) setNutritionMap((prev) => ({ ...prev, ...map }));
+    });
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mealplan]);
 
   // Apply design tokens to <html>
   useEffect(() => {
@@ -89,12 +124,12 @@ function App() {
 
   const handleReroll = async (date, slotId) => {
     const key = `${date}-${slotId}`;
-    if (mealplan[date]?.[slotId]) {
-      if (!window.confirm('Re-rolling will replace this meal. Continue?')) return;
-    }
+    const sf = slotFilters[slotId];
+    const cats = sf?.categories?.length ? sf.categories : selectedCategories;
+    const restr = sf?.restrictions?.length ? sf.restrictions : selectedRestrictions;
     setRerollingKey(key);
     try {
-      const recipe = await fetchRecipeByCategories(selectedCategories, selectedRestrictions);
+      const recipe = await fetchRecipeByCategories(cats, restr);
       const fullRecipe = recipe.ingredients ? recipe : await fetchMealById(recipe.id);
       setMealplan((prev) => ({
         ...prev,
@@ -162,7 +197,6 @@ function App() {
     <div className="app-container">
       <nav className="navbar">
         <div className="navbar__logo">
-          <span className="navbar__logo-icon">🎲</span>
           FoodRoller
         </div>
         <div className="navbar__tabs">
@@ -170,19 +204,19 @@ function App() {
             className={activeView === 'plan' ? 'active' : ''}
             onClick={() => setActiveView('plan')}
           >
-            📅 My Plan
+            <CalendarDays size={15} strokeWidth={2} /> My Plan
           </button>
           <button
             className={activeView === 'browse' ? 'active' : ''}
             onClick={() => setActiveView('browse')}
           >
-            🔍 Browse
+            <Search size={15} strokeWidth={2} /> Browse
           </button>
           <button
             className={activeView === 'macros' ? 'active' : ''}
             onClick={() => setActiveView('macros')}
           >
-            📊 Macros
+            <BarChart2 size={15} strokeWidth={2} /> Macros
           </button>
         </div>
         <div className="navbar__spacer" />
@@ -192,7 +226,7 @@ function App() {
             onClick={() => setShowCart((o) => !o)}
             title="Shopping List"
           >
-            🛒
+            <ShoppingBag size={17} strokeWidth={1.75} />
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
           </button>
         </div>
@@ -202,7 +236,7 @@ function App() {
             onClick={() => setDarkMode((d) => !d)}
             title={darkMode ? 'Light mode' : 'Dark mode'}
           >
-            {darkMode ? '☀️' : '🌙'}
+            {darkMode ? <Sun size={16} strokeWidth={1.75} /> : <Moon size={16} strokeWidth={1.75} />}
           </button>
           <button className="btn--goals" onClick={() => setShowMacroModal(true)}>
             {macroProfile
@@ -220,24 +254,26 @@ function App() {
       </nav>
 
       <div className="app-body">
-        <FilterBar
-          categories={categories}
-          selectedCategories={selectedCategories}
-          restrictions={selectedRestrictions}
-          onRestrictionToggle={(restriction) =>
-            setSelectedRestrictions((prev) =>
-              prev.includes(restriction)
-                ? prev.filter((r) => r !== restriction)
-                : [...prev, restriction]
-            )
-          }
-          onSelect={(cat) =>
-            setSelectedCategories((prev) =>
-              prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-            )
-          }
-          onClearCategories={() => setSelectedCategories([])}
-        />
+        {activeView === 'browse' && (
+          <FilterBar
+            categories={categories}
+            selectedCategories={selectedCategories}
+            restrictions={selectedRestrictions}
+            onRestrictionToggle={(restriction) =>
+              setSelectedRestrictions((prev) =>
+                prev.includes(restriction)
+                  ? prev.filter((r) => r !== restriction)
+                  : [...prev, restriction]
+              )
+            }
+            onSelect={(cat) =>
+              setSelectedCategories((prev) =>
+                prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+              )
+            }
+            onClearCategories={() => setSelectedCategories([])}
+          />
+        )}
 
         <main className="main-content">
           {activeView === 'plan' && (
@@ -259,6 +295,12 @@ function App() {
                 onRemove={handleRemoveMeal}
                 onAddSlotToDay={handleAddSlotToDay}
                 onRemoveSlotFromDay={handleRemoveSlotFromDay}
+                categories={categories}
+                slotFilters={slotFilters}
+                onSlotFilterChange={(slotId, filters) =>
+                  setSlotFilters((prev) => ({ ...prev, [slotId]: filters }))
+                }
+                nutritionMap={nutritionMap}
               />
               <div className="roll-button-container">
                 <button
@@ -302,6 +344,7 @@ function App() {
               startDate={startDate}
               endDate={endDate}
               slots={slots}
+              nutritionMap={nutritionMap}
             />
           )}
         </main>

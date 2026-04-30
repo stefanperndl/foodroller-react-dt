@@ -17,7 +17,7 @@ describe('ShoppingCart component', () => {
     render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={() => {}} />);
     expect(screen.getByText('Copy')).toBeInTheDocument();
     expect(screen.getByText('CSV')).toBeInTheDocument();
-    expect(screen.getByText('Print / PDF')).toBeInTheDocument();
+    expect(screen.getByText('Print')).toBeInTheDocument();
   });
 
   it('renders recipe ingredients', () => {
@@ -28,7 +28,7 @@ describe('ShoppingCart component', () => {
   it('calls onClose when Close is clicked', () => {
     const onClose = jest.fn();
     render(<ShoppingCart ingredientsByRecipe={samplePlan} onClose={onClose} />);
-    fireEvent.click(screen.getByText('Close'));
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(onClose).toHaveBeenCalled();
   });
 

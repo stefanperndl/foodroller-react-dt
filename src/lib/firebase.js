@@ -12,8 +12,14 @@ const firebaseConfig = {
   appId:             process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+let auth, db, googleProvider;
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const googleProvider = new GoogleAuthProvider();
+// Skip initialization server-side (SSR) and when credentials aren't configured.
+if (typeof window !== 'undefined' && firebaseConfig.apiKey) {
+  const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  googleProvider = new GoogleAuthProvider();
+}
+
+export { auth, db, googleProvider };

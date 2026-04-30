@@ -57,7 +57,9 @@ export function useMealplan(user) {
       setLoaded(true);
     } else {
       const stored = localStorage.getItem(MEALPLAN_KEY);
-      if (stored) setMealplanState(migrateIfNeeded(JSON.parse(stored)));
+      if (stored) {
+        try { setMealplanState(migrateIfNeeded(JSON.parse(stored))); } catch { /* corrupted */ }
+      }
       setLoaded(true);
     }
   }, [user]);

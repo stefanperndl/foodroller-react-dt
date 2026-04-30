@@ -1,5 +1,23 @@
 {
-  "disabledMcpjsonServers": [
-    "juno"
-  ]
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(env)",
+      "Bash(npm config *)",
+      "Read(//home/stefan/**)",
+      "Bash(NODE_OPTIONS='--require /test' node -e \"console.log\\(process.env.NODE_OPTIONS\\)\")",
+      "Bash(node -e \"console.log\\(process.execArgv\\)\")",
+      "Bash(node -e \"require\\('child_process'\\).exec\\('printenv NODE_OPTIONS', \\(e,o\\) => console.log\\('npm NODE_OPTIONS:', JSON.stringify\\(o\\)\\)\\)\")",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(curl *)",
+      "Bash(node *)",
+      "Bash(git -C /home/stefan/code/foodroller check-ignore -v .env.local)",
+      "Bash(npm --prefix /home/stefan/code/foodroller run dev)",
+      "Bash(npm test *)",
+      "Bash(git add *)"
+    ]
+  }
 }

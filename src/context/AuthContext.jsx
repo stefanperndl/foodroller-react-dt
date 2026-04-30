@@ -16,6 +16,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!auth) { setLoading(false); return; }
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);
@@ -23,10 +24,10 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  const signInWithGoogle  = ()           => signInWithPopup(auth, googleProvider);
-  const signInWithEmail   = (e, p)       => signInWithEmailAndPassword(auth, e, p);
-  const signUpWithEmail   = (e, p)       => createUserWithEmailAndPassword(auth, e, p);
-  const signOut           = ()           => firebaseSignOut(auth);
+  const signInWithGoogle  = ()           => auth ? signInWithPopup(auth, googleProvider) : Promise.reject(new Error('Firebase not configured'));
+  const signInWithEmail   = (e, p)       => auth ? signInWithEmailAndPassword(auth, e, p) : Promise.reject(new Error('Firebase not configured'));
+  const signUpWithEmail   = (e, p)       => auth ? createUserWithEmailAndPassword(auth, e, p) : Promise.reject(new Error('Firebase not configured'));
+  const signOut           = ()           => auth ? firebaseSignOut(auth) : Promise.resolve();
 
   return (
     <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, signOut }}>

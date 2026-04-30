@@ -62,16 +62,16 @@ describe('RecipeDetailModal', () => {
   it('shows Add to Date button only when onAddToDate is provided', async () => {
     const { rerender } = render(<RecipeDetailModal meal={fullMeal} onClose={jest.fn()} />);
     await screen.findByText('Chicken Tikka');
-    expect(screen.queryByText(/add to date/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/add to plan/i)).not.toBeInTheDocument();
 
     rerender(<RecipeDetailModal meal={fullMeal} onClose={jest.fn()} onAddToDate={jest.fn()} />);
-    expect(screen.getByText(/add to date/i)).toBeInTheDocument();
+    expect(screen.getByText(/add to plan/i)).toBeInTheDocument();
   });
 
   it('calls onAddToDate with the full recipe', async () => {
     const onAddToDate = jest.fn();
     render(<RecipeDetailModal meal={fullMeal} onClose={jest.fn()} onAddToDate={onAddToDate} />);
-    fireEvent.click(await screen.findByText(/add to date/i));
+    fireEvent.click(await screen.findByText(/add to plan/i));
     expect(onAddToDate).toHaveBeenCalledWith(fullMeal);
   });
 });

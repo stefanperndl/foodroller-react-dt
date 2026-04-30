@@ -22,18 +22,20 @@ export function FilterBar({ categories, selectedCategories, restrictions, onRest
   const selectedCount = selectedCategories.length;
 
   return (
-    <div className="filter-bar">
-      <span className="filter-bar__label">Filter</span>
-      {Object.entries(DIETARY_RESTRICTIONS).map(([key, restriction]) => (
-        <button
-          key={key}
-          className={`dietary-chip ${restrictions.includes(key) ? 'active' : ''}`}
-          onClick={() => onRestrictionToggle(key)}
-          title={restriction.name}
-        >
-          {restriction.icon} {restriction.name}
-        </button>
-      ))}
+    <div className="filter-bar-wrap">
+      <div className="filter-bar">
+        <span className="filter-bar__label">Filter</span>
+        {Object.entries(DIETARY_RESTRICTIONS).map(([key, restriction]) => (
+          <button
+            key={key}
+            className={`dietary-chip ${restrictions.includes(key) ? 'active' : ''}`}
+            onClick={() => onRestrictionToggle(key)}
+            title={restriction.name}
+          >
+            {restriction.icon} {restriction.name}
+          </button>
+        ))}
+      </div>
       <div className="filter-bar__divider" />
       <div className="cat-popover-wrap" ref={popoverRef}>
         <button
@@ -52,11 +54,7 @@ export function FilterBar({ categories, selectedCategories, restrictions, onRest
             <div className="cat-popover__header">
               <span>Categories</span>
               {selectedCount > 0 && (
-                <button
-                  className="btn btn--ghost"
-                  style={{ fontSize: 11, padding: '2px 6px' }}
-                  onClick={onClearCategories}
-                >
+                <button className="btn btn--ghost" style={{ fontSize: 11, padding: '2px 6px' }} onClick={onClearCategories}>
                   Clear
                 </button>
               )}

@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { ChevronUp, ChevronDown, X } from 'lucide-react';
 import { newSlotId } from '../hooks/useMealSlots';
 
 export default function SlotManagerModal({ slots, onSave, onClose }) {
@@ -48,7 +49,7 @@ export default function SlotManagerModal({ slots, onSave, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content slot-manager-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-btn" onClick={onClose} aria-label="Close">×</button>
+        <button className="modal-close-btn" onClick={onClose} aria-label="Close"><X size={16} strokeWidth={1.75} /></button>
         <h2 className="slot-manager-title">Manage Meal Slots</h2>
         <p className="slot-manager-hint">These slots apply to every day in your plan.</p>
 
@@ -75,19 +76,19 @@ export default function SlotManagerModal({ slots, onSave, onClose }) {
                   onClick={() => moveSlot(idx, -1)}
                   disabled={idx === 0}
                   title="Move up"
-                >↑</button>
+                ><ChevronUp size={14} strokeWidth={2} /></button>
                 <button
                   className="slot-ctrl-btn"
                   onClick={() => moveSlot(idx, 1)}
                   disabled={idx === draft.length - 1}
                   title="Move down"
-                >↓</button>
+                ><ChevronDown size={14} strokeWidth={2} /></button>
                 <button
                   className="slot-ctrl-btn slot-ctrl-btn--remove"
                   onClick={() => removeSlot(slot.id)}
                   disabled={draft.length === 1}
                   title="Remove slot"
-                >×</button>
+                ><X size={14} strokeWidth={2} /></button>
               </div>
             </li>
           ))}

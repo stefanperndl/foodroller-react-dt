@@ -8,6 +8,7 @@ export function RecipeCard({ Food, onClick }) {
   return (
     <div
       className="recipe-card"
+      data-testid="recipe-card"
       onClick={handleClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >

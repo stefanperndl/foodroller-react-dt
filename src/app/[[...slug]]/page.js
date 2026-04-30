@@ -6,7 +6,7 @@ export function generateStaticParams() {
     { slug: [] }
   ];
 }
- 
+
 export default function Page() {
-  return <ClientOnly /> 
+  return <ClientOnly />
 }
