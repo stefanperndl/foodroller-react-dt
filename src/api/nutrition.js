@@ -39,11 +39,15 @@ export async function getNutrition(recipeId, ingredients) {
   if (lsCached) return JSON.parse(lsCached);
 
   if (db && recipeId) {
-    const snap = await getDoc(doc(db, 'recipes', String(recipeId)));
-    if (snap.exists() && snap.data().nutrition) {
-      const data = snap.data().nutrition;
-      localStorage.setItem(lsKey, JSON.stringify(data));
-      return data;
+    try {
+      const snap = await getDoc(doc(db, 'recipes', String(recipeId)));
+      if (snap.exists() && snap.data().nutrition) {
+        const data = snap.data().nutrition;
+        localStorage.setItem(lsKey, JSON.stringify(data));
+        return data;
+      }
+    } catch {
+      // Firestore unavailable (e.g. permission denied before rules updated) — fall through to API
     }
   }
 

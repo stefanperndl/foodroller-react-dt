@@ -654,8 +654,6 @@ body {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .recipe-card__actions { display: flex; gap: 6px; }
-.recipe-card__macros { display: flex; flex-wrap: wrap; gap: 4px; padding-top: 2px; }
-.recipe-card__macros .recipe-macro-pill { padding: 3px 7px; font-size: 11px; font-weight: 600; flex-direction: row; }
 
 /* Old RecipeCard compat */
 .recipe-card-content { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }

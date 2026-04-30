@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { RecipeCard } from '../RecipeCard';
 
-jest.mock('../../api/nutrition', () => ({ getNutritionFromCache: jest.fn(() => null) }));
 jest.mock('../../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
 
 describe('RecipeCard', () => {
