@@ -8,7 +8,7 @@
 
 **Prioritization order**: (1) Nutritional data foundation → (2) Macro planning UI → (3) AI plan generation → (4) Dietitian mode → (5) Monetization → (6) Social
 
-**Current focus**: Phase D — Dietitian Mode
+**Current focus**: Phase D — D.2 Shareable Meal Plans
 
 ---
 
@@ -16,6 +16,8 @@
 
 | Feature | Version | Notes |
 |---------|---------|-------|
+| Context Architecture Refactoring (P2.0) | v4.0 | FilterContext/MacroContext/MealPlanContext; App.jsx 460→130 LOC; D.2 route stub |
+| Client Profile Management (D.1) | v3.5 | Dietitian role, client CRUD, effectiveMacroProfile switching |
 | AI Macro-Aware Meal Planner (M.4) | v3.0 | Claude API tool-use, candidate fetch + nutrition enrichment |
 | Macro Dashboard (M.3) | v3.0 | Day cards with SVG rings, color-coded status, real-time updates |
 | Macro Profile Setup (M.2) | v3.0 | Goal calculator (Mifflin-St Jeor), Firestore + localStorage sync |
@@ -79,14 +81,8 @@ The existing "roll" button becomes macro-intelligent. Instead of random, it pick
 
 ---
 
-### D.1 — Client Profile Management
-`feature/d.1-client-profiles` | **Effort**: 2–3 weeks | **Depends on**: M.4
-
-**What**:
-- Dietitian account type (role flag in Firestore)
-- Create/edit/delete client profiles: name, macro targets, dietary restrictions, notes
-- Switch between client profiles to plan on their behalf
-- Client profiles listed in a sidebar/dashboard
+### D.1 — Client Profile Management ✅
+`feature/d.1-client-profiles` | Merged to master
 
 ---
 
@@ -103,10 +99,10 @@ The existing "roll" button becomes macro-intelligent. Instead of random, it pick
 
 ## 🚀 Phase 2: Identity & Infrastructure (Existing, Reprioritized)
 
-### P2.0 — Context Architecture Refactoring
-`feature/p2.0-context-refactor` | **Effort**: 1–2 weeks | **Depends on**: M.1
+### P2.0 — Context Architecture Refactoring ✅
+`feature/p2.0-context-refactor` | Merged to master
 
-Move global state from App.jsx (11+ useState) to React Context. Needed before macro dashboard complexity lands. See ARCHITECTURE.md Phase 2.
+FilterContext / MacroContext / MealPlanContext. App.jsx 460→130 LOC. D.2 route stub at `/plan/[shareId]`.
 
 ### P2.1 — PWA
 `feature/p2.1-favorites` | **Effort**: 3–5 days
@@ -189,4 +185,4 @@ Users can create their own recipes and import from URLs. Custom recipes feed the
 
 ---
 
-*Last updated: April 30, 2026 — M.2/M.3/M.4 moved to Recently Completed; D.1 now active*
+*Last updated: April 30, 2026 — P2.0 + D.1 complete; D.2 Shareable Meal Plans now active*
