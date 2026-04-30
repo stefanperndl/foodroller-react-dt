@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { Printer } from 'lucide-react';
 import { getSharedPlan, markMealCompleted } from '../../../utils/shareUtils';
 import { getDatesInRange, mergeIngredients } from '../../../utils/utils';
@@ -30,7 +30,7 @@ function MealImage({ src, alt }) {
 }
 
 export default function SharedPlanPage({ params }) {
-  const { shareId } = params;
+  const { shareId } = use(params);
   const [plan, setPlan]           = useState(null);
   const [loading, setLoading]     = useState(true);
   const [expired, setExpired]     = useState(false);
