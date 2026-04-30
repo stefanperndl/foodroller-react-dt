@@ -86,14 +86,23 @@ The existing "roll" button becomes macro-intelligent. Instead of random, it pick
 
 ---
 
-### D.2 — Shareable Meal Plans
-`feature/d.2-shareable-plans` | **Effort**: 2–3 weeks | **Depends on**: D.1
+### D.2 — Shareable Meal Plans ✅
+`feature/d.2-shareable-plans` | Merged to master
+
+Snapshot-based shareable link (`/plan/abc123`). 30-day TTL. Client sees meals, macros, shopping list. Can mark meals completed. Print/PDF via browser print. Dietitian name shown as header.
+
+---
+
+### D.3 — Share Management UI
+`feature/d.3-share-management` | **Effort**: 3–5 days | **Depends on**: D.2
+
+Dietitian sees a list of all active shared plan links they've created and can revoke/delete individual links.
 
 **What**:
-- Generate a shareable read-only link for any meal plan (`/plan/abc123`)
-- Client opens link → sees their week with meals, macros, shopping list
-- Optional: client can mark meals as completed
-- PDF export of the full plan (dietitian branding)
+- Firestore query: `sharedPlans` where `ownerId == uid` (requires adding `ownerId` field in D.2 — already included)
+- UI: list of shares with title, date range, created date, expiry status
+- Delete button per share → removes from Firestore
+- Accessible via Dietitian mode menu or client manager
 
 ---
 

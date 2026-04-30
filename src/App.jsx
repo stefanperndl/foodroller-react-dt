@@ -15,6 +15,7 @@ import PlannerModal from "./components/PlannerModal";
 import SlotManagerModal from "./components/SlotManagerModal";
 import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun } from "lucide-react";
 import ClientManagerModal from "./components/ClientManagerModal";
+import SharePlanModal from "./components/SharePlanModal";
 import { useMacroContext } from "./context/MacroContext";
 import { useMealPlanContext } from "./context/MealPlanContext";
 
@@ -43,6 +44,7 @@ function App() {
   const [showSlotManager, setShowSlotManager]   = useState(false);
   const [showCart, setShowCart]                 = useState(false);
   const [showClientManager, setShowClientManager] = useState(false);
+  const [showShareModal, setShowShareModal]     = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -181,6 +183,13 @@ function App() {
             >
               Slots
             </button>
+            <button
+              className="btn btn--share"
+              onClick={() => setShowShareModal(true)}
+              title="Share this meal plan"
+            >
+              Share
+            </button>
             {effectiveMacroProfile ? (
               <button
                 className="btn btn-plan-week"
@@ -235,6 +244,14 @@ function App() {
       {showSlotManager && <SlotManagerModal onClose={() => setShowSlotManager(false)} />}
 
       {showClientManager && <ClientManagerModal onClose={() => setShowClientManager(false)} />}
+
+      {showShareModal && (
+        <SharePlanModal
+          startDate={startDate}
+          endDate={endDate}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 }
