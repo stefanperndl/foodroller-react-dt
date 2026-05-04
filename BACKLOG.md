@@ -67,8 +67,8 @@ Magic Moment #4 from VISION.md: *"It adjusted when I swapped a meal."* Currently
 
 ---
 
-### S.1 — Custom Recipe Creation & Import ⭐ (Promoted from Phase 3)
-`feature/s.1-custom-recipes` | **Effort**: 2–3 weeks | **Depends on**: M.1, User Accounts
+### ✅ S.1 — Custom Recipe Creation & Import ⭐ (Promoted from Phase 3)
+`feature/s.1-custom-recipes` | **Done**: 2026-05-04 | **Depends on**: M.1, User Accounts
 
 TheMealDB is public demo data with no personal relevance. Custom recipes are the foundation of a personal, sticky product. Promoted to near-term from Phase 3.
 
@@ -123,6 +123,8 @@ User uploads or drags a photo of a dish into the create recipe form. Claude Visi
 - Ingredient suggestions shown with confirm step before overwriting existing fields
 - Graceful fallback (no error) if Claude unavailable
 - Works with both uploaded files (Vercel Blob URL) and pasted image URLs
+
+> **⚠️ Discussion needed before pickup**: AI approach is undecided. Topics to align on: (1) use AI at all vs. simpler heuristics? (2) which model — Claude vision, GPT-4o, Gemini? (3) cost per request and whether to gate behind premium. Do not start implementation without this conversation.
 
 ---
 
@@ -228,4 +230,4 @@ Heart icon on cards, cloud-synced to Firestore. Favorites are the primary person
 
 ---
 
-*Last updated: May 4, 2026 — S.2 image detection added to post-alpha backlog*
+*Last updated: May 4, 2026 — R.1 stock corpus seeded (200 chefkoch recipes); S.1 complete; S.2 image detection in backlog*

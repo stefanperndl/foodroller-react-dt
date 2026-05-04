@@ -1,16 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { RecipeCard } from './RecipeCard';
 import { fetchMealsByCategory } from '../api/recipes';
 import { validateMealAgainstRestrictions } from '../utils/dietaryRestrictions';
 import RecipeDetailModal from './RecipeDetailModal';
 import { useFilterContext } from '../context/FilterContext';
+import { useMacroContext } from '../context/MacroContext';
 
-export default function RecipeBrowser({ onAddToDate }) {
+export default function RecipeBrowser({ onAddToDate, onFork }) {
   const { categories, selectedCategories, selectedRestrictions } = useFilterContext();
-  const [meals, setMeals] = useState([]);
+  const { stockRecipes } = useMacroContext();
+  const [mealdb, setMealdb] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedMeal, setSelectedMeal] = useState(null);
+
+  const filteredStock = useMemo(() => {
+    if (!stockRecipes?.length) return [];
+    return stockRecipes.filter((r) => {
+      if (selectedCategories.length && !selectedCategories.includes(r.category)) return false;
+      if (selectedRestrictions.length && !validateMealAgainstRestrictions(
+        { category: r.category, ingredients: r.ingredients ?? [] },
+        selectedRestrictions
+      )) return false;
+      return true;
+    });
+  }, [stockRecipes, selectedCategories, selectedRestrictions]);
+
+  const meals = useMemo(() => [...filteredStock, ...mealdb], [filteredStock, mealdb]);
 
   useEffect(() => {
     async function loadMeals() {
@@ -36,7 +52,7 @@ export default function RecipeBrowser({ onAddToDate }) {
           );
         }
 
-        setMeals(allMeals);
+        setMealdb(allMeals);
       } catch (err) {
         console.error('Error loading meals:', err);
         setError('Failed to load recipes. Please try again.');
@@ -94,6 +110,7 @@ export default function RecipeBrowser({ onAddToDate }) {
             setSelectedMeal(null);
             onAddToDate(recipe);
           }}
+          onFork={onFork ? (recipe) => { setSelectedMeal(null); onFork(recipe); } : null}
         />
       )}
     </div>

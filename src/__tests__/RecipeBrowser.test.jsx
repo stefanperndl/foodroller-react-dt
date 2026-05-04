@@ -17,6 +17,9 @@ jest.mock('../components/RecipeDetailModal', () => ({ meal, onClose, onAddToDate
 jest.mock('../context/FilterContext', () => ({
   useFilterContext: jest.fn(),
 }));
+jest.mock('../context/MacroContext', () => ({
+  useMacroContext: () => ({ stockRecipes: [] }),
+}));
 
 const meals = [
   { id: '1', name: 'Beef Stew', image: 'beef.jpg', category: 'Beef' },

@@ -15,6 +15,7 @@ export function RecipeCard({ Food, onClick }) {
       <div className="recipe-card__img">
         <img src={Food.image} alt={Food.name} loading="lazy" />
         {Food.category && <span className="recipe-card__cat">{Food.category}</span>}
+        {Food.isStock && <span className="recipe-card__badge">Curated</span>}
       </div>
       <div className="recipe-card__body">
         <div className="recipe-card__name">{Food.name}</div>

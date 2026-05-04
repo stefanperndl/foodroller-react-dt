@@ -15,7 +15,7 @@ export const MealPlanContext = createContext(null);
 export function MealPlanProvider({ children }) {
   const { user } = useAuth();
   const { selectedCategories, selectedRestrictions } = useFilterContext();
-  const { effectiveMacroProfile } = useMacroContext();
+  const { effectiveMacroProfile, allRecipes } = useMacroContext();
 
   const [mealplan, setMealplan] = useMealplan(user);
   const [slots, setSlots] = useMealSlots(user);
@@ -106,6 +106,7 @@ export function MealPlanProvider({ children }) {
         macroProfile: effectiveMacroProfile,
         selectedRestrictions: restr,
         selectedCategories: cats,
+        customRecipes: allRecipes,
       });
       const fullMeal = meal.ingredients ? meal : await fetchMealById(meal.id);
       setMealplan((prev) => ({
@@ -121,7 +122,7 @@ export function MealPlanProvider({ children }) {
     } finally {
       setRerollingKey(null);
     }
-  }, [mealplan, slotFilters, selectedCategories, selectedRestrictions, effectiveMacroProfile, setMealplan]);
+  }, [mealplan, slotFilters, selectedCategories, selectedRestrictions, effectiveMacroProfile, allRecipes, setMealplan]);
 
   const handleSlotFilterChange = useCallback((slotId, filters) => {
     setSlotFilters((prev) => ({ ...prev, [slotId]: filters }));

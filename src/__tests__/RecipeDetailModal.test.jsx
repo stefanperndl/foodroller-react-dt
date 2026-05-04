@@ -4,6 +4,7 @@ import { fetchMealById } from '../api/recipes';
 
 jest.mock('../api/recipes', () => ({ fetchMealById: jest.fn() }));
 jest.mock('../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
+jest.mock('../context/AuthContext', () => ({ useAuth: jest.fn(() => ({ user: null })) }));
 
 const fullMeal = {
   id: '1',

@@ -4,8 +4,10 @@ import { fetchMealById } from '../api/recipes';
 import { getMatchingDietaryRestrictions } from '../utils/dietaryRestrictions';
 import { useNutrition } from '../hooks/useNutrition';
 import { DEFAULT_SERVINGS } from '../api/nutrition';
+import { useAuth } from '../context/AuthContext';
 
-export default function RecipeDetailModal({ meal, onClose, onAddToDate }) {
+export default function RecipeDetailModal({ meal, onClose, onAddToDate, onFork }) {
+  const { user } = useAuth();
   const [fullRecipe, setFullRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -109,6 +111,11 @@ export default function RecipeDetailModal({ meal, onClose, onAddToDate }) {
                 {onAddToDate && (
                   <button className="btn btn--primary" style={{ width: '100%', marginTop: 16 }} onClick={() => onAddToDate(fullRecipe)}>
                     Add to plan
+                  </button>
+                )}
+                {onFork && user && (
+                  <button className="btn btn--outline" style={{ width: '100%', marginTop: 8 }} onClick={() => onFork(fullRecipe)}>
+                    Fork to My Recipes
                   </button>
                 )}
               </div>
