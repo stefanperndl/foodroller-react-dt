@@ -102,7 +102,7 @@ function SlotFilterPopover({ slotId, filters, categories, onChange, onClose, rec
   );
 }
 
-function SlotCard({ slot, meal, isRerolling, date, onReroll, onRemove, onRemoveSlot, onDetail, categories, slotFilter, onSlotFilterChange, nutritionMap, macroProfile, dayMeals }) {
+function SlotCard({ slot, meal, isRerolling, date, onReroll, onRemove, onRemoveSlot, onDetail, categories, slotFilter, onSlotFilterChange, nutritionMap, macroProfile, dayMeals, swapDelta }) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [filterRect, setFilterRect] = useState(null);
   const filters = slotFilter || { restrictions: [], categories: [] };
@@ -172,6 +172,12 @@ function SlotCard({ slot, meal, isRerolling, date, onReroll, onRemove, onRemoveS
                     </span>
                     {fitPct !== null && (
                       <span className="plan-slot-fit">▸ fills {fitPct}% of remaining protein</span>
+                    )}
+                    {swapDelta?.date === date && swapDelta?.slotId === slot.id && swapDelta.delta && (
+                      <span className="swap-delta">
+                        {swapDelta.delta.kcal >= 0 ? '+' : ''}{swapDelta.delta.kcal} kcal
+                        &ensp;{swapDelta.delta.protein >= 0 ? '+' : ''}{swapDelta.delta.protein}g P
+                      </span>
                     )}
                   </>
                 );
@@ -266,6 +272,7 @@ export function FoodList({ startDate, endDate }) {
     mealplan, slots,
     getDaySlots, rerollingKey,
     slotFilters, nutritionMap,
+    swapDelta,
     handleReroll, handleRemoveMeal,
     handleAddSlotToDay, handleRemoveSlotFromDay,
     handleSlotFilterChange,
@@ -313,6 +320,7 @@ export function FoodList({ startDate, endDate }) {
                       nutritionMap={nutritionMap}
                       macroProfile={effectiveMacroProfile}
                       dayMeals={dayMeals}
+                      swapDelta={swapDelta}
                     />
                   );
                 })}

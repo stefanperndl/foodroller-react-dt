@@ -7,8 +7,8 @@ import { useMealplan } from '../hooks/useMealplan';
 import { useMealSlots } from '../hooks/useMealSlots';
 import { useDaySlotOverrides } from '../hooks/useDaySlotOverrides';
 import { getNutrition, getNutritionFromCache } from '../api/nutrition';
-import { macroAwareRoll } from '../api/macroRoll';
-import { fetchRecipeByCategories, fetchMealById } from '../api/recipes';
+import { swapMeal } from '../api/planner';
+import { fetchMealById } from '../api/recipes';
 
 export const MealPlanContext = createContext(null);
 
@@ -23,6 +23,7 @@ export function MealPlanProvider({ children }) {
   const [slotFilters, setSlotFilters] = useState({});
   const [nutritionMap, setNutritionMap] = useState({});
   const [rerollingKey, setRerollingKey] = useState(null);
+  const [swapDelta, setSwapDelta] = useState(null);
 
   useEffect(() => {
     const meals = [];
@@ -95,31 +96,32 @@ export function MealPlanProvider({ children }) {
   const handleReroll = useCallback(async (date, slotId) => {
     const key = `${date}-${slotId}`;
     const sf = slotFilters[slotId];
-    const cats = sf?.categories?.length ? sf.categories : selectedCategories;
+    const cats  = sf?.categories?.length  ? sf.categories  : selectedCategories;
     const restr = sf?.restrictions?.length ? sf.restrictions : selectedRestrictions;
     setRerollingKey(key);
     try {
-      let fullRecipe = null;
-      if (effectiveMacroProfile) {
-        fullRecipe = await macroAwareRoll({
-          date, slotId,
-          mealplan, nutritionMap, macroProfile: effectiveMacroProfile,
-          categories: cats,
-          restrictions: restr,
-        });
-      }
-      if (!fullRecipe) {
-        const recipe = await fetchRecipeByCategories(cats, restr);
-        fullRecipe = recipe.ingredients ? recipe : await fetchMealById(recipe.id);
-      }
+      const { meal, delta } = await swapMeal({
+        date, slotId,
+        currentPlan: mealplan,
+        macroProfile: effectiveMacroProfile,
+        selectedRestrictions: restr,
+        selectedCategories: cats,
+      });
+      const fullMeal = meal.ingredients ? meal : await fetchMealById(meal.id);
       setMealplan((prev) => ({
         ...prev,
-        [date]: { ...(prev[date] || {}), [slotId]: fullRecipe },
+        [date]: { ...(prev[date] || {}), [slotId]: fullMeal },
       }));
+      if (delta) {
+        setSwapDelta({ date, slotId, delta });
+        setTimeout(() => setSwapDelta(null), 4000);
+      }
+    } catch (err) {
+      console.error('Reroll failed:', err);
     } finally {
       setRerollingKey(null);
     }
-  }, [mealplan, nutritionMap, slotFilters, selectedCategories, selectedRestrictions, effectiveMacroProfile, setMealplan]);
+  }, [mealplan, slotFilters, selectedCategories, selectedRestrictions, effectiveMacroProfile, setMealplan]);
 
   const handleSlotFilterChange = useCallback((slotId, filters) => {
     setSlotFilters((prev) => ({ ...prev, [slotId]: filters }));
@@ -156,6 +158,7 @@ export function MealPlanProvider({ children }) {
       slotFilters,
       nutritionMap,
       rerollingKey,
+      swapDelta,
       getDaySlots,
       cartCount,
       getIngredientsByRecipe,

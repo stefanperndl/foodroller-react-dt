@@ -1721,3 +1721,16 @@ body {
   .onboarding-next-btn,
   .onboarding-skip-btn { width: 100%; text-align: center; }
 }
+
+/* ── SWAP DELTA BADGE ─────────────────────────────────────────── */
+.swap-delta {
+  display: inline-block;
+  font-size: 11px; font-weight: 600;
+  background: var(--accent-l); color: var(--accent-d);
+  border-radius: 99px; padding: 1px 8px;
+  animation: swapFadeOut 4s ease forwards;
+}
+@keyframes swapFadeOut {
+  0%, 60% { opacity: 1; }
+  100%     { opacity: 0; }
+}
