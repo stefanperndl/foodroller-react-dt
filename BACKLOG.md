@@ -67,8 +67,8 @@ Magic Moment #4 from VISION.md: *"It adjusted when I swapped a meal."* Currently
 
 ---
 
-### S.1 — Custom Recipe Creation & Import ⭐ (Promoted from Phase 3)
-`feature/s.1-custom-recipes` | **Effort**: 2–3 weeks | **Depends on**: M.1, User Accounts
+### ✅ S.1 — Custom Recipe Creation & Import ⭐ (Promoted from Phase 3)
+`feature/s.1-custom-recipes` | **Done**: 2026-05-04 | **Depends on**: M.1, User Accounts
 
 TheMealDB is public demo data with no personal relevance. Custom recipes are the foundation of a personal, sticky product. Promoted to near-term from Phase 3.
 
@@ -207,4 +207,4 @@ Heart icon on cards, cloud-synced to Firestore. Favorites are the primary person
 
 ---
 
-*Last updated: April 30, 2026 — Groomed for consumer-first alpha strategy; S.1 promoted, UX.1 + M.6 + D.4 + D.5 added, PM.1 deferred to post-PMF*
+*Last updated: May 4, 2026 — S.1 complete; image URL (no Blob upload yet); Vercel Blob deferred follow-up*
