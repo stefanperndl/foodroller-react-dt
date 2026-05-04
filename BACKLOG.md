@@ -105,6 +105,27 @@ Product is genuinely personal and useful with user-owned recipe data. All magic 
 
 ## 🔜 Post-Alpha: Polish & Personalization
 
+### S.2 — Recipe Image Detection *(New)*
+`feature/s.2-image-detection` | **Effort**: ~1 week | **Depends on**: S.1
+
+User uploads or drags a photo of a dish into the create recipe form. Claude Vision analyzes the image and pre-fills name, category, and ingredient suggestions. Dramatically reduces friction for meals the user already cooks.
+
+**What**:
+- Trigger: after image is dropped/uploaded in `CustomRecipeModal`, show "Detect recipe?" prompt
+- New `/api/detect-recipe` route: passes image URL to Claude with vision + structured output prompt
+- Claude returns `{ name, category, ingredients[], confidence }` → pre-fills form fields
+- Low-confidence results shown with a "Review suggested fields" banner
+- User can accept, reject, or edit suggestions before saving
+- No auto-detection if user declines or image is clearly non-food
+
+**Acceptance criteria**:
+- Photo of a recognizable dish pre-fills name and category with >80% accuracy on common dishes
+- Ingredient suggestions shown with confirm step before overwriting existing fields
+- Graceful fallback (no error) if Claude unavailable
+- Works with both uploaded files (Vercel Blob URL) and pasted image URLs
+
+---
+
 ### D.3 — Share Management UI
 `feature/d.3-share-management` | **Effort**: 3–5 days | **Depends on**: D.2
 
@@ -207,4 +228,4 @@ Heart icon on cards, cloud-synced to Firestore. Favorites are the primary person
 
 ---
 
-*Last updated: April 30, 2026 — Groomed for consumer-first alpha strategy; S.1 promoted, UX.1 + M.6 + D.4 + D.5 added, PM.1 deferred to post-PMF*
+*Last updated: May 4, 2026 — S.2 image detection added to post-alpha backlog*
