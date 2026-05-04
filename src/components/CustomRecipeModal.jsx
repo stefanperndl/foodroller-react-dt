@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { DIETARY_RESTRICTIONS } from '../utils/dietaryRestrictions';
 import { useMacroContext } from '../context/MacroContext';
 import { useFilterContext } from '../context/FilterContext';
@@ -40,6 +40,36 @@ export default function CustomRecipeModal({ mode, initialData, onClose, onSaved 
 
   const [showCategoryList, setShowCategoryList] = useState(false);
   const categoryRef = useRef(null);
+
+  const [dragOver, setDragOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const fileInputRef = useRef(null);
+
+  const handleImageFile = useCallback(async (file) => {
+    if (!file) return;
+    setUploading(true);
+    setUploadError('');
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.error) { setUploadError(data.error); return; }
+      set('image', data.url);
+    } catch {
+      setUploadError('Upload failed. Try pasting an image URL instead.');
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
+  const handleImageDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageFile(file);
+  }, [handleImageFile]);
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
@@ -206,17 +236,42 @@ export default function CustomRecipeModal({ mode, initialData, onClose, onSaved 
           <div className="crm-left">
             {/* Image */}
             <div className="macro-calc-field">
-              <label htmlFor="crm-image">Image URL</label>
-              {form.image && (
-                <img src={form.image} alt="preview" className="crm-image-preview" />
-              )}
+              <label>Image</label>
+              <div
+                className={`crm-drop-zone${dragOver ? ' crm-drop-zone--active' : ''}${form.image ? ' crm-drop-zone--filled' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleImageDrop}
+                onClick={() => fileInputRef.current?.click()}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+                aria-label="Upload image"
+              >
+                {form.image ? (
+                  <img src={form.image} alt="preview" className="crm-drop-preview" />
+                ) : (
+                  <span className="crm-drop-placeholder">
+                    {uploading ? 'Uploading…' : 'Drop image or click to browse'}
+                  </span>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={(e) => handleImageFile(e.target.files?.[0])}
+                />
+              </div>
+              {uploadError && <p className="crm-import-error">{uploadError}</p>}
               <input
                 id="crm-image"
                 type="url"
                 className="macro-calc-input"
-                placeholder="https://…"
+                placeholder="Or paste image URL"
                 value={form.image}
-                onChange={(e) => set('image', e.target.value)}
+                onChange={(e) => { setUploadError(''); set('image', e.target.value); }}
+                style={{ marginTop: 6 }}
               />
             </div>
 
