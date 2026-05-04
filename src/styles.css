@@ -1705,6 +1705,17 @@ body {
 .onboarding-gen-error { display: flex; flex-direction: column; gap: 12px; padding: 8px 0; }
 .onboarding-gen-error p { color: oklch(55% 0.19 25); font-size: 14px; }
 
+.onboarding-success {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  padding: 32px 0; gap: 8px;
+}
+.onboarding-success-title {
+  font-family: var(--font-head);
+  font-size: 22px; font-weight: 700; color: var(--text);
+}
+.onboarding-success-sub { color: var(--text-muted); font-size: 14px; }
+
 @media (max-width: 480px) {
   .onboarding-footer { flex-direction: column-reverse; align-items: stretch; }
   .onboarding-next-btn,

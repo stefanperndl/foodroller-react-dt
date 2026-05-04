@@ -29,13 +29,15 @@ const RESTRICTIONS = [
   { key: 'pescatarian', label: 'Pescatarian' },
 ];
 
-const TOTAL_STEPS = 5;
+// 4 dots for meaningful steps 1-4; step 0 (auth) is a pre-step
+const DOT_COUNT = 4;
 
 function StepDots({ current }) {
+  const dotIndex = current > 0 ? current - 1 : -1; // -1 = none active on step 0
   return (
     <div className="onboarding-step-dots">
-      {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-        <span key={i} className={`onboarding-step-dot${i === current ? ' active' : ''}`} />
+      {Array.from({ length: DOT_COUNT }).map((_, i) => (
+        <span key={i} className={`onboarding-step-dot${i === dotIndex ? ' active' : ''}`} />
       ))}
     </div>
   );
@@ -68,7 +70,6 @@ export default function OnboardingWizard({ onClose }) {
   // Step 4
   const [genStatus, setGenStatus] = useState('idle');
   const [progress, setProgress] = useState('');
-  const [generatedPlan, setGeneratedPlan] = useState(null);
 
   useEffect(() => {
     if (user && currentStep === 0) setCurrentStep(1);
@@ -145,24 +146,17 @@ export default function OnboardingWizard({ onClose }) {
         slots: DEFAULT_SLOTS,
         onProgress: setProgress,
       });
-      setGeneratedPlan(plan);
-      setGenStatus('done');
-    } catch {
-      setGenStatus('error');
-    }
-  };
-
-  const handleApplyAndFinish = () => {
-    if (generatedPlan) {
       setMealplan((prev) => {
         const next = { ...prev };
-        for (const [date, daySlots] of Object.entries(generatedPlan)) {
+        for (const [date, daySlots] of Object.entries(plan)) {
           next[date] = { ...(next[date] || {}), ...daySlots };
         }
         return next;
       });
+      setGenStatus('done');
+    } catch {
+      setGenStatus('error');
     }
-    onClose({ completedSteps: 5 });
   };
 
   const macrosReady = macros && macros.kcal && macros.protein != null && macros.carbs != null && macros.fat != null;
@@ -351,8 +345,12 @@ export default function OnboardingWizard({ onClose }) {
 
           {currentStep === 4 && (
             <div className="onboarding-step">
-              <h2>Generate your first week</h2>
-              <p className="onboarding-subtitle">Let AI build a meal plan tailored to your goals.</p>
+              {genStatus !== 'done' && (
+                <>
+                  <h2>Generate your first week</h2>
+                  <p className="onboarding-subtitle">Let AI build a meal plan tailored to your goals.</p>
+                </>
+              )}
 
               {genStatus === 'idle' && (
                 <button className="onboarding-next-btn onboarding-generate-btn" onClick={handleGenerate}>
@@ -367,21 +365,10 @@ export default function OnboardingWizard({ onClose }) {
                 </div>
               )}
 
-              {genStatus === 'done' && generatedPlan && (
-                <div className="onboarding-plan-preview">
-                  {Object.entries(generatedPlan).slice(0, 3).map(([date, slots]) => (
-                    <div key={date} className="onboarding-preview-day">
-                      <strong>{date}</strong>
-                      <div className="onboarding-preview-slots">
-                        {Object.entries(slots).map(([slot, meal]) => (
-                          <span key={slot}>{meal.name}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  {Object.keys(generatedPlan).length > 3 && (
-                    <p className="onboarding-preview-more">+{Object.keys(generatedPlan).length - 3} more days</p>
-                  )}
+              {genStatus === 'done' && (
+                <div className="onboarding-success">
+                  <p className="onboarding-success-title">Your first week is ready</p>
+                  <p className="onboarding-success-sub">Meals have been added to your plan.</p>
                 </div>
               )}
 
@@ -401,9 +388,6 @@ export default function OnboardingWizard({ onClose }) {
           )}
           {currentStep === 4 && genStatus === 'idle' && (
             <button className="onboarding-skip-btn" onClick={handleSkip}>Skip — I'll do this later</button>
-          )}
-          {currentStep === 4 && genStatus === 'done' && (
-            <button className="onboarding-skip-btn" onClick={handleGenerate}>Regenerate</button>
           )}
           {(currentStep === 0 || (currentStep === 4 && (genStatus === 'generating' || genStatus === 'error'))) && (
             <span />
@@ -425,8 +409,8 @@ export default function OnboardingWizard({ onClose }) {
             </button>
           )}
           {currentStep === 4 && genStatus === 'done' && (
-            <button className="onboarding-next-btn" onClick={handleApplyAndFinish}>
-              Apply &amp; Finish
+            <button className="onboarding-next-btn" onClick={() => onClose({ completedSteps: 5 })}>
+              Go to my plan →
             </button>
           )}
         </div>
