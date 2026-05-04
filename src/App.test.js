@@ -26,6 +26,7 @@ jest.mock('firebase/firestore', () => ({
 }));
 
 beforeAll(() => {
+  localStorage.setItem('onboarding_v1', JSON.stringify({ dismissed: true }));
   global.fetch = jest.fn(() =>
     Promise.resolve({
       ok: true,

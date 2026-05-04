@@ -24,6 +24,7 @@
 | Macro-Aware Roll (M.5) | v2.5 | Claude-powered slot roll against remaining daily macros |
 | Nutritional Data Layer (M.1) | v2.4 | Edamam integration, Firestore cache, per-recipe macro badges |
 | User Accounts & Auth | v2.3 | Firebase Auth (Google + email), Firestore sync per user, sign-out clears state |
+| Onboarding Wizard (UX.1) | v2.4 | 5-step full-screen wizard (auth→goal→targets→diet→AI week); `onboarding_v1` localStorage + Firestore sync; 256 tests pass |
 | Shareable Meal Plans (D.2) | v2.3 | Snapshot link `/plan/abc123`, 30-day TTL, client view with macros + shopping list |
 | Export Shopping List | v1.3 | Copy, CSV, Print/PDF |
 | Recipe Detail Modal | v1.2 | Full ingredients, instructions, dietary badges |
@@ -38,21 +39,8 @@
 
 ---
 
-### UX.1 — Onboarding Wizard ⭐ HIGHEST PRIORITY
-`feature/ux.1-onboarding` | **Effort**: ~1 week | **Depends on**: M.4, M.2
-
-Without this, every new user must self-navigate to the macro profile setup, enter targets, find the AI planner, and discover rolling on their own. Onboarding is the bridge between sign-up and the North Star metric.
-
-**What**:
-- 4-step guided flow on first login: (1) choose goal (lose weight / maintain / gain), (2) set targets (auto-calculated or manual), (3) dietary restrictions, (4) generate first AI week
-- Skip option at any step; progress saved so users can return
-- Ends with a generated weekly plan — immediate "aha" moment
-- Persistent: once completed, never shown again
-
-**Acceptance criteria**:
-- New user can go from sign-up to first AI-generated week in under 5 minutes
-- Onboarding completion rate measurable in analytics
-- Works on mobile (PWA-ready layout)
+### ~~UX.1 — Onboarding Wizard~~ ✅ DONE
+`feature/ux.1-onboarding` — merged to master
 
 ---
 

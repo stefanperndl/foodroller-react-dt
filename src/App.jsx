@@ -17,12 +17,15 @@ import ClientManagerModal from "./components/ClientManagerModal";
 import SharePlanModal from "./components/SharePlanModal";
 import { useMacroContext } from "./context/MacroContext";
 import { useMealPlanContext } from "./context/MealPlanContext";
+import { useOnboarding } from "./hooks/useOnboarding";
+import OnboardingWizard from "./components/OnboardingWizard";
 
 // Dietitian mode is work-in-progress — hide all UI surfaces until redesigned
 const DIETITIAN_ENABLED = false;
 
 function App() {
   const { user } = useAuth();
+  const { showOnboarding, completeOnboarding } = useOnboarding(user);
   const {
     effectiveMacroProfile,
     isDietitian, claimDietitianRole,
@@ -245,6 +248,8 @@ function App() {
           onClose={() => setShowShareModal(false)}
         />
       )}
+
+      {showOnboarding && <OnboardingWizard onClose={completeOnboarding} />}
     </div>
   );
 }
