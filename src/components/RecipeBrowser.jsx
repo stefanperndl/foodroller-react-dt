@@ -5,7 +5,7 @@ import { validateMealAgainstRestrictions } from '../utils/dietaryRestrictions';
 import RecipeDetailModal from './RecipeDetailModal';
 import { useFilterContext } from '../context/FilterContext';
 
-export default function RecipeBrowser({ onAddToDate }) {
+export default function RecipeBrowser({ onAddToDate, onFork }) {
   const { categories, selectedCategories, selectedRestrictions } = useFilterContext();
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -94,6 +94,7 @@ export default function RecipeBrowser({ onAddToDate }) {
             setSelectedMeal(null);
             onAddToDate(recipe);
           }}
+          onFork={onFork ? (recipe) => { setSelectedMeal(null); onFork(recipe); } : null}
         />
       )}
     </div>

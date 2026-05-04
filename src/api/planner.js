@@ -5,7 +5,7 @@ import { SLOT_CATEGORIES, slotCategoryType, slotTargets } from '../utils/mealSlo
 
 const CLAUDE_ENDPOINT = '/api/claude';
 
-async function fetchCandidates(selectedCategories, selectedRestrictions, slots, datesLength = 1) {
+async function fetchCandidates(selectedCategories, selectedRestrictions, slots, datesLength = 1, customRecipePool = []) {
   const countByType = { breakfast: 0, main: 0, snack: 0 };
   for (const slot of slots) {
     const t = slotCategoryType(slot.id);
@@ -14,6 +14,16 @@ async function fetchCandidates(selectedCategories, selectedRestrictions, slots, 
 
   const seen = new Set();
   const poolByType = { breakfast: [], main: [], snack: [] };
+
+  // Seed pool with custom recipes before fetching from TheMealDB
+  for (const r of customRecipePool) {
+    if (seen.has(r.name)) continue;
+    const type = SLOT_CATEGORIES.breakfast.includes(r.category) ? 'breakfast'
+               : SLOT_CATEGORIES.snack.includes(r.category)     ? 'snack'
+               : 'main';
+    seen.add(r.name);
+    poolByType[type].push({ ...r, _slotType: type, _source: 'custom' });
+  }
 
   for (const [type, needed] of Object.entries(countByType)) {
     if (!needed) continue;
@@ -50,6 +60,19 @@ async function fetchCandidates(selectedCategories, selectedRestrictions, slots, 
 }
 
 async function enrichOne(recipe) {
+  // Custom recipes store nutrition at save time — skip CalorieNinjas call
+  if (recipe._source === 'custom' && recipe.nutrition) {
+    const servings = recipe.servings ?? DEFAULT_SERVINGS;
+    return {
+      ...recipe,
+      nutrition: {
+        kcal:    Math.round(recipe.nutrition.kcal    / servings),
+        protein: Math.round(recipe.nutrition.protein / servings),
+        carbs:   Math.round(recipe.nutrition.carbs   / servings),
+        fat:     Math.round(recipe.nutrition.fat     / servings),
+      },
+    };
+  }
   const cacheKey = recipe.id ?? recipe.name;
   const cached = getNutritionFromCache(cacheKey);
   const nutrition = cached ?? await getNutrition(cacheKey, recipe.ingredients).catch(() => null);
@@ -179,6 +202,7 @@ export async function generateMealPlan({
   selectedRestrictions,
   slots,
   onProgress,
+  customRecipes = [],
 }) {
   const dates = getDatesInRange(new Date(startDate), new Date(endDate))
     .map((d) => d.toISOString().slice(0, 10));
@@ -186,7 +210,7 @@ export async function generateMealPlan({
   const minNeeded = dates.length * slots.length;
 
   onProgress('Fetching recipe candidates…');
-  const { candidates, boundaries } = await fetchCandidates(selectedCategories, selectedRestrictions, slots, dates.length);
+  const { candidates, boundaries } = await fetchCandidates(selectedCategories, selectedRestrictions, slots, dates.length, customRecipes);
 
   if (candidates.length < minNeeded) {
     throw new Error('Not enough recipes available. Try adjusting your category or dietary filters.');
@@ -226,6 +250,7 @@ export async function swapMeal({
   macroProfile,
   selectedRestrictions,
   selectedCategories,
+  customRecipes = [],
 }) {
   const usedIds = new Set(
     Object.values(currentPlan).flatMap((day) =>
@@ -239,7 +264,16 @@ export async function swapMeal({
     type === 'snack'     ? SLOT_CATEGORIES.snack :
     selectedCategories?.length ? selectedCategories : null;
 
+  // Seed candidates with matching custom recipes first
   const candidates = [];
+  for (const r of customRecipes) {
+    if (usedIds.has(r.id)) continue;
+    const rType = SLOT_CATEGORIES.breakfast.includes(r.category) ? 'breakfast'
+                : SLOT_CATEGORIES.snack.includes(r.category)     ? 'snack'
+                : 'main';
+    if (rType === type) candidates.push({ ...r, _source: 'custom' });
+  }
+
   let attempts = 0;
   while (candidates.length < 8 && attempts < 40) {
     attempts++;

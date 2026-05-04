@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 import { useMacroProfile } from '../hooks/useMacroProfile';
 import { useDietitianRole } from '../hooks/useDietitianRole';
 import { useClients } from '../hooks/useClients';
+import { useCustomRecipes } from '../hooks/useCustomRecipes';
 
 export const MacroContext = createContext(null);
 
@@ -12,6 +13,7 @@ export function MacroProvider({ children }) {
   const [macroProfile, setMacroProfile] = useMacroProfile(user);
   const [isDietitian, claimDietitianRole] = useDietitianRole(user);
   const [clients, addClient, updateClient, deleteClient] = useClients(user, isDietitian);
+  const [customRecipes, addRecipe, updateRecipe, deleteRecipe] = useCustomRecipes(user);
   const [activeClient, setActiveClient] = useState(null);
 
   const effectiveMacroProfile = activeClient
@@ -24,6 +26,7 @@ export function MacroProvider({ children }) {
       effectiveMacroProfile,
       isDietitian, claimDietitianRole,
       clients, addClient, updateClient, deleteClient,
+      customRecipes, addRecipe, updateRecipe, deleteRecipe,
       activeClient, setActiveClient,
     }}>
       {children}

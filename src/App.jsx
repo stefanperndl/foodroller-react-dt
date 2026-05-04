@@ -12,9 +12,11 @@ import UserMenu from "./components/UserMenu";
 import MacroProfileModal from "./components/MacroProfileModal";
 import MacroDashboard from "./components/MacroDashboard";
 import PlannerModal from "./components/PlannerModal";
-import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun } from "lucide-react";
+import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun, BookOpen } from "lucide-react";
 import ClientManagerModal from "./components/ClientManagerModal";
 import SharePlanModal from "./components/SharePlanModal";
+import CustomRecipeModal from "./components/CustomRecipeModal";
+import MyRecipesView from "./components/MyRecipesView";
 import { useMacroContext } from "./context/MacroContext";
 import { useMealPlanContext } from "./context/MealPlanContext";
 import { useOnboarding } from "./hooks/useOnboarding";
@@ -49,6 +51,9 @@ function App() {
   const [showCart, setShowCart]                 = useState(false);
   const [showClientManager, setShowClientManager] = useState(false);
   const [showShareModal, setShowShareModal]     = useState(false);
+  const [showRecipeModal, setShowRecipeModal]   = useState(false);
+  const [recipeModalMode, setRecipeModalMode]   = useState('create');
+  const [recipeModalInitial, setRecipeModalInitial] = useState(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -60,6 +65,24 @@ function App() {
 
   const handleAddMealToDate = (meal) => {
     setSelectedMealForDate(meal);
+  };
+
+  const handleOpenCreate = () => {
+    setRecipeModalMode('create');
+    setRecipeModalInitial(null);
+    setShowRecipeModal(true);
+  };
+
+  const handleOpenEdit = (recipe) => {
+    setRecipeModalMode('edit');
+    setRecipeModalInitial(recipe);
+    setShowRecipeModal(true);
+  };
+
+  const handleFork = (recipe) => {
+    setRecipeModalMode('fork');
+    setRecipeModalInitial(recipe);
+    setShowRecipeModal(true);
   };
 
   const confirmAddMealToDate = async (date, slotId, meal) => {
@@ -101,6 +124,12 @@ function App() {
             onClick={() => setActiveView('macros')}
           >
             <BarChart2 size={15} strokeWidth={2} /> Macros
+          </button>
+          <button
+            className={activeView === 'recipes' ? 'active' : ''}
+            onClick={() => setActiveView('recipes')}
+          >
+            <BookOpen size={15} strokeWidth={2} /> My Recipes
           </button>
         </div>
         <div className="navbar__spacer" />
@@ -171,7 +200,16 @@ function App() {
             </>
           )}
           {activeView === 'browse' && (
-            <RecipeBrowser onAddToDate={handleAddMealToDate} />
+            <RecipeBrowser
+              onAddToDate={handleAddMealToDate}
+              onFork={user ? handleFork : null}
+            />
+          )}
+          {activeView === 'recipes' && (
+            <MyRecipesView
+              onOpenCreate={handleOpenCreate}
+              onOpenEdit={handleOpenEdit}
+            />
           )}
           {activeView === 'macros' && (
             <MacroDashboard startDate={startDate} endDate={endDate} />
@@ -250,6 +288,15 @@ function App() {
       )}
 
       {showOnboarding && <OnboardingWizard onClose={completeOnboarding} />}
+
+      {showRecipeModal && (
+        <CustomRecipeModal
+          mode={recipeModalMode}
+          initialData={recipeModalInitial}
+          onClose={() => setShowRecipeModal(false)}
+          onSaved={() => setShowRecipeModal(false)}
+        />
+      )}
     </div>
   );
 }

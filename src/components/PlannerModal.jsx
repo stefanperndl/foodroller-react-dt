@@ -7,7 +7,7 @@ import { useMealPlanContext } from '../context/MealPlanContext';
 
 export default function PlannerModal({ startDate, endDate, onApply, onClose }) {
   const { selectedCategories, selectedRestrictions } = useFilterContext();
-  const { effectiveMacroProfile } = useMacroContext();
+  const { effectiveMacroProfile, customRecipes } = useMacroContext();
   const { slots } = useMealPlanContext();
 
   const sortedSlots = [...slots].sort((a, b) => a.order - b.order);
@@ -29,6 +29,7 @@ export default function PlannerModal({ startDate, endDate, onApply, onClose }) {
         selectedRestrictions,
         slots: sortedSlots,
         onProgress: setProgress,
+        customRecipes,
       });
       setPlan(result);
       setStatus('done');

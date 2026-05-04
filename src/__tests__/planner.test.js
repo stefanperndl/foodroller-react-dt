@@ -316,4 +316,129 @@ describe('swapMeal', () => {
       })
     ).rejects.toThrow('No suitable replacement');
   });
+
+  it('uses custom recipe as swap candidate when slot type matches', async () => {
+    const customDinner = {
+      id: 'custom-1', name: 'My Chili', category: 'Beef',
+      source: 'custom', ingredients: ['500g beef', '2 cans beans'],
+      nutrition: { kcal: 1600, protein: 120, carbs: 80, fat: 40 },
+      servings: 4,
+    };
+    // TheMealDB returns nothing useful
+    recipes.fetchRecipeByCategories.mockRejectedValue(new Error('network'));
+
+    const { meal } = await swapMeal({
+      date: '2026-04-28',
+      slotId: 'dinner',
+      currentPlan: {},
+      macroProfile,
+      selectedRestrictions: [],
+      selectedCategories: [],
+      customRecipes: [customDinner],
+    });
+
+    expect(meal.name).toBe('My Chili');
+  });
+
+  it('does not use custom recipe already in current plan', async () => {
+    const usedCustom = {
+      id: 'custom-1', name: 'Used Chili', category: 'Beef',
+      source: 'custom', ingredients: ['500g beef'],
+      nutrition: { kcal: 1600, protein: 120, carbs: 80, fat: 40 },
+      servings: 4,
+    };
+    const currentPlan = {
+      '2026-04-28': { dinner: { id: 'custom-1', name: 'Used Chili', nutrition: { kcal: 400, protein: 30, carbs: 20, fat: 10 } } },
+    };
+    recipes.fetchRecipeByCategories.mockResolvedValue({
+      id: 'mealdb-1', name: 'Beef Stew', ingredients: ['300g beef'],
+    });
+    nutrition.getNutrition.mockResolvedValue(mockNutrition);
+
+    const { meal } = await swapMeal({
+      date: '2026-04-29',
+      slotId: 'dinner',
+      currentPlan,
+      macroProfile,
+      selectedRestrictions: [],
+      selectedCategories: [],
+      customRecipes: [usedCustom],
+    });
+
+    expect(meal.id).not.toBe('custom-1');
+  });
+});
+
+describe('generateMealPlan with customRecipes', () => {
+  const macroProfile = { kcal: 2000, protein: 150, carbs: 200, fat: 60 };
+
+  it('seeds custom recipes into candidate pool, deduplicated by name', async () => {
+    const customRecipe = {
+      id: 'custom-1', name: 'My Chili', category: 'Beef',
+      source: 'custom', _source: 'custom',
+      ingredients: ['500g beef'],
+      nutrition: { kcal: 1600, protein: 120, carbs: 80, fat: 40 },
+      servings: 4,
+    };
+
+    // Only need to fill breakfast slot from TheMealDB; main pool seeded by custom
+    let callCount = 0;
+    recipes.fetchRecipeByCategories.mockImplementation(() => {
+      callCount++;
+      return Promise.resolve(mockRecipe(`Breakfast${callCount}`, `brk-${callCount}`));
+    });
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [{ type: 'tool_use', input: { assignments: {
+          '2026-04-28': { breakfast: 0, dinner: 1 },
+        }}}],
+      }),
+    });
+
+    await generateMealPlan({
+      startDate: '2026-04-28',
+      endDate: '2026-04-28',
+      macroProfile,
+      selectedCategories: [],
+      selectedRestrictions: [],
+      slots: SLOTS,
+      onProgress: jest.fn(),
+      customRecipes: [customRecipe],
+    });
+
+    // Custom recipe should be in the pool — CalorieNinjas NOT called for it
+    expect(nutrition.getNutrition).not.toHaveBeenCalledWith('custom-1', expect.anything());
+  });
+
+  it('empty customRecipes = [] behaves identically to no customRecipes', async () => {
+    let callCount = 0;
+    recipes.fetchRecipeByCategories.mockImplementation(() => {
+      callCount++;
+      return Promise.resolve(mockRecipe(`Meal${callCount}`, `id-${callCount}`));
+    });
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [{ type: 'tool_use', input: { assignments: {
+          '2026-04-28': { breakfast: 0, dinner: 1 },
+        }}}],
+      }),
+    });
+
+    const plan = await generateMealPlan({
+      startDate: '2026-04-28',
+      endDate: '2026-04-28',
+      macroProfile,
+      selectedCategories: [],
+      selectedRestrictions: [],
+      slots: SLOTS,
+      onProgress: jest.fn(),
+      customRecipes: [],
+    });
+
+    expect(plan['2026-04-28']).toBeDefined();
+  });
 });
