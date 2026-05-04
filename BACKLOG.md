@@ -124,6 +124,8 @@ User uploads or drags a photo of a dish into the create recipe form. Claude Visi
 - Graceful fallback (no error) if Claude unavailable
 - Works with both uploaded files (Vercel Blob URL) and pasted image URLs
 
+> **⚠️ Discussion needed before pickup**: AI approach is undecided. Topics to align on: (1) use AI at all vs. simpler heuristics? (2) which model — Claude vision, GPT-4o, Gemini? (3) cost per request and whether to gate behind premium. Do not start implementation without this conversation.
+
 ---
 
 ### D.3 — Share Management UI
