@@ -7,8 +7,11 @@ export const MIN_KCAL_TOTAL = 100;
 const CACHE_PREFIX = 'nutrition_v1_';
 
 async function fetchFromAPI(ingredients) {
-  const query = ingredients.join(', ');
-  const res = await fetch(`/api/nutrition?query=${encodeURIComponent(query)}`);
+  const res = await fetch('/api/nutrition', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ ingredients }),
+  });
   if (!res.ok) throw new Error(`CalorieNinjas error: ${res.status}`);
   const data = await res.json();
 

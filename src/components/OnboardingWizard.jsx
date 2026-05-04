@@ -45,7 +45,7 @@ function StepDots({ current }) {
 
 export default function OnboardingWizard({ onClose }) {
   const { user, signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
-  const { setMacroProfile, effectiveMacroProfile } = useMacroContext();
+  const { setMacroProfile, effectiveMacroProfile, allRecipes } = useMacroContext();
   const { selectedRestrictions, toggleRestriction } = useFilterContext();
   const { setMealplan } = useMealPlanContext();
 
@@ -145,6 +145,7 @@ export default function OnboardingWizard({ onClose }) {
         selectedRestrictions: restriction ? [restriction] : [],
         slots: DEFAULT_SLOTS,
         onProgress: setProgress,
+        customRecipes: allRecipes,
       });
       setMealplan((prev) => {
         const next = { ...prev };

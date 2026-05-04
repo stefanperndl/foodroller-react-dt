@@ -53,11 +53,20 @@ export async function GET(request) {
     return Response.json({ name: title, image, ingredients: [], instructions: '', confidence: 'low' });
   }
 
-  const instructions = Array.isArray(schema.recipeInstructions)
-    ? schema.recipeInstructions
-        .map((s) => (typeof s === 'string' ? s : s.text ?? ''))
-        .filter(Boolean).join('\n\n')
-    : (schema.recipeInstructions ?? '');
+  // Recursively flatten HowToStep / HowToSection trees into a list of step strings.
+  function collectSteps(node) {
+    if (!node) return [];
+    if (typeof node === 'string') return [node];
+    if (Array.isArray(node)) return node.flatMap(collectSteps);
+    if (node['@type'] === 'HowToSection' || Array.isArray(node.itemListElement)) {
+      return collectSteps(node.itemListElement);
+    }
+    if (node['@type'] === 'HowToStep' || node.text) {
+      return [node.text ?? node.name ?? ''].filter(Boolean);
+    }
+    return [];
+  }
+  const instructions = collectSteps(schema.recipeInstructions).filter(Boolean).join('\n\n');
 
   const image = typeof schema.image === 'string'
     ? schema.image

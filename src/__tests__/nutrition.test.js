@@ -47,6 +47,10 @@ describe('getNutrition', () => {
     expect(result.carbs).toBeCloseTo(40);
     expect(result.fat).toBeCloseTo(10);
     expect(result.fiber).toBeCloseTo(3);
+    expect(fetch).toHaveBeenCalledWith('/api/nutrition', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ ingredients: ['200g chicken', '1 cup rice'] }),
+    }));
   });
 
   it('caches result in localStorage', async () => {
