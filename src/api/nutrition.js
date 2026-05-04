@@ -4,15 +4,11 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 export const DEFAULT_SERVINGS = 4;
 export const MIN_KCAL_TOTAL = 100;
 
-const API_KEY = process.env.NEXT_PUBLIC_CALORIE_NINJAS_API_KEY;
-const BASE_URL = 'https://api.calorieninjas.com/v1/nutrition';
 const CACHE_PREFIX = 'nutrition_v1_';
 
 async function fetchFromAPI(ingredients) {
   const query = ingredients.join(', ');
-  const res = await fetch(`${BASE_URL}?query=${encodeURIComponent(query)}`, {
-    headers: { 'X-Api-Key': API_KEY },
-  });
+  const res = await fetch(`/api/nutrition?query=${encodeURIComponent(query)}`);
   if (!res.ok) throw new Error(`CalorieNinjas error: ${res.status}`);
   const data = await res.json();
 
