@@ -5,14 +5,21 @@ import { db } from '../lib/firebase';
 const KEY = 'onboarding_v1';
 
 export function useOnboarding(user) {
-  const [status, setStatus] = useState(() => {
+  // 'loading' prevents rendering until we've checked localStorage client-side,
+  // avoiding SSR/client hydration mismatch and the onboarding flash.
+  const [status, setStatus] = useState('loading');
+  const prevUidRef = useRef(null);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(KEY);
-      if (stored && JSON.parse(stored).dismissed) return 'dismissed';
+      if (stored && JSON.parse(stored).dismissed) {
+        setStatus('dismissed');
+        return;
+      }
     } catch {}
-    return 'pending';
-  });
-  const prevUidRef = useRef(null);
+    setStatus('pending');
+  }, []);
 
   useEffect(() => {
     if (!user) {
