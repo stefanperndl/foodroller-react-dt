@@ -1455,3 +1455,269 @@ body {
   .shared-slot { border-color: #ccc; }
   .shared-shopping-list { columns: 3; }
 }
+
+/* ── ONBOARDING WIZARD ──────────────────────────────────────────── */
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.onboarding-card {
+  background: var(--bg-card);
+  width: min(520px, 100%);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+}
+
+.onboarding-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px var(--sp);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.onboarding-step-dots { display: flex; gap: 6px; }
+
+.onboarding-step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background var(--transition);
+}
+.onboarding-step-dot.active { background: var(--accent); }
+
+.onboarding-close-btn {
+  background: none; border: none;
+  font-size: 20px; color: var(--text-muted);
+  line-height: 1; padding: 2px 6px;
+  border-radius: 6px;
+  transition: background var(--transition);
+}
+.onboarding-close-btn:hover { background: var(--bg); }
+
+.onboarding-body { flex: 1; overflow-y: auto; padding: var(--sp); }
+
+.onboarding-step h2 {
+  font-family: var(--font-head);
+  font-size: 22px; font-weight: 700;
+  margin-bottom: 6px; color: var(--text);
+}
+
+.onboarding-subtitle {
+  color: var(--text-muted); font-size: 14px; margin-bottom: 20px;
+}
+
+.onboarding-footer {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 14px var(--sp);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0; gap: 8px;
+}
+
+/* Shared button styles */
+.onboarding-next-btn {
+  padding: 9px 20px; border: none;
+  border-radius: var(--radius-sm);
+  background: var(--accent); color: oklch(100% 0 0);
+  font-size: 14px; font-weight: 600;
+  transition: background var(--transition), opacity var(--transition);
+}
+.onboarding-next-btn:hover:not(:disabled) { background: var(--accent-d); }
+.onboarding-next-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.onboarding-skip-btn {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 13px; padding: 6px;
+}
+.onboarding-skip-btn:hover { color: var(--text); }
+
+/* Auth step */
+.onboarding-google-btn {
+  width: 100%; padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text);
+  font-size: 14px; font-weight: 500;
+  margin-bottom: 16px;
+  transition: background var(--transition);
+}
+.onboarding-google-btn:hover { background: var(--bg); }
+
+.onboarding-auth-divider {
+  display: flex; align-items: center;
+  gap: 10px; color: var(--text-muted);
+  font-size: 12px; margin: 12px 0;
+}
+.onboarding-auth-divider::before,
+.onboarding-auth-divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+}
+
+.onboarding-input {
+  width: 100%; padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg); color: var(--text);
+  font-size: 14px; margin-bottom: 8px;
+  font-family: var(--font-body);
+  transition: border-color var(--transition);
+}
+.onboarding-input:focus { outline: none; border-color: var(--accent); }
+
+.onboarding-error { color: oklch(55% 0.19 25); font-size: 13px; margin-bottom: 8px; }
+
+.onboarding-mode-toggle {
+  background: none; border: none;
+  color: var(--accent); font-size: 13px;
+  margin-top: 8px; width: 100%; text-align: center;
+}
+
+.onboarding-guest-btn {
+  background: none; border: none;
+  color: var(--text-muted); font-size: 13px;
+  width: 100%; text-align: center; padding: 6px;
+}
+.onboarding-guest-btn:hover { color: var(--text); }
+
+/* Goal step */
+.onboarding-goal-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.onboarding-goal-btn {
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text);
+  font-size: 14px; font-weight: 500; text-align: left;
+  transition: border-color var(--transition), background var(--transition);
+}
+.onboarding-goal-btn.active,
+.onboarding-goal-btn:hover { border-color: var(--accent); background: var(--accent-l); }
+
+/* Targets step */
+.onboarding-sex-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+
+.onboarding-sex-btn {
+  flex: 1; padding: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text);
+  font-size: 13px; font-weight: 500;
+  transition: border-color var(--transition), background var(--transition);
+}
+.onboarding-sex-btn.active {
+  border-color: var(--accent);
+  background: var(--accent-l); color: var(--accent-d);
+}
+
+.onboarding-bio-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px; margin-bottom: 10px;
+}
+
+.onboarding-bio-fields label,
+.onboarding-activity-label {
+  display: flex; flex-direction: column;
+  gap: 4px; font-size: 12px; font-weight: 500;
+  color: var(--text-muted); margin-bottom: 10px;
+}
+.onboarding-bio-fields label .onboarding-input,
+.onboarding-activity-label .onboarding-input { margin-bottom: 0; }
+
+.onboarding-calc-btn {
+  padding: 9px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: transparent; color: var(--accent);
+  font-size: 13px; font-weight: 500;
+  transition: background var(--transition);
+}
+.onboarding-calc-btn:hover:not(:disabled) { background: var(--accent-l); }
+.onboarding-calc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.onboarding-macros-preview {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-top: 12px; padding: 10px 12px;
+  background: var(--accent-l); border-radius: var(--radius-sm);
+}
+.onboarding-macros-preview span {
+  font-size: 13px; font-weight: 600; color: var(--accent-d);
+}
+
+/* Diet step */
+.onboarding-restriction-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.onboarding-restriction-btn {
+  padding: 10px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card); color: var(--text);
+  font-size: 14px; font-weight: 500; text-align: left;
+  transition: border-color var(--transition), background var(--transition);
+}
+.onboarding-restriction-btn.active,
+.onboarding-restriction-btn:hover { border-color: var(--accent); background: var(--accent-l); }
+
+/* Step 4 generate */
+.onboarding-generate-btn { width: 100%; padding: 12px; margin-top: 8px; }
+
+.onboarding-generating {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 14px; padding: 24px 0;
+}
+.onboarding-progress { color: var(--text-muted); font-size: 13px; }
+
+.onboarding-plan-preview { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+
+.onboarding-preview-day {
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.onboarding-preview-day strong {
+  font-size: 12px; color: var(--text-muted);
+  display: block; margin-bottom: 4px;
+}
+.onboarding-preview-slots { display: flex; flex-wrap: wrap; gap: 6px; }
+.onboarding-preview-slots span {
+  font-size: 13px; background: var(--accent-l);
+  color: var(--accent-d); padding: 2px 8px; border-radius: 99px;
+}
+.onboarding-preview-more {
+  font-size: 12px; color: var(--text-muted); text-align: center;
+}
+
+.onboarding-gen-error { display: flex; flex-direction: column; gap: 12px; padding: 8px 0; }
+.onboarding-gen-error p { color: oklch(55% 0.19 25); font-size: 14px; }
+
+.onboarding-success {
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center;
+  padding: 32px 0; gap: 8px;
+}
+.onboarding-success-title {
+  font-family: var(--font-head);
+  font-size: 22px; font-weight: 700; color: var(--text);
+}
+.onboarding-success-sub { color: var(--text-muted); font-size: 14px; }
+
+@media (max-width: 480px) {
+  .onboarding-footer { flex-direction: column-reverse; align-items: stretch; }
+  .onboarding-next-btn,
+  .onboarding-skip-btn { width: 100%; text-align: center; }
+}
