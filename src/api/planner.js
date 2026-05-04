@@ -24,24 +24,32 @@ async function fetchCandidates(count, selectedCategories, selectedRestrictions) 
   return results;
 }
 
+async function enrichOne(recipe) {
+  const cacheKey = recipe.id ?? recipe.name;
+  const cached = getNutritionFromCache(cacheKey);
+  const nutrition = cached ?? await getNutrition(cacheKey, recipe.ingredients).catch(() => null);
+  if (!nutrition) return null;
+  return {
+    ...recipe,
+    nutrition: {
+      kcal:    Math.round(nutrition.kcal    / DEFAULT_SERVINGS),
+      protein: Math.round(nutrition.protein / DEFAULT_SERVINGS),
+      carbs:   Math.round(nutrition.carbs   / DEFAULT_SERVINGS),
+      fat:     Math.round(nutrition.fat     / DEFAULT_SERVINGS),
+    },
+  };
+}
+
 export async function enrichWithNutrition(candidates) {
-  return Promise.all(
-    candidates.map(async (recipe) => {
-      const cacheKey = recipe.id ?? recipe.name;
-      const cached = getNutritionFromCache(cacheKey);
-      const nutrition = cached ?? await getNutrition(cacheKey, recipe.ingredients).catch(() => null);
-      if (!nutrition) return null;
-      return {
-        ...recipe,
-        nutrition: {
-          kcal:    Math.round(nutrition.kcal    / DEFAULT_SERVINGS),
-          protein: Math.round(nutrition.protein / DEFAULT_SERVINGS),
-          carbs:   Math.round(nutrition.carbs   / DEFAULT_SERVINGS),
-          fat:     Math.round(nutrition.fat     / DEFAULT_SERVINGS),
-        },
-      };
-    })
-  ).then((r) => r.filter(Boolean));
+  const BATCH = 3;
+  const DELAY = 350; // ms between batches — respects CalorieNinjas rate limit
+  const results = [];
+  for (let i = 0; i < candidates.length; i += BATCH) {
+    const batch = await Promise.all(candidates.slice(i, i + BATCH).map(enrichOne));
+    results.push(...batch);
+    if (i + BATCH < candidates.length) await new Promise((r) => setTimeout(r, DELAY));
+  }
+  return results.filter(Boolean);
 }
 
 function buildPrompt(dates, slots, macroProfile, candidates) {
