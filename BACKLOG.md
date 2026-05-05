@@ -168,6 +168,27 @@ Dietitian tier promises "Analytics per client." Simple adherence and macro achie
 
 ---
 
+### MP.1 — Meal Prep Mode *(New)*
+`feature/mp.1-meal-prep` | **Effort**: ~1 week | **Depends on**: M.4, S.1
+
+Users who batch-cook on weekends need more than a meal plan — they need a prep schedule. This feature surfaces prep-friendly groupings and a step-by-step Sunday prep guide from the weekly plan.
+
+**What**:
+- Identify "prep-friendly" steps per recipe (chop, marinate, par-cook, sauce) and surface them in a dedicated Prep tab on the weekly plan
+- Group identical or complementary ingredients across all planned meals into a single batch task (e.g., "chop 400 g onion for Mon + Wed meals")
+- Generate a sequenced prep schedule: what to do first, estimated time per task, what can rest in the fridge vs. freezer
+- Visual checklist: user ticks off tasks as they prep; progress persists in Firestore
+- Badge on meal cards: "Prepped ✓" after all prep tasks for that meal are checked
+
+**Acceptance criteria**:
+- Weekly plan view has a "Prep" tab alongside Day/Week
+- Grouped ingredient tasks cover all planned meals with correct quantities (uses ingredient merging from utils.js)
+- Sequenced schedule respects cooking dependencies (e.g., marinate before cook)
+- Checklist state syncs to Firestore; survives refresh
+- Works for both TheMealDB and custom recipes
+
+---
+
 ### P2.1 — PWA
 `feature/p2.1-pwa` | **Effort**: 3–5 days
 
@@ -232,4 +253,4 @@ Tinder-style Discover view as the new startpage. Swipe right = like → saved to
 
 ---
 
-*Last updated: May 5, 2026 — R.1 + P2.2 complete: Chefkoch corpus, Discover startpage (swipe/like), Favorites (Firestore), Vercel Blob image upload wired; Browser pagination + S.2 image detection still pending*
+*Last updated: May 5, 2026 — added MP.1 Meal Prep Mode to Post-Alpha backlog*
