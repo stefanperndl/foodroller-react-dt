@@ -4,6 +4,9 @@ import '@testing-library/jest-dom';
 import { RecipeCard } from '../RecipeCard';
 
 jest.mock('../../lib/firebase', () => ({ db: null, auth: null, googleProvider: null }));
+jest.mock('../../context/MacroContext', () => ({
+  useMacroContext: () => ({ isFavorite: () => false, addFavorite: jest.fn(), removeFavorite: jest.fn() }),
+}));
 
 describe('RecipeCard', () => {
   const mockRecipe = {

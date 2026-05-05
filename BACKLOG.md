@@ -16,6 +16,8 @@
 
 | Feature | Version | Notes |
 |---------|---------|-------|
+| Discover + Favorites (P2.2) | v4.2 | Tinder-style startpage; swipe right = favorite (Firestore ref); client-side macro-fit ranking; MealDB fallback pool; ❤️ on all cards; Liked tab in My Recipes; click-to-view in My Recipes |
+| Stock Recipe Corpus (R.1) | v4.1 | Chefkoch ingest pipeline; useStockRecipes; MacroContext allRecipes union; Curated badge; German→English nutrition via Haiku |
 | Context Architecture Refactoring (P2.0) | v4.0 | FilterContext/MacroContext/MealPlanContext; App.jsx 460→130 LOC; D.2 route stub |
 | Client Profile Management (D.1) | v3.5 | Dietitian role, client CRUD, effectiveMacroProfile switching |
 | AI Macro-Aware Meal Planner (M.4) | v3.0 | Claude API tool-use, candidate fetch + nutrition enrichment |
@@ -173,10 +175,10 @@ Install to home screen, offline plan viewing. Macro tracking and meal planning h
 
 ---
 
-### P2.2 — Favorite Recipes
-`feature/p2.2-favorites` | **Effort**: 3–4 days
+### ✅ P2.2 — Favorite Recipes + Discover *(combined)*
+`feature/r.1-recipe-corpus` | **Done**: 2026-05-05
 
-Heart icon on cards, cloud-synced to Firestore. Favorites are the primary personalization signal fed to the AI planner ("prefer meals from my favorites").
+Tinder-style Discover view as the new startpage. Swipe right = like → saved to `users/{uid}/favorites` (reference only). Client-side macro-fit ranking (instant, no API call). MealDB fallback pool for unauthenticated/no-stock-uid dev. ❤️ toggle on all RecipeCards. "Liked" tab in My Recipes with click-to-view modal.
 
 ---
 
@@ -230,4 +232,4 @@ Heart icon on cards, cloud-synced to Firestore. Favorites are the primary person
 
 ---
 
-*Last updated: May 4, 2026 — R.1 stock corpus seeded (200 chefkoch recipes); S.1 complete; S.2 image detection in backlog*
+*Last updated: May 5, 2026 — R.1 + P2.2 complete: Chefkoch corpus, Discover startpage (swipe/like), Favorites (Firestore), Vercel Blob image upload wired; Browser pagination + S.2 image detection still pending*

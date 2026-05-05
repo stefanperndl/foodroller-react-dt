@@ -6,6 +6,7 @@ import { useDietitianRole } from '../hooks/useDietitianRole';
 import { useClients } from '../hooks/useClients';
 import { useCustomRecipes } from '../hooks/useCustomRecipes';
 import { useStockRecipes } from '../hooks/useStockRecipes';
+import { useFavorites } from '../hooks/useFavorites';
 
 export const MacroContext = createContext(null);
 
@@ -17,7 +18,8 @@ export function MacroProvider({ children }) {
   const [isDietitian, claimDietitianRole] = useDietitianRole(user);
   const [clients, addClient, updateClient, deleteClient] = useClients(user, isDietitian);
   const [customRecipes, addRecipe, updateRecipe, deleteRecipe] = useCustomRecipes(user);
-  const [stockRecipes] = useStockRecipes(STOCK_UID);
+  const [stockRecipes, stockLoaded] = useStockRecipes(STOCK_UID);
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites(user);
   const [activeClient, setActiveClient] = useState(null);
 
   const allRecipes = useMemo(() => [...customRecipes, ...stockRecipes], [customRecipes, stockRecipes]);
@@ -34,6 +36,8 @@ export function MacroProvider({ children }) {
       clients, addClient, updateClient, deleteClient,
       customRecipes, addRecipe, updateRecipe, deleteRecipe,
       stockRecipes, allRecipes,
+      favorites, addFavorite, removeFavorite, isFavorite,
+      stockLoaded,
       activeClient, setActiveClient,
     }}>
       {children}

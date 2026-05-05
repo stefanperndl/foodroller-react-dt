@@ -4,9 +4,10 @@ import { db } from '../lib/firebase';
 
 export function useStockRecipes(stockUid) {
   const [recipes, setRecipes] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!stockUid || !db) return;
+    if (!stockUid || !db) { setLoaded(true); return; }
     getDocs(collection(db, 'users', stockUid, 'recipes'))
       .then((snap) => setRecipes(snap.docs.map((d) => ({
         id: d.id,
@@ -14,8 +15,9 @@ export function useStockRecipes(stockUid) {
         isStock: true,
         ownerUid: stockUid,
       }))))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, [stockUid]);
 
-  return [recipes];
+  return [recipes, loaded];
 }

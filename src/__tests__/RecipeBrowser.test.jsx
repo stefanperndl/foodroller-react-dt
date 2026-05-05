@@ -18,7 +18,7 @@ jest.mock('../context/FilterContext', () => ({
   useFilterContext: jest.fn(),
 }));
 jest.mock('../context/MacroContext', () => ({
-  useMacroContext: () => ({ stockRecipes: [] }),
+  useMacroContext: () => ({ stockRecipes: [], isFavorite: () => false, addFavorite: jest.fn(), removeFavorite: jest.fn() }),
 }));
 
 const meals = [

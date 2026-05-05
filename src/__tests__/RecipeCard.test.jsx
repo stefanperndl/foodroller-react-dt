@@ -1,6 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { RecipeCard } from '../components/RecipeCard';
 
+jest.mock('../context/MacroContext', () => ({
+  useMacroContext: () => ({ isFavorite: () => false, addFavorite: jest.fn(), removeFavorite: jest.fn() }),
+}));
+
 const meal = { id: 'meal-1', name: 'Chicken Tikka', image: 'chicken.jpg', category: 'Chicken' };
 
 describe('RecipeCard', () => {

@@ -12,7 +12,8 @@ import UserMenu from "./components/UserMenu";
 import MacroProfileModal from "./components/MacroProfileModal";
 import MacroDashboard from "./components/MacroDashboard";
 import PlannerModal from "./components/PlannerModal";
-import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun, BookOpen } from "lucide-react";
+import { CalendarDays, Search, BarChart2, ShoppingBag, Moon, Sun, BookOpen, Sparkles } from "lucide-react";
+import DiscoverView from "./components/DiscoverView";
 import ClientManagerModal from "./components/ClientManagerModal";
 import SharePlanModal from "./components/SharePlanModal";
 import CustomRecipeModal from "./components/CustomRecipeModal";
@@ -43,7 +44,7 @@ function App() {
   const [startDate, setStartDate] = useState(today.toISOString().slice(0, 10));
   const [endDate, setEndDate]     = useState(defaultEnd.toISOString().slice(0, 10));
   const [darkMode, setDarkMode]   = useState(false);
-  const [activeView, setActiveView]               = useState('plan');
+  const [activeView, setActiveView]               = useState('discover');
   const [selectedMealForDate, setSelectedMealForDate] = useState(null);
   const [showAuthModal, setShowAuthModal]       = useState(false);
   const [showMacroModal, setShowMacroModal]     = useState(false);
@@ -107,6 +108,12 @@ function App() {
           FoodRoller
         </div>
         <div className="navbar__tabs">
+          <button
+            className={activeView === 'discover' ? 'active' : ''}
+            onClick={() => setActiveView('discover')}
+          >
+            <Sparkles size={15} strokeWidth={2} /> Discover
+          </button>
           <button
             className={activeView === 'plan' ? 'active' : ''}
             onClick={() => setActiveView('plan')}
@@ -188,6 +195,9 @@ function App() {
         {activeView === 'browse' && <FilterBar />}
 
         <main className="main-content">
+          {activeView === 'discover' && (
+            <DiscoverView onAddToDate={handleAddMealToDate} />
+          )}
           {activeView === 'plan' && (
             <>
               <TimeframePicker
@@ -209,6 +219,8 @@ function App() {
             <MyRecipesView
               onOpenCreate={handleOpenCreate}
               onOpenEdit={handleOpenEdit}
+              onAddToDate={handleAddMealToDate}
+              onFork={user ? handleFork : null}
             />
           )}
           {activeView === 'macros' && (
