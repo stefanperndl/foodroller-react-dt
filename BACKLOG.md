@@ -10,6 +10,9 @@
 
 **Current focus**: Milestone 1 — Consumer Core
 
+> **Active work tracked in GitHub Project**: [Foodroller board](https://github.com/users/zenith0/projects/1)
+> This file holds strategy, history, and parking-lot items. Anything in-flight or near-term is an issue on the board.
+
 ---
 
 ## ✅ Recently Completed
@@ -107,92 +110,16 @@ Product is genuinely personal and useful with user-owned recipe data. All magic 
 
 ## 🔜 Post-Alpha: Polish & Personalization
 
-### S.2 — Recipe Image Detection *(New)*
-`feature/s.2-image-detection` | **Effort**: ~1 week | **Depends on**: S.1
+Active items live on the [GitHub Project board](https://github.com/users/zenith0/projects/1):
 
-User uploads or drags a photo of a dish into the create recipe form. Claude Vision analyzes the image and pre-fills name, category, and ingredient suggestions. Dramatically reduces friction for meals the user already cooks.
-
-**What**:
-- Trigger: after image is dropped/uploaded in `CustomRecipeModal`, show "Detect recipe?" prompt
-- New `/api/detect-recipe` route: passes image URL to Claude with vision + structured output prompt
-- Claude returns `{ name, category, ingredients[], confidence }` → pre-fills form fields
-- Low-confidence results shown with a "Review suggested fields" banner
-- User can accept, reject, or edit suggestions before saving
-- No auto-detection if user declines or image is clearly non-food
-
-**Acceptance criteria**:
-- Photo of a recognizable dish pre-fills name and category with >80% accuracy on common dishes
-- Ingredient suggestions shown with confirm step before overwriting existing fields
-- Graceful fallback (no error) if Claude unavailable
-- Works with both uploaded files (Vercel Blob URL) and pasted image URLs
-
-> **⚠️ Discussion needed before pickup**: AI approach is undecided. Topics to align on: (1) use AI at all vs. simpler heuristics? (2) which model — Claude vision, GPT-4o, Gemini? (3) cost per request and whether to gate behind premium. Do not start implementation without this conversation.
-
----
-
-### D.3 — Share Management UI
-`feature/d.3-share-management` | **Effort**: 3–5 days | **Depends on**: D.2
-
-Dietitian sees a list of all active shared plan links and can revoke/delete them.
-
-**What**:
-- Firestore query: `sharedPlans` where `ownerId == uid`
-- List with title, date range, created date, expiry status
-- Delete button per share → removes from Firestore
-- Accessible via Dietitian mode menu
-
----
-
-### D.4 — White-label PDF Export *(New)*
-`feature/d.4-pdf-export` | **Effort**: ~3 days | **Depends on**: D.2
-
-Dietitian tier promises branded PDF delivery. Browser print (D.2) is not sufficient — clients expect a polished PDF with the dietitian's name/practice.
-
-**What**:
-- PDF template with dietitian name + practice name as header
-- Includes meals, macros per meal, daily totals, shopping list
-- Generated server-side (avoid browser print limitations)
-- Downloadable from the share management UI and the shared plan page
-
----
-
-### D.5 — Client Analytics Dashboard *(New)*
-`feature/d.5-client-analytics` | **Effort**: ~1 week | **Depends on**: D.2, D.3
-
-Dietitian tier promises "Analytics per client." Simple adherence and macro achievement read from existing Firestore data.
-
-**What**:
-- Per-client view: meals marked complete vs planned, macro achievement % per week
-- Week-over-week trend (simple line chart)
-- Accessible from client manager (D.1 UI)
-
----
-
-### MP.1 — Meal Prep Mode *(New)*
-`feature/mp.1-meal-prep` | **Effort**: ~1 week | **Depends on**: M.4, S.1
-
-Users who batch-cook on weekends need more than a meal plan — they need a prep schedule. This feature surfaces prep-friendly groupings and a step-by-step Sunday prep guide from the weekly plan.
-
-**What**:
-- Identify "prep-friendly" steps per recipe (chop, marinate, par-cook, sauce) and surface them in a dedicated Prep tab on the weekly plan
-- Group identical or complementary ingredients across all planned meals into a single batch task (e.g., "chop 400 g onion for Mon + Wed meals")
-- Generate a sequenced prep schedule: what to do first, estimated time per task, what can rest in the fridge vs. freezer
-- Visual checklist: user ticks off tasks as they prep; progress persists in Firestore
-- Badge on meal cards: "Prepped ✓" after all prep tasks for that meal are checked
-
-**Acceptance criteria**:
-- Weekly plan view has a "Prep" tab alongside Day/Week
-- Grouped ingredient tasks cover all planned meals with correct quantities (uses ingredient merging from utils.js)
-- Sequenced schedule respects cooking dependencies (e.g., marinate before cook)
-- Checklist state syncs to Firestore; survives refresh
-- Works for both TheMealDB and custom recipes
-
----
-
-### P2.1 — PWA
-`feature/p2.1-pwa` | **Effort**: 3–5 days
-
-Install to home screen, offline plan viewing. Macro tracking and meal planning happen on the phone — this matters for fitness users.
+| ID | Item | Issue |
+|----|------|-------|
+| S.2 | Recipe Image Detection ⚠️ discussion-needed | [#4](https://github.com/zenith0/foodroller-react/issues/4) |
+| D.3 | Share Management UI | [#5](https://github.com/zenith0/foodroller-react/issues/5) |
+| D.4 | White-label PDF Export | [#6](https://github.com/zenith0/foodroller-react/issues/6) |
+| D.5 | Client Analytics Dashboard | [#7](https://github.com/zenith0/foodroller-react/issues/7) |
+| MP.1 | Meal Prep Mode | [#8](https://github.com/zenith0/foodroller-react/issues/8) |
+| P2.1 | PWA | [#9](https://github.com/zenith0/foodroller-react/issues/9) |
 
 ---
 
@@ -253,4 +180,4 @@ Tinder-style Discover view as the new startpage. Swipe right = like → saved to
 
 ---
 
-*Last updated: May 5, 2026 — added MP.1 Meal Prep Mode to Post-Alpha backlog*
+*Last updated: May 20, 2026 — active near-term items migrated to [GitHub Project](https://github.com/users/zenith0/projects/1)*
