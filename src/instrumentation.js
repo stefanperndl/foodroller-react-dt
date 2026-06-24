@@ -1,5 +1,5 @@
 import { registerOTel } from '@vercel/otel'
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
 
 export function register() {
   registerOTel({
